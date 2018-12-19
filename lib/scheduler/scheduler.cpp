@@ -1,6 +1,6 @@
 #include "scheduler.h"
 
-void Scheduler::set_hourly(std::function<bool(time_t time)> scheduled) {
+void Scheduler::set_hourly(scheduler_callback scheduled) {
   this->scheduled = scheduled;
 }
 

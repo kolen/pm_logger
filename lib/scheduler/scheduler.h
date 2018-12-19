@@ -1,9 +1,11 @@
 #include <functional>
 
+using scheduler_callback = std::function<bool(const time_t)>;
+
 class Scheduler {
  public:
-  void set_hourly(std::function<bool(const time_t)>);
+  void set_hourly(scheduler_callback);
   void tick(const time_t);
  private:
-  std::function<bool(time_t)> scheduled = [](time_t _t) { return true; };
+  scheduler_callback scheduled = [](time_t _t) { return true; };
 };
