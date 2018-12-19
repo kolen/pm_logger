@@ -16,6 +16,39 @@ SdsDustSensor sds(rxPin, txPin);
 LiquidCrystal_PCF8574 lcd(lcdI2CAddress);
 DHT dht(dhtPin, DHT22);
 
+byte customChar2_5[] = {
+  0x00,
+  0x1B,
+  0x0A,
+  0x1B,
+  0x11,
+  0x1B,
+  0x00,
+  0x04
+};
+
+byte customChar10[] = {
+  0x00,
+  0x17,
+  0x15,
+  0x15,
+  0x15,
+  0x17,
+  0x00,
+  0x00
+};
+
+byte customCharConnection[] = {
+  0x00,
+  0x0E,
+  0x11,
+  0x04,
+  0x0A,
+  0x00,
+  0x04,
+  0x00
+};
+
 void setup() {
   Serial.begin(9600);
   dht.begin();
@@ -39,6 +72,10 @@ void setup() {
   lcd.clear();
 
   lcd.home();
+
+  lcd.createChar(0, customChar2_5);
+  lcd.createChar(1, customChar10);
+  lcd.createChar(2, customCharConnection);
 
   Serial.println(sds.queryFirmwareVersion().toString()); // prints firmware version
   Serial.println(sds.setActiveReportingMode().toString()); // ensures sensor is in 'active' reporting mode
@@ -85,8 +122,10 @@ void loop() {
     Serial.println(pm.pm10);
 
     lcd.setCursor(0, 0);
+    lcd.write("\0", 1);
     lcd.printf("%6.2f", pm.pm25);
     lcd.setCursor(0, 1);
+    lcd.write("\1", 1);
     lcd.printf("%6.2f", pm.pm10);
   } else {
     Serial.print("Could not read values from sensor, reason: ");
