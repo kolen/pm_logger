@@ -3,6 +3,8 @@
 #include <SdsDustSensor.h>
 #include <DHT.h>
 #include <LiquidCrystal_PCF8574.h>
+#include <ESP8266WiFi.h>
+#include "credentials.h"
 
 int sdaPin = D1;
 int sclPin = D2;
@@ -49,11 +51,19 @@ byte customCharConnection[] = {
   0x00
 };
 
+WiFiClient client;
+
 void setup() {
   Serial.begin(9600);
   dht.begin();
   sds.begin();
 
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  // TODO: don't wait for it here
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
 
   Wire.begin(sdaPin, sclPin);
 
@@ -81,6 +91,35 @@ void setup() {
   Serial.println(sds.setActiveReportingMode().toString()); // ensures sensor is in 'active' reporting mode
   Serial.println(sds.setContinuousWorkingPeriod().toString()); // ensures sensor has continuous working period
   //- default but not recommended
+}
+
+int sent = 0;
+
+void sendData(float pm2_5, float pm10, float temperature, float humidity) {
+  if (sent) return;
+  sent = 1;
+  if (client.connect("api.thingspeak.com", 80)) {
+    // Construct API request body
+    String body = "field1=";
+    body += String(pm2_5);
+    body += "&field2=";
+    body += String(pm10);
+    body += "&field3=";
+    body += String(temperature);
+    body += "&field4=";
+    body += String(humidity);
+
+    client.println("POST /update HTTP/1.1");
+    client.println("Host: api.thingspeak.com");
+    client.println("User-Agent: ESP8266 (nothans)/1.0");
+    client.println("Connection: close");
+    client.println("X-THINGSPEAKAPIKEY: " THINGSPEAK_API_KEY);
+    client.println("Content-Type: application/x-www-form-urlencoded");
+    client.println("Content-Length: " + String(body.length()));
+    client.println("");
+    client.print(body);
+  }
+  client.stop();
 }
 
 void loop() {
@@ -127,6 +166,8 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.write("\1", 1);
     lcd.printf("%6.2f", pm.pm10);
+
+    sendData(pm.pm25, pm.pm10, temperature, humidity);
   } else {
     Serial.print("Could not read values from sensor, reason: ");
     Serial.println(pm.statusToString());
