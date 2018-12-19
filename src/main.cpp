@@ -58,6 +58,12 @@ void loop() {
     return;
   }
 
+  /*   0123456789ABCDEF
+
+    0  *999.12 +40.1'C/
+    1  *999.12  100.0%^
+   */
+
   Serial.print("Humidity: ");
   Serial.print(humidity);
   Serial.print(" %\t");
@@ -66,10 +72,10 @@ void loop() {
   Serial.print(" *C ");
   Serial.println("");
 
-  lcd.setCursor(8, 0);
-  lcd.printf("%3.2f \xdf" "C", temperature);
-  lcd.setCursor(8, 1);
-  lcd.printf("%5.2f%%", humidity);
+  lcd.setCursor(0x8, 0);
+  lcd.printf("%+4.1f\xdf" "C", temperature);
+  lcd.setCursor(0x9, 1);
+  lcd.printf("%5.1f%%", humidity);
 
   PmResult pm = sds.readPm();
   if (pm.isOk()) {
@@ -79,9 +85,9 @@ void loop() {
     Serial.println(pm.pm10);
 
     lcd.setCursor(0, 0);
-    lcd.printf("%4.2f", pm.pm25);
+    lcd.printf("%6.2f", pm.pm25);
     lcd.setCursor(0, 1);
-    lcd.printf("%4.2f", pm.pm10);
+    lcd.printf("%6.2f", pm.pm10);
   } else {
     Serial.print("Could not read values from sensor, reason: ");
     Serial.println(pm.statusToString());
