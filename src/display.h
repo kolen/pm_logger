@@ -1,11 +1,13 @@
 #include "data_store.h"
 
-class Display {
- public:
- Display(DataStore& data): data(data) {};
-  void start();
-  void update();
+namespace pm_sensor {
+  class Display {
+  public:
+  Display(DataStore& data): data(data) {};
+    void start();
+    void update();
 
- private:
-  DataStore& data;
-};
+  private:
+    DataStore& data;
+  };
+}

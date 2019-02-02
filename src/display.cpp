@@ -39,10 +39,10 @@ static uint8_t customCharConnection[] = {
   0x00
 };
 
-static int lcdI2CAddress = 0x3f;
+const int lcdI2CAddress = 0x3f;
 LiquidCrystal_PCF8574 lcd(lcdI2CAddress);
 
-void Display::start() {
+void pm_sensor::Display::start() {
   Wire.beginTransmission(lcdI2CAddress);
   auto lcd_result = Wire.endTransmission();
   Serial.print("Initializing LCD:");
@@ -60,7 +60,7 @@ void Display::start() {
   this->data = data;
 }
 
-void Display::update() {
+void pm_sensor::Display::update() {
   /*   0123456789ABCDEF
 
     0  *999.1  +40.1'C/

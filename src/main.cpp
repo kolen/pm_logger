@@ -20,8 +20,8 @@ int txPin = D6;
 SdsDustSensor sds(rxPin, txPin);
 DHT dht(dhtPin, DHT22);
 
-DataStore data;
-Display display(data);
+pm_sensor::DataStore data;
+pm_sensor::Display display(data);
 pm_sensor::Server server;
 
 void setup() {
@@ -92,8 +92,8 @@ void loop() {
   Serial.print(" *C ");
   Serial.println("");
 
-  data.current_humidity = DataStore::float_to_stored(humidity);
-  data.current_temperature = DataStore::float_to_stored(temperature);
+  data.current_humidity = pm_sensor::DataStore::float_to_stored(humidity);
+  data.current_temperature = pm_sensor::DataStore::float_to_stored(temperature);
 
   PmResult pm = sds.readPm();
   if (pm.isOk()) {
@@ -101,8 +101,8 @@ void loop() {
     Serial.print(pm.pm25);
     Serial.print(", PM10 = ");
     Serial.println(pm.pm10);
-    data.current_pm2_5 = DataStore::float_to_stored(pm.pm25);
-    data.current_pm10 = DataStore::float_to_stored(pm.pm10);
+    data.current_pm2_5 = pm_sensor::DataStore::float_to_stored(pm.pm25);
+    data.current_pm10 = pm_sensor::DataStore::float_to_stored(pm.pm10);
 
     //sendData(pm.pm25, pm.pm10, temperature, humidity);
   } else {
