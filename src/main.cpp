@@ -22,7 +22,7 @@ DHT dht(dhtPin, DHT22);
 
 pm_sensor::DataStore data;
 pm_sensor::Display display(data);
-pm_sensor::Server server;
+pm_sensor::Server server(data);
 
 void setup() {
   Serial.begin(9600);

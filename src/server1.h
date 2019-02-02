@@ -1,5 +1,6 @@
 #pragma once
 
+#include "data_store.h"
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
@@ -9,7 +10,7 @@ namespace pm_sensor {
 
   class Server {
   public:
-    Server() {};
+  Server(DataStore& data) : data(data) {};
     void start();
     void tick();
 
@@ -17,6 +18,7 @@ namespace pm_sensor {
     void handle(int packet_size);
     void respond();
 
+    DataStore& data;
     WiFiUDP udp;
     uint8_t incoming_buffer[INCOMING_BUFFER_SIZE];
   };
