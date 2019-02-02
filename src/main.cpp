@@ -6,7 +6,6 @@
 #include <DHT.h>
 #include <LiquidCrystal_PCF8574.h>
 #include <ESP8266WiFi.h>
-#include "scheduler.h"
 #include "credentials.h"
 
 int sdaPin = D1;
