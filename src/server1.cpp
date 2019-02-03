@@ -52,4 +52,6 @@ void pm_sensor::Server::tick() {
   if (packet_size) {
     handle(packet_size);
   }
+  MDNS.update();
+  yield();
 }
