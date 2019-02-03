@@ -48,10 +48,14 @@ void pm_sensor::Server::respond() {
 }
 
 void pm_sensor::Server::tick() {
-  int packet_size = udp.parsePacket();
-  if (packet_size) {
-    handle(packet_size);
-  }
   MDNS.update();
   yield();
+  int packet_size;
+  do {
+    packet_size = udp.parsePacket();
+    if (packet_size) {
+      handle(packet_size);
+    }
+    yield();
+  } while (packet_size);
 }
