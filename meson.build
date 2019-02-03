@@ -10,6 +10,5 @@ lib = shared_library('pm_sensor',
                      include_directories: include_dirs)
 lib_dep = declare_dependency(link_with: lib, include_directories: include_dirs)
 
-e = executable('test_foo', 'test/test_foo.cpp', dependencies: [gtest_dep, lib_dep])
-
-test('foo test', e)
+test_data_store = executable('test_data_store', 'test/test_data_store.cpp', dependencies: [gtest_dep, lib_dep])
+test('DataStore', test_data_store)
