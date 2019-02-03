@@ -52,8 +52,6 @@ void pm_sensor::Display::start() {
   lcd.createChar(0, customChar2_5);
   lcd.createChar(1, customChar10);
   lcd.createChar(2, customCharConnection);
-
-  this->data = data;
 }
 
 void pm_sensor::Display::update() {
