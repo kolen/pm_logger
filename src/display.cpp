@@ -1,7 +1,6 @@
 #include <cstdint>
 #include <Arduino.h>
 #include <Wire.h>
-#include <LiquidCrystal_PCF8574.h>
 #include "display.h"
 
 #define ONE_DIGIT_AFTER_POINT(x) (x)/10, (x)%10
@@ -39,11 +38,8 @@ static uint8_t customCharConnection[] = {
   0x00
 };
 
-const int lcdI2CAddress = 0x3f;
-LiquidCrystal_PCF8574 lcd(lcdI2CAddress);
-
 void pm_sensor::Display::start() {
-  Wire.beginTransmission(lcdI2CAddress);
+  Wire.beginTransmission(i2c_address);
   auto lcd_result = Wire.endTransmission();
   Serial.print("Initializing LCD:");
   Serial.println(lcd_result);
