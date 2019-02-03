@@ -7,8 +7,11 @@ include_dirs = include_directories('src')
 
 lib = shared_library('pm_sensor',
                      'src/pm_sensor/data_store.cpp',
+                     'src/pm_sensor/data_recorder.cpp',
                      include_directories: include_dirs)
 lib_dep = declare_dependency(link_with: lib, include_directories: include_dirs)
 
 test_data_store = executable('test_data_store', 'test/test_data_store.cpp', dependencies: [gtest_dep, lib_dep])
 test('DataStore', test_data_store)
+test_data_recorder = executable('test_data_recorder', 'test/test_data_recorder.cpp', dependencies: [gtest_dep, lib_dep])
+test('DataRecorder', test_data_recorder)
