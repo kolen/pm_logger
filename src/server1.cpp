@@ -4,6 +4,7 @@
 const unsigned int udp_port = 12000;
 
 void pm_sensor::Server::start() {
+  WiFi.hostname("pm-sensor");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   Serial.println("Network server starting");
