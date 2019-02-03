@@ -25,7 +25,9 @@ void pm_sensor::Server::start() {
 
 void pm_sensor::Server::handle(int packet_size) {
   int len = udp.read(incoming_buffer, INCOMING_BUFFER_SIZE);
-  respond();
+  if (len) {
+    respond();
+  }
 }
 
 void pm_sensor::Server::respond() {
