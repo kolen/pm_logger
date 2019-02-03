@@ -1,5 +1,6 @@
 #include "server1.h"
 #include "credentials.h"
+#include <ESP8266mDNS.h>
 
 const unsigned int udp_port = 12000;
 
@@ -12,6 +13,12 @@ void pm_sensor::Server::start() {
     delay(500);
   }
   Serial.println("Connected to wifi");
+
+  if (!MDNS.begin("pm_sensor")) {
+    Serial.println("Error setting up MDNS responder!");
+  }
+
+  MDNS.addService("pm_sensor", "udp", udp_port);
 
   udp.begin(udp_port);
 }
