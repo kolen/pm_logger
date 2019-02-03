@@ -62,14 +62,14 @@ void pm_sensor::Display::update() {
    */
 
   lcd.setCursor(0x8, 0);
-  lcd.printf("%+4d.%1d\xdf" "C", ONE_DIGIT_AFTER_POINT(data.current_temperature));
+  lcd.printf("%+4d.%1d\xdf" "C", ONE_DIGIT_AFTER_POINT(data.current_temperature_humidity.temperature));
   lcd.setCursor(0x9, 1);
-  lcd.printf("%4d.%1d%%", ONE_DIGIT_AFTER_POINT(data.current_humidity));
+  lcd.printf("%4d.%1d%%", ONE_DIGIT_AFTER_POINT(data.current_temperature_humidity.humidity));
 
   lcd.setCursor(0, 0);
   lcd.write("\0", 1);
-  lcd.printf("%5d.%1d", ONE_DIGIT_AFTER_POINT(data.current_pm2_5));
+  lcd.printf("%5d.%1d", ONE_DIGIT_AFTER_POINT(data.current_pm.pm2_5));
   lcd.setCursor(0, 1);
   lcd.write("\1", 1);
-  lcd.printf("%5d.%1d", ONE_DIGIT_AFTER_POINT(data.current_pm10));
+  lcd.printf("%5d.%1d", ONE_DIGIT_AFTER_POINT(data.current_pm.pm10));
 }
