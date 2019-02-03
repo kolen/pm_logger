@@ -95,7 +95,7 @@ void loop() {
   data.current_humidity = pm_sensor::DataStore::float_to_stored(humidity);
   data.current_temperature = pm_sensor::DataStore::float_to_stored(temperature);
 
-  PmResult pm = sds.readPm();
+  PmResult pm = sds.queryPm();
   if (pm.isOk()) {
     Serial.print("PM2.5 = ");
     Serial.print(pm.pm25);
