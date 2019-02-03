@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <Arduino.h>
 #include <Wire.h>
-#include "display.h"
+#include "pm_sensor/display.h"
 
 #define ONE_DIGIT_AFTER_POINT(x) (x)/10, (x)%10
 
