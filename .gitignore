@@ -2,3 +2,4 @@
 .pioenvs
 .piolibdeps
 /src/credentials.h
+/builddir/
