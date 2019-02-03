@@ -6,10 +6,9 @@
 #include <DHT.h>
 #include <TimeLib.h>
 
-#include "data_store.h"
-#include "display.h"
-// Platformio has weird include paths so it conflicts with 'server.h' from Arduino
-#include "server1.h"
+#include "pm_sensor/data_store.h"
+#include "pm_sensor/display.h"
+#include "pm_sensor/server.h"
 
 int sdaPin = D1;
 int sclPin = D2;

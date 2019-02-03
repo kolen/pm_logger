@@ -1,5 +1,5 @@
-#include "server1.h"
-#include "credentials.h"
+#include "pm_sensor/server.h"
+#include "pm_sensor/credentials.h"
 #include <ESP8266mDNS.h>
 
 const unsigned int udp_port = 12000;
