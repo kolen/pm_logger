@@ -2,7 +2,7 @@
 #include "pm_sensor/data_store.h"
 
 TEST(DataStore, FloatToStored) {
-  ASSERT_EQ(172, pm_sensor::DataStore::float_to_stored(17.2));
+  ASSERT_EQ(172, pm_sensor::float_to_stored(17.2));
 }
 
 int main(int argc, char **argv) {

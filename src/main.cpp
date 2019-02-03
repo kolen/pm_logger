@@ -91,8 +91,7 @@ void loop() {
   Serial.print(" *C ");
   Serial.println("");
 
-  data.current_humidity = pm_sensor::DataStore::float_to_stored(humidity);
-  data.current_temperature = pm_sensor::DataStore::float_to_stored(temperature);
+  data.current_temperature_humidity = pm_sensor::TemperatureHumidityMeasurement(temperature, humidity);
 
   PmResult pm = sds.queryPm();
   if (pm.isOk()) {
@@ -100,10 +99,7 @@ void loop() {
     Serial.print(pm.pm25);
     Serial.print(", PM10 = ");
     Serial.println(pm.pm10);
-    data.current_pm2_5 = pm_sensor::DataStore::float_to_stored(pm.pm25);
-    data.current_pm10 = pm_sensor::DataStore::float_to_stored(pm.pm10);
-
-    //sendData(pm.pm25, pm.pm10, temperature, humidity);
+    data.current_pm = pm_sensor::PMMeasurement(pm.pm25, pm.pm10);
   } else {
     Serial.print("Could not read values from sensor, reason: ");
     Serial.println(pm.statusToString());

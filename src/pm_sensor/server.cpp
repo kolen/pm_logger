@@ -33,14 +33,14 @@ void pm_sensor::Server::handle(int packet_size) {
 void pm_sensor::Server::respond() {
   uint8_t buffer[8];
 
-  buffer[0] = (data.current_temperature & 0xff00) >> 8;
-  buffer[1] = data.current_temperature & 0xff;
-  buffer[2] = (data.current_humidity & 0xff00) >> 8;
-  buffer[3] = data.current_humidity & 0xff;
-  buffer[4] = (data.current_pm2_5 & 0xff00) >> 8;
-  buffer[5] = data.current_pm2_5 & 0xff;
-  buffer[6] = (data.current_pm10 & 0xff00) >> 8;
-  buffer[7] = data.current_pm10 & 0xff;
+  buffer[0] = (data.current_temperature_humidity.temperature & 0xff00) >> 8;
+  buffer[1] = data.current_temperature_humidity.temperature & 0xff;
+  buffer[2] = (data.current_temperature_humidity.humidity & 0xff00) >> 8;
+  buffer[3] = data.current_temperature_humidity.humidity & 0xff;
+  buffer[4] = (data.current_pm.pm2_5 & 0xff00) >> 8;
+  buffer[5] = data.current_pm.pm2_5 & 0xff;
+  buffer[6] = (data.current_pm.pm10 & 0xff00) >> 8;
+  buffer[7] = data.current_pm.pm10 & 0xff;
 
   udp.beginPacket(udp.remoteIP(), udp.remotePort());
   udp.write(buffer, 8);
