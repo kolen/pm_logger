@@ -15,3 +15,5 @@ test_data_store = executable('test_data_store', 'test/test_data_store.cpp', depe
 test('DataStore', test_data_store)
 test_data_recorder = executable('test_data_recorder', 'test/test_data_recorder.cpp', dependencies: [gtest_dep, lib_dep])
 test('DataRecorder', test_data_recorder)
+test_scheduler = executable('test_scheduler', 'test/test_scheduler.cpp', dependencies: [gtest_dep, lib_dep])
+test('Scheduler', test_scheduler)
