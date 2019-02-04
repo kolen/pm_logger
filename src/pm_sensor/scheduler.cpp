@@ -1,4 +1,5 @@
-#include "scheduler.h"
+#include "pm_sensor/scheduler.h"
+#include <cstring>
 
 #define SECONDS_IN_HOUR (60*60)
 
