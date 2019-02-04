@@ -1,17 +1,23 @@
 #include <gtest/gtest.h>
 #include "pm_sensor/scheduler.h"
 
-TEST(Scheduler, EmptyConstruction) {
-  pm_sensor::Scheduler scheduler;
+TEST(HourlyScheduler, EmptyConstruction) {
+  pm_sensor::HourlyScheduler scheduler;
   ASSERT_EQ(0, scheduler.hourly_hours_mask);
   scheduler.tick(123);
 }
 
-TEST(Scheduler, SchedulerHourly) {
-  pm_sensor::Scheduler scheduler;
+TEST(MinutelyScheduler, EmptyConstruction) {
+  pm_sensor::MinutelyScheduler scheduler;
+  ASSERT_EQ(0, scheduler.minutely_period);
+  scheduler.tick(123);
+}
+
+TEST(HourlyScheduler, Scheduling) {
+  pm_sensor::HourlyScheduler scheduler;
   scheduler.hourly_hours_mask = 0b010011111111111100000000;
   int num_calls = 0;
-  scheduler.hourly_callback = [&num_calls] (int32_t current_time) {
+  scheduler.callback = [&num_calls] (int32_t current_time) {
     num_calls++;
   };
   // 2019-01-25 01:20:08
@@ -37,11 +43,11 @@ TEST(Scheduler, SchedulerHourly) {
   ASSERT_EQ(2, num_calls);
 }
 
-TEST(Scheduler, SchedulingMinutely) {
-  pm_sensor::Scheduler scheduler;
+TEST(MinutelyScheduler, Scheduling) {
+  pm_sensor::MinutelyScheduler scheduler;
   scheduler.minutely_period = 5;
   int num_calls = 0;
-  scheduler.minutely_callback = [&num_calls] (int32_t current_time) {
+  scheduler.callback = [&num_calls] (int32_t current_time) {
     num_calls++;
   };
   auto time_base = 1514754000;
