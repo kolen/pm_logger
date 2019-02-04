@@ -37,8 +37,7 @@ void pm_sensor::Scheduler::tick(int32_t current_time) {
   int current_hour_number = scheduler_hour_number(current_hour);
 
   if (current_hour > hourly_last_run &&
-      scheduler_should_run_in_hour(current_hour_number, hourly_hours_mask) &&
-      hourly_callback) {
+      scheduler_should_run_in_hour(current_hour_number, hourly_hours_mask)) {
     hourly_last_run = current_hour;
     hourly_callback(current_hour);
   }
@@ -47,8 +46,7 @@ void pm_sensor::Scheduler::tick(int32_t current_time) {
   int current_minute_number = scheduler_minute_number(current_minute);
 
   if (current_minute > minutely_last_run &&
-      scheduler_should_run_in_minute(current_minute_number, minutely_period) &&
-      minutely_callback) {
+      scheduler_should_run_in_minute(current_minute_number, minutely_period)) {
     minutely_last_run = current_minute;
     minutely_callback(current_minute);
   }
