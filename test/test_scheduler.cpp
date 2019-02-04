@@ -3,19 +3,19 @@
 
 TEST(HourlyScheduler, EmptyConstruction) {
   pm_sensor::HourlyScheduler scheduler;
-  ASSERT_EQ(0, scheduler.hourly_hours_mask);
+  ASSERT_EQ(0, scheduler.hours_mask);
   scheduler.tick(123);
 }
 
 TEST(MinutelyScheduler, EmptyConstruction) {
   pm_sensor::MinutelyScheduler scheduler;
-  ASSERT_EQ(0, scheduler.minutely_period);
+  ASSERT_EQ(0, scheduler.period);
   scheduler.tick(123);
 }
 
 TEST(HourlyScheduler, Scheduling) {
   pm_sensor::HourlyScheduler scheduler;
-  scheduler.hourly_hours_mask = 0b010011111111111100000000;
+  scheduler.hours_mask = 0b010011111111111100000000;
   int num_calls = 0;
   scheduler.callback = [&num_calls] (int32_t current_time) {
     num_calls++;
@@ -45,7 +45,7 @@ TEST(HourlyScheduler, Scheduling) {
 
 TEST(MinutelyScheduler, Scheduling) {
   pm_sensor::MinutelyScheduler scheduler;
-  scheduler.minutely_period = 5;
+  scheduler.period = 5;
   int num_calls = 0;
   scheduler.callback = [&num_calls] (int32_t current_time) {
     num_calls++;
