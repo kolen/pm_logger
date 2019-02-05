@@ -1,5 +1,6 @@
 project('pm_sensor', 'cpp', license: 'MIT')
 add_project_arguments('-std=c++11', language: 'cpp')
+#add_project_arguments(['-fsanitize=address', '-fno-omit-frame-pointer'], language: 'cpp')
 gtest = subproject('gtest')
 gtest_dep = dependency('gtest', main: true, fallback: ['gtest', 'gtest_dep'])
 
