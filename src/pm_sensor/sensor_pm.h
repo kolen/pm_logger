@@ -4,6 +4,8 @@
 #include "pm_sensor/data_store.h"
 
 namespace pm_sensor {
+  enum class SensorPMState { idle, warmup, measure, failed_measure };
+
   class SensorPMDevice {
   public:
     virtual ~SensorPMDevice() { };
@@ -22,7 +24,8 @@ namespace pm_sensor {
   private:
     std::function<void(PMMeasurement)> callback;
     SensorPMDevice& device;
-    int state = 0;
+    SensorPMState state = SensorPMState::idle;
     int32_t measure_time = 0;
+    int32_t failed_measure_time = 0;
   };
 }

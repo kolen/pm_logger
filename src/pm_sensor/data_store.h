@@ -25,6 +25,7 @@ namespace pm_sensor {
     pm2_5(float_to_stored(pm2_5)), pm10(float_to_stored(pm10)) { }
     int16_t pm2_5;
     int16_t pm10;
+    operator bool() const { return pm2_5 && pm10; };
   };
 
   class DataStore {
