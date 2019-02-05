@@ -1,0 +1,43 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      # No specific image for C++
+      - image: circleci/rust:1.31.1
+    working_directory: ~/pm_sensor
+    steps:
+      - checkout
+      - run:
+          name: install packages
+          command: sudo apt-get install -y ninja-build python3-pip
+      - restore_cache:
+          name: Restore pip cache
+          keys:
+            - v2-pm_sensor-pip
+      - run:
+          pip3 install --user meson
+      - save_cache:
+          name: Save pip cache
+          key: v2-pm_sensor-pip
+          paths:
+            - ~/.local/lib/python3.5/site-packages/
+            - ~/.cache/pip/
+      - restore_cache:
+          name: Restore meson subprojects cache
+          keys:
+            - v1-pm_sensor-meson-packagecache-{{ checksum "meson.build" }}
+            - v1-pm_sensor-meson-packagecache-
+      - run:
+          command: /home/circleci/.local/bin/meson builddir
+      - save_cache:
+          name: Save meson subprojects cache
+          key: v1-pm_sensor-meson-packagecache-{{ checksum "meson.build" }}
+          paths:
+            - ~/pm_sensor/subprojects/packagecache
+      - run:
+          command: ninja test
+          working_directory: ~/pm_sensor/builddir
+      - store_artifacts:
+          path: /home/circleci/pm_sensor/builddir/meson-logs
+          destination: meson-logs
