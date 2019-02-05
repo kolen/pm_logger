@@ -2,13 +2,14 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include <SdsDustSensor.h>
 #include <DHT.h>
 #include <TimeLib.h>
 
 #include "pm_sensor/data_store.h"
 #include "pm_sensor/display.h"
 #include "pm_sensor/server.h"
+#include "pm_sensor/sensor_pm_sds011.h"
+#include "pm_sensor/sensor_pm.h"
 
 int sdaPin = D1;
 int sclPin = D2;
@@ -16,27 +17,30 @@ int dhtPin = D3;
 int rxPin = D5;
 int txPin = D6;
 
-SdsDustSensor sds(rxPin, txPin);
 DHT dht(dhtPin, DHT22);
 
 pm_sensor::DataStore data;
 pm_sensor::Display display(data);
 pm_sensor::Server server(data);
+pm_sensor::SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin);
+
+void pm_measurement_callback(pm_sensor::PMMeasurement measurement) {
+  Serial.print("PM2.5 = ");
+  Serial.print(measurement.pm2_5);
+  Serial.print(", PM10 = ");
+  Serial.println(measurement.pm10);
+  data.current_pm = measurement;
+}
+
+pm_sensor::SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
+
 
 void setup() {
   Serial.begin(9600);
   dht.begin();
-  sds.begin();
+  sensor_pm.start();
 
   Wire.begin(sdaPin, sclPin);
-
-  if (sds.queryReportingMode().isActive()) {
-    Serial.println("SDS011 in active reporting mode, setting query reporting mode");
-    sds.setQueryReportingMode();
-  }
-
-  Serial.println("SDS011 fimrware version:");
-  Serial.println(sds.queryFirmwareVersion().toString()); // prints firmware version
 
   display.start();
   server.start();
@@ -93,17 +97,7 @@ void loop() {
 
   data.current_temperature_humidity = pm_sensor::TemperatureHumidityMeasurement(temperature, humidity);
 
-  PmResult pm = sds.queryPm();
-  if (pm.isOk()) {
-    Serial.print("PM2.5 = ");
-    Serial.print(pm.pm25);
-    Serial.print(", PM10 = ");
-    Serial.println(pm.pm10);
-    data.current_pm = pm_sensor::PMMeasurement(pm.pm25, pm.pm10);
-  } else {
-    Serial.print("Could not read values from sensor, reason: ");
-    Serial.println(pm.statusToString());
-  }
+  sensor_pm.tick(0); // FIXME: pass time in seconds
 
   display.update();
   server.tick();
