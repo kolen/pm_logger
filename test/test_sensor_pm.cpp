@@ -13,7 +13,7 @@ public:
   MOCK_METHOD0(measure, pm_sensor::PMMeasurement());
 };
 
-TEST(SensorPM, Init) {
+TEST(SensorPM, MeasurementSuccess) {
   InSequence is;
   int32_t time_base = 1000000;
   int callback_times = 0;
@@ -29,13 +29,18 @@ TEST(SensorPM, Init) {
   EXPECT_CALL(device, setSleepMode(false));
   sensor.measure();
 
-  sensor.tick(time_base + 0);
-  EXPECT_CALL(device, measure()).WillOnce(Return(PMMeasurement(123, 456)));
+  EXPECT_CALL(device, measure())
+    .WillOnce(Return(PMMeasurement()))
+    .WillOnce(Return(PMMeasurement(12.3, 45.6)));
   EXPECT_CALL(device, setSleepMode(true));
-  sensor.tick(time_base + 9);
-  sensor.tick(time_base + 10);
-  sensor.tick(time_base + 12);
-  sensor.tick(time_base + 20);
+
+  int i;
+  for(i=0; i<100; i++) {
+    sensor.tick(time_base + i);
+  }
+
+  ASSERT_EQ(123, measurement.pm2_5);
+  ASSERT_EQ(456, measurement.pm10);
 }
 
 int main(int argc, char **argv) {

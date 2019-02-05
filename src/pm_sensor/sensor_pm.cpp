@@ -4,28 +4,48 @@ void pm_sensor::SensorPM::start() {
   device.start();
 }
 
+namespace {
+  const int32_t warmup_time = 10;
+  const int32_t measurement_timeout = 120;
+  const int32_t measurement_retry = 2;
+}
+
 void pm_sensor::SensorPM::tick(int32_t time) {
+  pm_sensor::PMMeasurement result;
   switch(state) {
-  case 0:
-    // Idle: do nothing
+  case SensorPMState::idle:
     break;
-  case 1:
-    // Waiting for warmup
+  case SensorPMState::warmup:
     if (!measure_time) measure_time = time;
-    if (time - measure_time >= 10) {
-      state = 2;
+    if (time - measure_time >= warmup_time) {
+      state = SensorPMState::measure;
     }
     break;
-  case 2:
-    device.measure();
-    device.setSleepMode(true);
-    state = 0;
-    measure_time = 0;
+  case SensorPMState::measure:
+    result = device.measure();
+    if (result) {
+      callback(result);
+      device.setSleepMode(true);
+      state = SensorPMState::idle;
+      measure_time = 0;
+    } else {
+      failed_measure_time = time;
+      state = SensorPMState::failed_measure;
+    }
+    break;
+  case SensorPMState::failed_measure:
+    if (failed_measure_time - measure_time >= measurement_timeout) {
+      device.setSleepMode(true);
+      state = SensorPMState::idle;
+      measure_time = 0;
+    } else if (time - failed_measure_time >= measurement_retry) {
+      state = SensorPMState::measure;
+    }
     break;
   }
 }
 
 void pm_sensor::SensorPM::measure() {
   device.setSleepMode(false);
-  state = 1; // TODO: make enum or something like that
+  state = SensorPMState::warmup;
 }
