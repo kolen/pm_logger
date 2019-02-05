@@ -3,6 +3,7 @@ add_project_arguments('-std=c++11', language: 'cpp')
 #add_project_arguments(['-fsanitize=address', '-fno-omit-frame-pointer'], language: 'cpp')
 gtest = subproject('gtest')
 gtest_dep = dependency('gtest', main: true, fallback: ['gtest', 'gtest_dep'])
+gmock_dep = dependency('gtest', main: true, fallback: ['gtest', 'gmock_dep'])
 
 include_dirs = include_directories('src')
 
@@ -19,5 +20,5 @@ test_data_recorder = executable('test_data_recorder', 'test/test_data_recorder.c
 test('DataRecorder', test_data_recorder)
 test_scheduler = executable('test_scheduler', 'test/test_scheduler.cpp', dependencies: [gtest_dep, lib_dep])
 test('Scheduler', test_scheduler)
-test_sensor_pm = executable('test_sensor_pm', 'test/test_sensor_pm.cpp', dependencies: [gtest_dep, lib_dep])
+test_sensor_pm = executable('test_sensor_pm', 'test/test_sensor_pm.cpp', dependencies: [gtest_dep, lib_dep, gmock_dep])
 test('Scheduler', test_sensor_pm)
