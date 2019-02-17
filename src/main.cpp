@@ -8,6 +8,7 @@
 #include "pm_sensor/data_store.h"
 #include "pm_sensor/display.h"
 #include "pm_sensor/server.h"
+#include "pm_sensor/arduino_network_responder.h"
 #include "pm_sensor/sensor_pm_sds011.h"
 #include "pm_sensor/sensor_pm.h"
 
@@ -21,7 +22,8 @@ DHT dht(dhtPin, DHT22);
 
 pm_sensor::DataStore data;
 pm_sensor::Display display(data);
-pm_sensor::Server server(data);
+pm_sensor::ArduinoNetworkResponder network_responder;
+pm_sensor::Server server(data, network_responder);
 pm_sensor::SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin);
 
 void pm_measurement_callback(pm_sensor::PMMeasurement measurement) {
