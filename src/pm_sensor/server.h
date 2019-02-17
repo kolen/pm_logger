@@ -1,25 +1,25 @@
 #pragma once
 
 #include "pm_sensor/data_store.h"
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
+#include "pm_sensor/network_responder.h"
 
 namespace pm_sensor {
   const int INCOMING_BUFFER_SIZE = 256;
 
   class Server {
   public:
-  Server(DataStore& data) : data(data) {};
+  Server(DataStore& data, NetworkResponder& network_responder) : data(data), network_responder(network_responder)
+    {
+      network_responder.request_handler = [this] (const uint8_t *request_data, int length) {
+	this->respond(request_data, length);
+      };
+      //network_responder.request_handler = std::bind(&Server::respond, this);
+    };
     void start();
     void tick();
-
   private:
-    void handle(int packet_size);
-    void respond();
-
+    void respond(const uint8_t* request, int length);
     DataStore& data;
-    WiFiUDP udp;
-    uint8_t incoming_buffer[INCOMING_BUFFER_SIZE];
+    NetworkResponder& network_responder;
   };
 }
