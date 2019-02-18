@@ -11,6 +11,7 @@ lib = shared_library('pm_sensor',
                      'src/pm_sensor/scheduler.cpp',
                      'src/pm_sensor/data_store.cpp',
                      'src/pm_sensor/sensor_pm.cpp',
+                     'src/pm_sensor/sensor_pm_fake.cpp',
                      include_directories: include_dirs)
 lib_dep = declare_dependency(link_with: lib, include_directories: include_dirs)
 
@@ -22,3 +23,5 @@ test_scheduler = executable('test_scheduler', 'test/test_scheduler.cpp', depende
 test('Scheduler', test_scheduler)
 test_sensor_pm = executable('test_sensor_pm', 'test/test_sensor_pm.cpp', dependencies: [gtest_dep, lib_dep, gmock_dep])
 test('Scheduler', test_sensor_pm)
+
+executable('pm_sensor_fake', 'src/main.cpp', dependencies: lib_dep)
