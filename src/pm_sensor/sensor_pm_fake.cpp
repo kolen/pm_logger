@@ -5,7 +5,7 @@ using pm_sensor::SensorPMDeviceFake;
 using pm_sensor::PMMeasurement;
 
 void SensorPMDeviceFake::start() {
-  std::cout << "PM device start" << std::endl;
+  std::cout << "SDS011 device start" << std::endl;
 }
 
 void SensorPMDeviceFake::setSleepMode(bool sleep) {

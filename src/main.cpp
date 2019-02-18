@@ -145,7 +145,9 @@ void loop() {
 
 #ifndef ARDUINO
 int main(int argc, char *argv[]) {
+  std::cout << "Running setup" << std::endl;
   setup();
+  std::cout << "Running main loop" << std::endl;
   for(;;) {
     loop();
   }
