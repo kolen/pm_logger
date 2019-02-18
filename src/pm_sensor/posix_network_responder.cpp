@@ -34,7 +34,7 @@ void PosixNetworkResponder::tick() {
   int bytes_read = recvfrom(sockfd, recv_data, 256, 0,
 			    (struct sockaddr *)&client_addr, &addr_size);
   if (bytes_read == -1) {
-    if (errno == EAGAIN && errno == EWOULDBLOCK) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return;
     } else {
       perror("Can't read from socket");
