@@ -1,6 +1,8 @@
 #pragma once
 #include "pm_sensor/data_store.h"
-#include <LiquidCrystal_PCF8574.h>
+#ifdef ARDUINO
+ #include <LiquidCrystal_PCF8574.h>
+#endif
 
 namespace pm_sensor {
   class Display {

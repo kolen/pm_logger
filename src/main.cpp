@@ -1,51 +1,77 @@
-#ifndef UNIT_TEST
-
-#include <Arduino.h>
-#include <Wire.h>
-#include <DHT.h>
-#include <TimeLib.h>
+#ifdef ARDUINO
+ #include <Arduino.h>
+ #include <Wire.h>
+ #include <DHT.h>
+ #include <TimeLib.h>
+#endif
 
 #include "pm_sensor/data_store.h"
-#include "pm_sensor/display.h"
 #include "pm_sensor/server.h"
-#include "pm_sensor/arduino_network_responder.h"
-#include "pm_sensor/sensor_pm_sds011.h"
+#ifdef ARDUINO
+ #include "pm_sensor/display.h"
+ #include "pm_sensor/arduino_network_responder.h"
+ #include "pm_sensor/sensor_pm_sds011.h"
+#else
+ #include "pm_sensor/sensor_pm_fake.h"
+#endif
 #include "pm_sensor/sensor_pm.h"
 
+#ifdef ARDUINO
 int sdaPin = D1;
 int sclPin = D2;
 int dhtPin = D3;
 int rxPin = D5;
 int txPin = D6;
+#endif
 
+#ifdef ARDUINO
 DHT dht(dhtPin, DHT22);
+#endif
 
 pm_sensor::DataStore data;
-pm_sensor::Display display(data);
-pm_sensor::ArduinoNetworkResponder network_responder;
+#ifdef ARDUINO
+ pm_sensor::Display display(data);
+ pm_sensor::ArduinoNetworkResponder network_responder;
+#endif
+
+// FIXME: should not be under ifdef, only network_responder should be
+// under ifdef
+#ifdef ARDUINO
 pm_sensor::Server server(data, network_responder);
+#endif
+
+#ifdef ARDUINO
 pm_sensor::SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin);
+#else
+pm_sensor::SensorPMDeviceFake sensor_pm_device;
+#endif
 
 void pm_measurement_callback(pm_sensor::PMMeasurement measurement) {
+  #ifdef ARDUINO
   Serial.print("PM2.5 = ");
   Serial.print(measurement.pm2_5);
   Serial.print(", PM10 = ");
   Serial.println(measurement.pm10);
+  #endif
   data.current_pm = measurement;
 }
 
 pm_sensor::SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
 
-
 void setup() {
+  #ifdef ARDUINO
   Serial.begin(9600);
   dht.begin();
   sensor_pm.start();
 
   Wire.begin(sdaPin, sclPin);
+  #endif
 
+  // FIXME: should not be under ifdef
+  #ifdef ARDUINO
   display.start();
   server.start();
+  #endif
 }
 
 int sent = 0;
@@ -78,6 +104,7 @@ int sent = 0;
 // }
 
 void loop() {
+  #ifdef ARDUINO
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float humidity = dht.readHumidity();
@@ -98,12 +125,29 @@ void loop() {
   Serial.println("");
 
   data.current_temperature_humidity = pm_sensor::TemperatureHumidityMeasurement(temperature, humidity);
+  #else
+  data.current_temperature_humidity = pm_sensor::TemperatureHumidityMeasurement(11.11, 22.22);
+  #endif
 
   sensor_pm.tick(0); // FIXME: pass time in seconds
 
+  // FIXME: should not be under ifdef
+  #ifdef ARDUINO
   display.update();
   server.tick();
+  #endif
+
+  // FIXME: should be no delay at all, or very small one
+  #ifdef ARDUINO
   delay(3000);
+  #endif
 }
 
-#endif // UNIT_TEST
+#ifndef ARDUINO
+int main(int argc, char *argv[]) {
+  setup();
+  for(;;) {
+    loop();
+  }
+}
+#endif
