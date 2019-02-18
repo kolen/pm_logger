@@ -12,6 +12,7 @@
  #include "pm_sensor/arduino_network_responder.h"
  #include "pm_sensor/sensor_pm_sds011.h"
 #else
+ #include "pm_sensor/posix_network_responder.h"
  #include "pm_sensor/sensor_pm_fake.h"
 #endif
 #include "pm_sensor/sensor_pm.h"
@@ -30,15 +31,14 @@ DHT dht(dhtPin, DHT22);
 
 pm_sensor::DataStore data;
 #ifdef ARDUINO
- pm_sensor::Display display(data);
- pm_sensor::ArduinoNetworkResponder network_responder;
+pm_sensor::Display display(data);
+pm_sensor::ArduinoNetworkResponder network_responder;
+#else
+// TODO: display
+pm_sensor::PosixNetworkResponder network_responder;
 #endif
 
-// FIXME: should not be under ifdef, only network_responder should be
-// under ifdef
-#ifdef ARDUINO
 pm_sensor::Server server(data, network_responder);
-#endif
 
 #ifdef ARDUINO
 pm_sensor::SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin);
@@ -73,8 +73,9 @@ void setup() {
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
   display.start();
-  server.start();
   #endif
+
+  server.start();
 }
 
 int sent = 0;
@@ -137,8 +138,9 @@ void loop() {
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
   display.update();
-  server.tick();
   #endif
+
+  server.tick();
 
   // FIXME: should be no delay at all, or very small one
   #ifdef ARDUINO

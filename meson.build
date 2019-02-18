@@ -12,6 +12,8 @@ lib = shared_library('pm_sensor',
                      'src/pm_sensor/data_store.cpp',
                      'src/pm_sensor/sensor_pm.cpp',
                      'src/pm_sensor/sensor_pm_fake.cpp',
+                     'src/pm_sensor/server.cpp',
+                     'src/pm_sensor/posix_network_responder.cpp',
                      include_directories: include_dirs)
 lib_dep = declare_dependency(link_with: lib, include_directories: include_dirs)
 
