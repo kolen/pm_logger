@@ -62,8 +62,11 @@ void setup() {
   #ifdef ARDUINO
   Serial.begin(9600);
   dht.begin();
+  #endif
+
   sensor_pm.start();
 
+  #ifdef ARDUINO
   Wire.begin(sdaPin, sclPin);
   #endif
 
