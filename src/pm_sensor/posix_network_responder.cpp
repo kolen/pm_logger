@@ -1,3 +1,4 @@
+#ifndef ARDUINO
 #include "pm_sensor/posix_network_responder.h"
 #include <fcntl.h>
 #include <iostream>
@@ -53,3 +54,5 @@ void PosixNetworkResponder::sendResponse(const uint8_t* buffer, int length) {
     exit(1);
   }
 }
+
+#endif

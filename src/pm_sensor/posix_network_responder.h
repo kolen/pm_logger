@@ -1,4 +1,5 @@
 #pragma once
+#ifndef ARDUINO
 #include "pm_sensor/network_responder.h"
 
 #include <sys/types.h>
@@ -25,3 +26,5 @@ namespace pm_sensor {
     struct sockaddr_in client_addr;
   };
 }
+
+#endif
