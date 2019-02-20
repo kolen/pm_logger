@@ -1,3 +1,4 @@
+#ifndef ARDUINO
 #include "pm_sensor/sensor_pm_fake.h"
 #include "pm_sensor/data_store.h"
 
@@ -15,3 +16,5 @@ void SensorPMDeviceFake::setSleepMode(bool sleep) {
 PMMeasurement SensorPMDeviceFake::measure() {
   return PMMeasurement { 123, 456 };
 }
+
+#endif
