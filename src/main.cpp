@@ -16,6 +16,7 @@
  #include "pm_sensor/sensor_pm_fake.h"
 #endif
 #include "pm_sensor/sensor_pm.h"
+#include "pm_sensor/logging.h"
 
 using namespace pm_sensor;
 
@@ -50,10 +51,10 @@ SensorPMDeviceFake sensor_pm_device;
 
 void pm_measurement_callback(PMMeasurement measurement) {
   #ifdef ARDUINO
-  Serial.print("PM2.5 = ");
-  Serial.print(measurement.pm2_5);
-  Serial.print(", PM10 = ");
-  Serial.println(measurement.pm10);
+  Logging::print("PM2.5 = ");
+  Logging::print(measurement.pm2_5);
+  Logging::print(", PM10 = ");
+  Logging::println(measurement.pm10);
   #endif
   data.current_pm = measurement;
 }
@@ -118,17 +119,17 @@ void loop() {
   float temperature = dht.readTemperature();
 
   if (isnan(humidity) || isnan(temperature)) {
-    Serial.println("Failed to read from DHT sensor!");
+    Logging::println("Failed to read from DHT sensor!");
     return;
   }
 
-  Serial.print("Humidity: ");
-  Serial.print(humidity);
-  Serial.print(" %\t");
-  Serial.print("Temperature: ");
-  Serial.print(temperature);
-  Serial.print(" *C ");
-  Serial.println("");
+  Logging::print("Humidity: ");
+  Logging::print(humidity);
+  Logging::print(" %\t");
+  Logging::print("Temperature: ");
+  Logging::print(temperature);
+  Logging::print(" *C ");
+  Logging::println("");
 
   data.current_temperature_humidity = TemperatureHumidityMeasurement(temperature, humidity);
   #else

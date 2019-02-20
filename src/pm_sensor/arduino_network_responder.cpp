@@ -5,15 +5,17 @@
 #include <ESP8266mDNS.h>
 
 #include "credentials.h"
+#include "pm_sensor/logging.h"
 
 using pm_sensor::ArduinoNetworkResponder;
+using pm_sensor::Logging;
 
 const unsigned int udp_port = 12000;
 
 // TODO: separate to its own class
 static void mdnsStart() {
   if (!MDNS.begin("pm_sensor")) {
-    Serial.println("Error setting up MDNS responder!");
+    Logging::println("Error setting up MDNS responder!");
   }
 
   MDNS.addService("pm_sensor", "udp", udp_port);
@@ -28,11 +30,11 @@ void ArduinoNetworkResponder::start() {
   WiFi.hostname("pm-sensor");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  Serial.println("Network server starting");
+  Logging::println("Network server starting");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
-  Serial.println("Connected to wifi");
+  Logging::println("Connected to wifi");
 
   mdnsStart();
 

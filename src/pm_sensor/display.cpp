@@ -2,6 +2,9 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include "pm_sensor/display.h"
+#include "pm_sensor/logging.h"
+
+using pm_sensor::Logging;
 
 #define ONE_DIGIT_AFTER_POINT(x) (x)/10, (x)%10
 
@@ -41,8 +44,8 @@ static uint8_t customCharConnection[] = {
 void pm_sensor::Display::start() {
   Wire.beginTransmission(i2c_address);
   auto lcd_result = Wire.endTransmission();
-  Serial.print("Initializing LCD:");
-  Serial.println(lcd_result);
+  Logging::print("Initializing LCD:");
+  Logging::println(lcd_result);
 
   lcd.begin(16,2);
   lcd.setBacklight(0);
