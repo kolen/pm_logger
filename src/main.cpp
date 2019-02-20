@@ -17,6 +17,8 @@
 #endif
 #include "pm_sensor/sensor_pm.h"
 
+using namespace pm_sensor;
+
 #ifdef ARDUINO
 int sdaPin = D1;
 int sclPin = D2;
@@ -29,24 +31,24 @@ int txPin = D6;
 DHT dht(dhtPin, DHT22);
 #endif
 
-pm_sensor::DataStore data;
+DataStore data;
 #ifdef ARDUINO
-pm_sensor::Display display(data);
-pm_sensor::ArduinoNetworkResponder network_responder;
+Display display(data);
+ArduinoNetworkResponder network_responder;
 #else
 // TODO: display
-pm_sensor::PosixNetworkResponder network_responder;
+PosixNetworkResponder network_responder;
 #endif
 
-pm_sensor::Server server(data, network_responder);
+Server server(data, network_responder);
 
 #ifdef ARDUINO
-pm_sensor::SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin);
+SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin);
 #else
-pm_sensor::SensorPMDeviceFake sensor_pm_device;
+SensorPMDeviceFake sensor_pm_device;
 #endif
 
-void pm_measurement_callback(pm_sensor::PMMeasurement measurement) {
+void pm_measurement_callback(PMMeasurement measurement) {
   #ifdef ARDUINO
   Serial.print("PM2.5 = ");
   Serial.print(measurement.pm2_5);
@@ -56,7 +58,7 @@ void pm_measurement_callback(pm_sensor::PMMeasurement measurement) {
   data.current_pm = measurement;
 }
 
-pm_sensor::SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
+SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
 
 void setup() {
   #ifdef ARDUINO
@@ -128,9 +130,9 @@ void loop() {
   Serial.print(" *C ");
   Serial.println("");
 
-  data.current_temperature_humidity = pm_sensor::TemperatureHumidityMeasurement(temperature, humidity);
+  data.current_temperature_humidity = TemperatureHumidityMeasurement(temperature, humidity);
   #else
-  data.current_temperature_humidity = pm_sensor::TemperatureHumidityMeasurement(11.11, 22.22);
+  data.current_temperature_humidity = TemperatureHumidityMeasurement(11.11, 22.22);
   #endif
 
   sensor_pm.tick(0); // FIXME: pass time in seconds
