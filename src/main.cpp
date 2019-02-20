@@ -40,7 +40,7 @@ ArduinoNetworkResponder network_responder;
 PosixNetworkResponder network_responder;
 #endif
 
-Server server(data, network_responder);
+pm_sensor::Server server(data, network_responder);
 
 #ifdef ARDUINO
 SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin);
