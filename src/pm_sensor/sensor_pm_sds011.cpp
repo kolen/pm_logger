@@ -1,6 +1,9 @@
 #include "pm_sensor/sensor_pm_sds011.h"
 
-void pm_sensor::SensorPMDeviceSDS011::start() {
+using pm_sensor::SensorPMDeviceSDS011;
+using pm_sensor::PMMeasurement;
+
+void SensorPMDeviceSDS011::start() {
   sds.begin();
 
   if (sds.queryReportingMode().isActive()) {
@@ -14,7 +17,7 @@ void pm_sensor::SensorPMDeviceSDS011::start() {
   // TODO: report measurement, but in a way that it will not be counted as periodical
 }
 
-void pm_sensor::SensorPMDeviceSDS011::setSleepMode(bool sleep) {
+void SensorPMDeviceSDS011::setSleepMode(bool sleep) {
   if (sleep) {
     sds.sleep();
   } else {
@@ -22,7 +25,7 @@ void pm_sensor::SensorPMDeviceSDS011::setSleepMode(bool sleep) {
   }
 }
 
-pm_sensor::PMMeasurement pm_sensor::SensorPMDeviceSDS011::measure() {
+PMMeasurement SensorPMDeviceSDS011::measure() {
   auto pm = sds.queryPm();
   if (pm.isOk()) {
     return pm_sensor::PMMeasurement(pm.pm25, pm.pm10);
