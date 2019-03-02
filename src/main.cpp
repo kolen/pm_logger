@@ -123,34 +123,6 @@ void setup() {
 
 int sent = 0;
 
-// void sendData(float pm2_5, float pm10, float temperature, float humidity) {
-//   if (sent) return;
-//   sent = 1;
-//   if (client.connect("api.thingspeak.com", 80)) {
-//     // Construct API request body
-//     String body = "field1=";
-//     body += String(pm2_5);
-//     body += "&field2=";
-//     body += String(pm10);
-//     body += "&field3=";
-//     body += String(temperature);
-//     body += "&field4=";
-//     body += String(humidity);
-
-//     client.println("POST /update HTTP/1.1");
-//     client.println("Host: api.thingspeak.com");
-//     client.println("User-Agent: ESP8266 (nothans)/1.0");
-//     client.println("Connection: close");
-//     client.println("X-THINGSPEAKAPIKEY: " THINGSPEAK_API_KEY);
-//     client.println("Content-Type: application/x-www-form-urlencoded");
-//     client.println("Content-Length: " + String(body.length()));
-//     client.println("");
-//     client.print(body);
-//   }
-//   client.stop();
-// }
-
-
 void loop() {
   Time::tick();
   int32_t current_time = Time::now();
@@ -180,6 +152,7 @@ int main(int argc, char *argv[]) {
   std::cout << "Running main loop" << std::endl;
   for(;;) {
     loop();
+    usleep(100000);
   }
 }
 #endif
