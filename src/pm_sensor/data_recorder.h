@@ -7,6 +7,7 @@
 #ifndef ARDUINO
  #include <iostream>
  #include <time.h>
+ #include <typeinfo>
 #endif
 
 namespace pm_sensor {
