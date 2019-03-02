@@ -50,12 +50,10 @@ SensorPMDeviceFake sensor_pm_device;
 #endif
 
 void pm_measurement_callback(PMMeasurement measurement) {
-  #ifdef ARDUINO
   Logging::print("PM2.5 = ");
   Logging::print(measurement.pm2_5);
   Logging::print(", PM10 = ");
   Logging::println(measurement.pm10);
-  #endif
   data.current_pm = measurement;
 }
 
