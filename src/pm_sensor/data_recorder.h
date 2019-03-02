@@ -94,7 +94,7 @@ namespace pm_sensor {
     os << "DataRecorder " << typeid(T).name() << " " << m.last_sample_time << std::endl;
     int i;
     auto time = m.last_sample_time;
-    for(i = 0; i < m.num_samples_capacity && i < m.num_samples_filled; i++) {
+    for(i = 0; i < m.num_samples_filled; i++) {
       time_t time1 = (time_t) time;
       struct tm *time_parts = gmtime(&time1);
       char date_s[32];
