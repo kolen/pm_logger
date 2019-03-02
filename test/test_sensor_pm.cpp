@@ -16,7 +16,6 @@ public:
 TEST(SensorPM, MeasurementSuccess) {
   InSequence is;
   int32_t time_base = 1000000;
-  int callback_times = 0;
   PMMeasurement measurement;
   auto callback = [&measurement] (PMMeasurement _measurement) {
     measurement = _measurement;
