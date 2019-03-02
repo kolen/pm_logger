@@ -82,7 +82,7 @@ namespace pm_sensor {
     size_t cell_index = time_from_last / sampling_period;
 
     if (cell_index >= num_samples_capacity) {
-      return T();
+      return T(); // TODO: mark as "not found"
     } else {
       return data_buffer[cell_index];
     }
