@@ -155,7 +155,7 @@ void loop() {
 
   // FIXME: should be no delay at all, or very small one
   #ifdef ARDUINO
-  delay(3000);
+  delay(10);
   #endif
 }
 
