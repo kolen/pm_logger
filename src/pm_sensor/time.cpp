@@ -1,15 +1,21 @@
 #include "pm_sensor/time.h"
+#include "pm_sensor/logging.h"
 #ifdef ARDUINO
 #else
  #include <time.h>
 #endif
 
 using pm_sensor::Time;
+using pm_sensor::Logging;
 
 #ifdef ARDUINO
 const int NTP_PACKET_SIZE = 48;
 const int NTP_LOCAL_PORT = 8123;
+
+uint8_t packetBuffer[NTP_PACKET_SIZE];
 WiFiUDP Udp;
+
+static const char ntp_server[] PROGMEM = "time.google.com";
 
 static void sendNTPpacket(const char* address)
 {
@@ -33,7 +39,7 @@ static time_t getNtpTime()
 {
   while (Udp.parsePacket() > 0) ; // discard any previously received packets
   Logging::println(F("Transmit NTP Request"));
-  sendNTPpacket(timeServer);
+  sendNTPpacket(ntp_server);
   uint32_t beginWait = millis();
   while (millis() - beginWait < 1500) {
     int size = Udp.parsePacket();
