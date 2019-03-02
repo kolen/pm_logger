@@ -92,7 +92,7 @@ namespace pm_sensor {
   template<typename T>
   std::ostream &operator<<(std::ostream &os, DataRecorder<T> const &m) {
     os << "DataRecorder " << typeid(T).name() << " " << m.last_sample_time << std::endl;
-    int i;
+    size_t i;
     auto time = m.last_sample_time;
     for(i = 0; i < m.num_samples_filled; i++) {
       time_t time1 = (time_t) time;
