@@ -54,12 +54,10 @@ SensorPMDeviceFake sensor_pm_device;
 HourlyScheduler hourly_scheduler;
 MinutelyScheduler minutely_scheduler;
 
+int32_t current_time = 0;
+
 void pm_measurement_callback(PMMeasurement measurement) {
-  Logging::print("PM2.5 = ");
-  Logging::print(measurement.pm2_5);
-  Logging::print(", PM10 = ");
-  Logging::println(measurement.pm10);
-  data.current_pm = measurement;
+  data.addPM(measurement, current_time);
 }
 
 SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
@@ -78,17 +76,9 @@ void readTempHumidity(int32_t current_time) {
     return;
   }
 
-  Logging::print("Humidity: ");
-  Logging::print(humidity);
-  Logging::print(" %\t");
-  Logging::print("Temperature: ");
-  Logging::print(temperature);
-  Logging::print(" *C ");
-  Logging::println("");
-
-  data.current_temperature_humidity = TemperatureHumidityMeasurement(temperature, humidity);
+  data.addTempHumidity(TemperatureHumidityMeasurement(temperature, humidity), current_time);
   #else
-  data.current_temperature_humidity = TemperatureHumidityMeasurement(11.11, 22.22);
+  data.addTempHumidity(TemperatureHumidityMeasurement(11.11, 22.22), current_time);
   #endif
 }
 
@@ -125,7 +115,7 @@ int sent = 0;
 
 void loop() {
   Time::tick();
-  int32_t current_time = Time::now();
+  current_time = Time::now();
 
   hourly_scheduler.tick(current_time);
   minutely_scheduler.tick(current_time);

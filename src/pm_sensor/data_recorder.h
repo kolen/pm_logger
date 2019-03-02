@@ -4,6 +4,10 @@
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
+#ifndef ARDUINO
+ #include <iostream>
+ #include <time.h>
+#endif
 
 namespace pm_sensor {
   template<typename T>
@@ -22,7 +26,7 @@ namespace pm_sensor {
     T get_sample(int32_t sample_time) const;
 
     const size_t num_samples_capacity;
-    const size_t num_samples_filled;
+    size_t num_samples_filled;
     const int32_t sampling_period;
     int32_t last_sample_time;
     T *data_buffer; // TODO: make api to access it
@@ -61,6 +65,9 @@ namespace pm_sensor {
 
     std::memcpy(data_buffer, &sample, sizeof(T));
     last_sample_time = sample_time;
+    if (num_samples_filled < num_samples_capacity) {
+      num_samples_filled++;
+    }
   }
 
   template<typename T>
@@ -82,4 +89,22 @@ namespace pm_sensor {
       return data_buffer[cell_index];
     }
   }
+
+#ifndef ARDUINO
+  template<typename T>
+  std::ostream &operator<<(std::ostream &os, DataRecorder<T> const &m) {
+    os << "DataRecorder " << typeid(T).name() << " " << m.last_sample_time << std::endl;
+    int i;
+    auto time = m.last_sample_time;
+    for(i = 0; i < m.num_samples_capacity && i < m.num_samples_filled; i++) {
+      time_t time1 = (time_t) time;
+      struct tm *time_parts = gmtime(&time1);
+      char date_s[32];
+      strftime(date_s, 32, "%F %H:%M:%S", time_parts);
+      os << "  " << date_s << ": " << m.data_buffer[i] << std::endl;
+      time -= m.sampling_period;
+    }
+    return os;
+  }
+#endif
 }
