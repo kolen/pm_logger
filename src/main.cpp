@@ -16,6 +16,7 @@
  #include "pm_sensor/sensor_pm_fake.h"
 #endif
 #include "pm_sensor/sensor_pm.h"
+#include "pm_sensor/time.h"
 #include "pm_sensor/logging.h"
 
 using namespace pm_sensor;
@@ -65,6 +66,8 @@ void setup() {
   dht.begin();
   #endif
 
+  Time::start();
+
   sensor_pm.start();
 
   #ifdef ARDUINO
@@ -74,6 +77,10 @@ void setup() {
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
   display.start();
+  #endif
+
+  #ifdef ARDUINO
+  setSyncProvider()
   #endif
 
   server.start();
@@ -109,6 +116,9 @@ int sent = 0;
 // }
 
 void loop() {
+  Time::tick();
+  int32_t current_time = Time::now();
+
   #ifdef ARDUINO
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
@@ -134,7 +144,7 @@ void loop() {
   data.current_temperature_humidity = TemperatureHumidityMeasurement(11.11, 22.22);
   #endif
 
-  sensor_pm.tick(0); // FIXME: pass time in seconds
+  sensor_pm.tick(current_time);
 
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
