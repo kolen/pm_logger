@@ -50,7 +50,6 @@ namespace pm_sensor {
 
   template<typename T>
   void DataRecorder<T>::add_sample(T& sample, int32_t sample_time) {
-    int skip_samples;
     if (last_sample_time) {
       int32_t time_from_last = sample_time - last_sample_time;
 
@@ -60,8 +59,6 @@ namespace pm_sensor {
 
       int32_t distance = time_from_last / sampling_period;
       shift_data(distance);
-    } else {
-      skip_samples = 0;
     }
 
     std::memcpy(data_buffer, &sample, sizeof(T));
