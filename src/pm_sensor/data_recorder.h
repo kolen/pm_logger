@@ -79,7 +79,7 @@ namespace pm_sensor {
       throw std::invalid_argument("Invalid sample time");
     }
 
-    auto cell_index = time_from_last / sampling_period;
+    size_t cell_index = time_from_last / sampling_period;
 
     if (cell_index >= num_samples_capacity) {
       return T();
