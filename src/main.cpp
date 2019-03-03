@@ -54,16 +54,19 @@ SensorPMDeviceFake sensor_pm_device;
 HourlyScheduler hourly_scheduler;
 MinutelyScheduler minutely_scheduler;
 
-int32_t current_time = 0;
+int32_t pm_sample_time = 0;
+int32_t temp_sample_time = 0;
 
 void pm_measurement_callback(PMMeasurement measurement) {
-  data.addPM(measurement, current_time);
+  data.addPM(measurement, pm_sample_time);
 }
 
 SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
 
 // TODO: temporary method
 void readTempHumidity(int32_t current_time) {
+  temp_sample_time = current_time;
+
   #ifdef ARDUINO
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
@@ -94,7 +97,10 @@ void setup() {
 
   //                              3   7   11  15  19  23
   hourly_scheduler.hours_mask = 0b100000000000111111111111;
-  hourly_scheduler.callback = [] (int32_t current_time) { sensor_pm.measure(); };
+  hourly_scheduler.callback = [] (int32_t current_time) {
+				pm_sample_time = current_time;
+				sensor_pm.measure();
+			      };
 
   minutely_scheduler.period = 10;
   minutely_scheduler.callback = &readTempHumidity;
@@ -115,7 +121,7 @@ int sent = 0;
 
 void loop() {
   Time::tick();
-  current_time = Time::now();
+  int32_t current_time = Time::now();
 
   hourly_scheduler.tick(current_time);
   minutely_scheduler.tick(current_time);

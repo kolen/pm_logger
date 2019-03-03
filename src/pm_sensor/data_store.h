@@ -64,7 +64,9 @@ namespace pm_sensor {
       Logging::print(measurement.temperature);
 
       current_temperature_humidity = measurement;
-      temp_humidity_recorder.add_sample(measurement, time);
+      if (time) {
+	temp_humidity_recorder.add_sample(measurement, time);
+      }
 
       #ifndef ARDUINO
       std::cout << "Temp/humidity measurements: "
@@ -80,7 +82,9 @@ namespace pm_sensor {
       Logging::println(measurement.pm10);
 
       current_pm = measurement;
-      pm_recorder.add_sample(measurement, time);
+      if (time) {
+	pm_recorder.add_sample(measurement, time);
+      }
 
       #ifndef ARDUINO
       std::cout << "PM Measurements: "
