@@ -1,7 +1,6 @@
 #ifdef ARDUINO
  #include <Arduino.h>
  #include <Wire.h>
- #include <DHT.h>
  #include <TimeLib.h>
 #endif
 
@@ -16,6 +15,7 @@
  #include "pm_sensor/sensor_pm_fake.h"
 #endif
 #include "pm_sensor/sensor_pm.h"
+#include "pm_sensor/sensor_dht.h"
 #include "pm_sensor/time.h"
 #include "pm_sensor/scheduler.h"
 #include "pm_sensor/logging.h"
@@ -28,10 +28,8 @@ int sclPin = D2;
 int dhtPin = D3;
 int rxPin = D5;
 int txPin = D6;
-#endif
-
-#ifdef ARDUINO
-DHT dht(dhtPin, DHT22);
+#else
+int dhtPin = -1;
 #endif
 
 DataStore data;
@@ -61,34 +59,22 @@ void pm_measurement_callback(PMMeasurement measurement) {
   data.addPM(measurement, pm_sample_time);
 }
 
+void dht_measurement_callback(TemperatureHumidityMeasurement measurement) {
+  data.addTempHumidity(measurement, temp_sample_time);
+}
+
 SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
+SensorDHT sensor_dht(dht_measurement_callback, dhtPin);
 
 // TODO: temporary method
 void readTempHumidity(int32_t current_time) {
   temp_sample_time = current_time;
-
-  #ifdef ARDUINO
-  // Reading temperature or humidity takes about 250 milliseconds!
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  float humidity = dht.readHumidity();
-  // Read temperature as Celsius (the default)
-  float temperature = dht.readTemperature();
-
-  if (isnan(humidity) || isnan(temperature)) {
-    Logging::println("Failed to read from DHT sensor!");
-    return;
-  }
-
-  data.addTempHumidity(TemperatureHumidityMeasurement(temperature, humidity), current_time);
-  #else
-  data.addTempHumidity(TemperatureHumidityMeasurement(11.11, 22.22), current_time);
-  #endif
+  sensor_dht.measure();
 }
 
 void setup() {
   #ifdef ARDUINO
   Serial.begin(9600);
-  dht.begin();
   #endif
 
   Time::start();
