@@ -24,7 +24,8 @@ namespace pm_sensor {
       }
 
     void add_sample(T& sample, int32_t sample_time);
-    T get_sample(int32_t sample_time) const;
+    T get_at_time(int32_t sample_time) const;
+    T get_at_index(size_t index) const;
 
     const size_t num_samples_capacity;
     size_t num_samples_filled;
@@ -42,9 +43,9 @@ namespace pm_sensor {
     // something like that
     int num_samples_moved = num_samples_capacity - num_samples;
 
-    memcpy(data_buffer + (num_samples * sizeof(T)),
-	   data_buffer,
-	   num_samples_moved * sizeof(T));
+    memmove(data_buffer + num_samples,
+	    data_buffer,
+	    num_samples_moved * sizeof(T));
     memset(data_buffer, 0, num_samples * sizeof(T));
   }
 
@@ -54,7 +55,9 @@ namespace pm_sensor {
       int32_t time_from_last = sample_time - last_sample_time;
 
       if (time_from_last % sampling_period != 0) {
+	#ifndef ARDUINO
 	throw std::invalid_argument("Invalid sample time");
+	#endif
       }
 
       int32_t distance = time_from_last / sampling_period;
@@ -69,23 +72,32 @@ namespace pm_sensor {
   }
 
   template<typename T>
-  T DataRecorder<T>::get_sample(int32_t sample_time) const {
-    if (!last_sample_time) {
-      return T();
-    }
-    auto time_from_last = sample_time - last_sample_time;
-
-    if (time_from_last % sampling_period != 0) {
-      throw std::invalid_argument("Invalid sample time");
-    }
-
-    size_t cell_index = time_from_last / sampling_period;
-
-    if (cell_index >= num_samples_capacity) {
+  T DataRecorder<T>::get_at_index(size_t index) const {
+    if (index >= num_samples_capacity) {
       return T(); // TODO: mark as "not found"
     } else {
-      return data_buffer[cell_index];
+      return data_buffer[index];
     }
+  }
+
+  template<typename T>
+  T DataRecorder<T>::get_at_time(int32_t sample_time) const {
+    if (!last_sample_time) { // not yet recorded anything
+      return T();
+    }
+    auto time_from_last = last_sample_time - sample_time;
+    if (time_from_last < 0) { // requesting time in future
+      return T();
+    }
+
+    if (time_from_last % sampling_period != 0) {
+      #ifndef ARDUINO
+      throw std::invalid_argument("Invalid sample time");
+      #endif
+      return T(); // should have special handling
+    }
+
+    return get_at_index(time_from_last / sampling_period);
   }
 
 #ifndef ARDUINO
@@ -99,7 +111,7 @@ namespace pm_sensor {
       struct tm *time_parts = gmtime(&time1);
       char date_s[32];
       strftime(date_s, 32, "%F %H:%M:%S", time_parts);
-      os << "  " << date_s << ": " << m.data_buffer[i] << std::endl;
+      os << "  " << date_s << ": " << m.get_at_index(i) << std::endl;
       time -= m.sampling_period;
     }
     return os;
