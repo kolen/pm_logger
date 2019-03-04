@@ -2,6 +2,7 @@
 #include <cmath>
 
 using pm_sensor::SensorDHT;
+using std::isnan;
 
 const int32_t RETRY_PERIOD = 5;
 
