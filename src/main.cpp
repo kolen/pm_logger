@@ -66,8 +66,12 @@ void dht_measurement_callback(TemperatureHumidityMeasurement measurement) {
 SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
 SensorDHT sensor_dht(dht_measurement_callback, dhtPin);
 
-// TODO: temporary method
-void readTempHumidity(int32_t current_time) {
+void hourlySchedulerCallback(int32_t current_time) {
+  pm_sample_time = current_time;
+  sensor_pm.measure();
+}
+
+void minutelySchedulerCallback(int32_t current_time) {
   temp_sample_time = current_time;
   sensor_dht.measure();
 }
@@ -83,13 +87,10 @@ void setup() {
 
   //                              3   7   11  15  19  23
   hourly_scheduler.hours_mask = 0b100000000000111111111111;
-  hourly_scheduler.callback = [] (int32_t current_time) {
-				pm_sample_time = current_time;
-				sensor_pm.measure();
-			      };
+  hourly_scheduler.callback = hourlySchedulerCallback;
 
   minutely_scheduler.period = 10;
-  minutely_scheduler.callback = &readTempHumidity;
+  minutely_scheduler.callback = minutelySchedulerCallback;
 
   #ifdef ARDUINO
   Wire.begin(sdaPin, sclPin);
