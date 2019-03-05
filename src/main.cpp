@@ -114,6 +114,7 @@ void loop() {
   minutely_scheduler.tick(current_time);
 
   sensor_pm.tick(current_time);
+  sensor_dht.tick(current_time);
 
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
