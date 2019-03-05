@@ -73,6 +73,7 @@ int32_t Time::now() {
   #ifdef ARDUINO
   return (int32_t)now();
   #else
-  return (int32_t)time(NULL);
+  const auto base = 1551727673;
+  return (int32_t)((time(NULL)-base)*60 + base);
   #endif
 }
