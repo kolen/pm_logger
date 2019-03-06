@@ -19,6 +19,11 @@ namespace pm_sensor {
     void tick();
   private:
     void respond(const uint8_t* request, int length);
+
+    void respondGetCurrent();
+    void respondGetRecorded(const uint8_t* request_data, int length);
+    void respondGetRecordedBoundaries(const uint8_t* request_data, int length);
+
     DataStore& data;
     NetworkResponder& network_responder;
   };
