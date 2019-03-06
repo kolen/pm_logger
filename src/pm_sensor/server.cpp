@@ -1,12 +1,13 @@
 #include "pm_sensor/server.h"
 #include "pm_sensor/credentials.h"
 
+using pm_sensor::Server;
 
-void pm_sensor::Server::start() {
+void Server::start() {
   network_responder.start();
 }
 
-void pm_sensor::Server::respond(const uint8_t* request_data, int length) {
+void Server::respond(const uint8_t* request_data, int length) {
   uint8_t buffer[8];
 
   buffer[0] = (data.current_temperature_humidity.temperature & 0xff00) >> 8;
@@ -21,6 +22,6 @@ void pm_sensor::Server::respond(const uint8_t* request_data, int length) {
   network_responder.sendResponse(buffer, 8);
 }
 
-void pm_sensor::Server::tick() {
+void Server::tick() {
   network_responder.tick();
 }
