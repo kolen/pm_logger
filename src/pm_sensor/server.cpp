@@ -96,7 +96,7 @@ void Server::respondGetRecordedBoundaries(const uint8_t* request_data, int lengt
     return;
   }
 
-  uint8_t response[6];
+  uint8_t response[8];
   response[0] = static_cast<uint8_t>(ResponseType::recorded_boundaries);
   response[1] = request_data[1];
 
@@ -105,7 +105,10 @@ void Server::respondGetRecordedBoundaries(const uint8_t* request_data, int lengt
   response[4] = (last_sample_time & 0xff00) >> 8;
   response[5] = last_sample_time & 0xff;
 
-  network_responder.sendResponse(response, 6);
+  response[6] = (num_samples & 0xff00) >> 8;
+  response[7] = num_samples & 0xff;
+
+  network_responder.sendResponse(response, 8);
 }
 
 void Server::respond(const uint8_t* request_data, int length) {
