@@ -14,7 +14,7 @@ To flash firmware:
 * Install native C++ toolchain (for your system, not for cross-compilation), clang or gcc
 * Install [meson](https://mesonbuild.com/) build system and [ninja](https://ninja-build.org/) low-level build system
 * Run `meson builddir` in the root directory of project
-* Change dir to `builddir` and run `ninja build`
+* Change dir to `builddir` and run `ninja test`
 
 # Using native simulator
 
