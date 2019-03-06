@@ -28,6 +28,10 @@ void Server::respondGetCurrent() {
 }
 
 void Server::respondGetRecorded(const uint8_t* request_data, int length) {
+  // 0: query type (1 byte)
+  // 1: date (4 bytes)
+  // 5: data type (1 byte)
+
   // 0: 'recorded' - ResponseType::recorded (1 byte)
   // 1: copy of request (5 bytes)
   // 6: measurement - pm2_5 / temperature (2 bytes)
@@ -71,6 +75,9 @@ void Server::respondGetRecorded(const uint8_t* request_data, int length) {
 }
 
 void Server::respondGetRecordedBoundaries(const uint8_t* request_data, int length) {
+  // 0: request type
+  // 1: data type
+
   int32_t last_sample_time;
   size_t num_samples;
 
