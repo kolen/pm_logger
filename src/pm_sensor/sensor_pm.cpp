@@ -2,6 +2,9 @@
 
 void pm_sensor::SensorPM::start() {
   device.start();
+
+  // TODO: report measurement, but in a way that it will not be
+  // counted as periodical
 }
 
 namespace {
