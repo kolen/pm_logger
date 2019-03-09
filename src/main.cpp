@@ -112,12 +112,14 @@ void setup() {
   minutely_scheduler.callback = minutelySchedulerCallback;
 
   #ifdef ARDUINO
-  Wire.begin(sdaPin, sclPin);
+  // i2c is disabled for now
+  //Wire.begin(sdaPin, sclPin);
   #endif
 
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
-  display.start();
+  // Display is disabled for now
+  //display.start();
   #endif
 
   Logging::println(PSTR("Initialization complete, entering main loop"));
