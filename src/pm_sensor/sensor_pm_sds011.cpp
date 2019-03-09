@@ -15,8 +15,6 @@ void SensorPMDeviceSDS011::start() {
 
   Logging::println("SDS011 fimrware version:");
   Logging::println(sds.queryFirmwareVersion().toString());
-
-  // TODO: report measurement, but in a way that it will not be counted as periodical
 }
 
 void SensorPMDeviceSDS011::setSleepMode(bool sleep) {
