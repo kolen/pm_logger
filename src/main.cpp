@@ -116,6 +116,9 @@ void setup() {
   //Wire.begin(sdaPin, sclPin);
   #endif
 
+  Logging::println(PSTR("Setting up DHT22"));
+  sensor_dht.start();
+
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
   // Display is disabled for now
