@@ -83,9 +83,13 @@ void setup() {
 
   Logging::println(PSTR("pm_sensor starting"));
 
+
+  Logging::println(PSTR("Starting time"));
   Time::start();
 
   sensor_pm.start();
+
+  Logging::println(PSTR("Setting up scheduler"));
 
   //                              3   7   11  15  19  23
   hourly_scheduler.hours_mask = 0b100000000000111111111111;
