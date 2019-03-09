@@ -86,6 +86,17 @@ void setup() {
   Logging::println(PSTR("Starting server and networking"));
   server.start();
 
+  // TODO: make it work without wifi (and therefore time) too. Wifi is
+  // required for time.
+  #ifdef ARDUINO
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  #endif
+
   Logging::println(PSTR("Starting time"));
   Time::start();
 
