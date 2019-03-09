@@ -81,6 +81,8 @@ void setup() {
   Serial.begin(9600);
   #endif
 
+  Logging::println(PSTR("pm_sensor starting"));
+
   Time::start();
 
   sensor_pm.start();

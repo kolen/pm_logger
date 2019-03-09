@@ -6,6 +6,7 @@ using pm_sensor::SensorPMDeviceSDS011;
 using pm_sensor::PMMeasurement;
 
 void SensorPMDeviceSDS011::start() {
+  Logging::println(PSTR("Starting SDS011"));
   sds.begin();
 
   if (sds.queryReportingMode().isActive()) {
