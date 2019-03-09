@@ -15,9 +15,7 @@ void SensorPMDeviceSDS011::start() {
     sds.setQueryReportingMode();
   }
 
-  // this causing problems for some reason
-  // Logging::println("SDS011 fimrware version:");
-  // Logging::println(sds.queryFirmwareVersion().toString());
+  Logging::println(sds.queryFirmwareVersion().toString());
 }
 
 void SensorPMDeviceSDS011::setSleepMode(bool sleep) {
