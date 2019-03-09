@@ -9,6 +9,7 @@ void SensorPMDeviceSDS011::start() {
   Logging::println(PSTR("Starting SDS011"));
   sds.begin();
 
+  Logging::println(PSTR("Checking SDS011 reporting mode"));
   if (sds.queryReportingMode().isActive()) {
     Logging::println(PSTR("SDS011 in active reporting mode, setting query reporting mode"));
     sds.setQueryReportingMode();
