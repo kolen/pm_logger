@@ -83,6 +83,7 @@ void setup() {
 
   Logging::println(PSTR("pm_sensor starting"));
 
+  server.start();
 
   Logging::println(PSTR("Starting time"));
   Time::start();
@@ -107,7 +108,6 @@ void setup() {
   display.start();
   #endif
 
-  server.start();
 }
 
 int sent = 0;
