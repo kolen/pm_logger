@@ -9,7 +9,7 @@ void SensorPMDeviceSDS011::start() {
   sds.begin();
 
   if (sds.queryReportingMode().isActive()) {
-    Logging::println("SDS011 in active reporting mode, setting query reporting mode");
+    Logging::println(PSTR("SDS011 in active reporting mode, setting query reporting mode"));
     sds.setQueryReportingMode();
   }
 
@@ -30,7 +30,7 @@ PMMeasurement SensorPMDeviceSDS011::measure() {
   if (pm.isOk()) {
     return pm_sensor::PMMeasurement(pm.pm25, pm.pm10);
   } else {
-    Logging::print("Could not read values from sensor, reason: ");
+    Logging::print(PSTR("Could not read values from sensor, reason: "));
     Logging::println(pm.statusToString());
     return pm_sensor::PMMeasurement();
   }
