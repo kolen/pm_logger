@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# Decodes arduino-esp8266 stack dumps, reconstructs stack trace
+#
 # based on https://github.com/me-no-dev/EspExceptionDecoder/blob/master/src/EspExceptionDecoder.java
 
 require 'pp'
