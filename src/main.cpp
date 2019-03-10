@@ -142,7 +142,7 @@ void loop() {
 
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
-  display.update();
+  //display.update();
   #endif
 
   server.tick();
