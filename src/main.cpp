@@ -24,7 +24,7 @@ using namespace pm_sensor;
 #ifdef ARDUINO
 int sdaPin = D1;
 int sclPin = D2;
-int dhtPin = D3;
+int dhtPin = D0;
 int rxPin = D5;
 int txPin = D6;
 #else
