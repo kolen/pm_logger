@@ -1,7 +1,6 @@
 #ifdef ARDUINO
  #include <Arduino.h>
  #include <Wire.h>
- #include <TimeLib.h>
 #endif
 
 #include "pm_sensor/data_store.h"
@@ -52,6 +51,8 @@ SensorPMDeviceFake sensor_pm_device;
 HourlyScheduler hourly_scheduler;
 MinutelyScheduler minutely_scheduler;
 
+Time time_;
+
 int32_t pm_sample_time = 0;
 int32_t temp_sample_time = 0;
 
@@ -98,7 +99,7 @@ void setup() {
   #endif
 
   Logging::println(PSTR("Starting time"));
-  Time::start();
+  time_.start();
 
   sensor_pm.start();
 
@@ -131,12 +132,16 @@ void setup() {
 int sent = 0;
 
 void loop() {
-  Time::tick();
-  int32_t current_time = Time::now();
+  //Logging::println(PSTR("Main loop - time tick"));
+  time_.tick();
+  //Logging::println(PSTR("Main loop - getting current time"));
+  int32_t current_time = time_.now();
 
+  //Logging::println(PSTR("Main loop - schedulers tick"));
   hourly_scheduler.tick(current_time);
   minutely_scheduler.tick(current_time);
 
+  //Logging::println(PSTR("Main loop - sensors tick"));
   sensor_pm.tick(current_time);
   sensor_dht.tick(current_time);
 
@@ -145,12 +150,16 @@ void loop() {
   //display.update();
   #endif
 
+  //Logging::println(PSTR("Main loop - server tick"));
   server.tick();
+
+  //Logging::println(PSTR("Main loop - delay"));
 
   // FIXME: should be no delay at all, or very small one
   #ifdef ARDUINO
   delay(10);
   #endif
+  //Logging::println(PSTR("Main loop - finished"));
 }
 
 #ifndef ARDUINO
