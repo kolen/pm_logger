@@ -59,7 +59,7 @@ end
 def get_boundaries(udp, type)
   udp.send [GET_RECORDED_BOUNDARIES, type].pack("c c"), 0
 
-  data = udp.recvfrom(6)[0].unpack("cc l>s>")
+  data = udp.recvfrom(8)[0].unpack("cc l>s>")
   return if data[0] != RESPONSE_RECORDED_BOUNDARIES
   return if data[1] != type
 
