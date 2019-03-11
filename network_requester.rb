@@ -14,7 +14,7 @@ DATA_TYPE_PM = 1
 DATA_TYPE_TEMPERATURE = 2
 
 udp = UDPSocket.new
-udp.connect("localhost", 12000)
+udp.connect("pm_sensor.local", 12000)
 
 def get_current(udp)
   udp.send([GET_CURRENT].pack("c"))
