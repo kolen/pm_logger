@@ -31,7 +31,7 @@ def get_current(udp)
 end
 
 def get_recorded(udp, time, type)
-  udp.send([GET_RECORDED, time, type].pack("c l> c"))
+  udp.send [GET_RECORDED, time, type].pack("c l> c"), 0
 
   data = udp.recvfrom(10)[0].unpack("c l> c s>s>")
   return if data[0] != RESPONSE_RECORDED
