@@ -56,8 +56,8 @@ void Server::respondGetRecorded(const uint8_t* request_data, int length) {
       auto data_pm = data.pm_recorder.get_at_time(time);
       response[6] = (data_pm.pm2_5 & 0xff00) >> 8;
       response[7] = data_pm.pm2_5 & 0xff;
-      response[6] = (data_pm.pm10 & 0xff00) >> 8;
-      response[7] = data_pm.pm10 & 0xff;
+      response[8] = (data_pm.pm10 & 0xff00) >> 8;
+      response[9] = data_pm.pm10 & 0xff;
       network_responder.sendResponse(response, 10);
     }
     break;
@@ -66,8 +66,8 @@ void Server::respondGetRecorded(const uint8_t* request_data, int length) {
       auto data_temp = data.temp_humidity_recorder.get_at_time(time);
       response[6] = (data_temp.temperature & 0xff00) >> 8;
       response[7] = data_temp.temperature & 0xff;
-      response[6] = (data_temp.humidity & 0xff00) >> 8;
-      response[7] = data_temp.humidity & 0xff;
+      response[8] = (data_temp.humidity & 0xff00) >> 8;
+      response[9] = data_temp.humidity & 0xff;
       network_responder.sendResponse(response, 10);
     }
     break;
