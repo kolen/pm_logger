@@ -33,7 +33,7 @@ end
 def get_recorded(udp, time, type)
   udp.send([GET_RECORDED, time, type].pack("c l> c"))
 
-  data = udp.recvfrom(6)[0].unpack("c l> c s>s>")
+  data = udp.recvfrom(10)[0].unpack("c l> c s>s>")
   return if data[0] != RESPONSE_RECORDED
   return if data[1] != time
   return if data[2] != type
