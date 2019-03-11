@@ -29,6 +29,10 @@ void SensorPMDeviceSDS011::setSleepMode(bool sleep) {
 PMMeasurement SensorPMDeviceSDS011::measure() {
   auto pm = sds.queryPm();
   if (pm.isOk()) {
+    Logging::print(PSTR("SDS011 PM data: "));
+    Logging::print(pm.pm25);
+    Logging::print(PSTR(", "));
+    Logging::println(pm.pm10);
     return pm_sensor::PMMeasurement(pm.pm25, pm.pm10);
   } else {
     Logging::print(PSTR("Could not read values from sensor, reason: "));
