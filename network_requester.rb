@@ -71,5 +71,32 @@ def get_boundaries(udp, type)
   }
 end
 
-pp get_boundaries(udp, DATA_TYPE_PM)
-pp get_boundaries(udp, DATA_TYPE_TEMPERATURE)
+
+pm_boundaries = get_boundaries(udp, DATA_TYPE_PM)
+temp_boundaries = get_boundaries(udp, DATA_TYPE_TEMPERATURE)
+pp pm_boundaries
+pp temp_boundaries
+
+def each_measurement(boundary, period)
+  return if boundary[:last_sample_ts].zero?
+  num_samples = boundary[:num_samples]
+  time = boundary[:last_sample_ts]
+  while num_samples > 0
+    sleep 0.1
+    yield time
+    num_samples -= 1
+    time -= period
+  end
+end
+
+puts "PM measurements"
+
+each_measurement(pm_boundaries, 60*60) do |time|
+  pp [Time.at(time), get_recorded(udp, time, DATA_TYPE_PM)]
+end
+
+puts "Temperature/humidity measurements"
+
+each_measurement(temp_boundaries, 60*10) do |time|
+  pp [Time.at(time), get_recorded(udp, time, DATA_TYPE_TEMPERATURE)]
+end
