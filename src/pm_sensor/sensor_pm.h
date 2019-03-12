@@ -12,6 +12,7 @@ namespace pm_sensor {
     virtual void start() = 0;
     virtual void setSleepMode(bool sleep) = 0;
     virtual pm_sensor::PMMeasurement measure() = 0;
+    virtual void idleCheck() = 0;
   };
 
   class SensorPM {
@@ -27,5 +28,6 @@ namespace pm_sensor {
     SensorPMState state = SensorPMState::idle;
     int32_t measure_time = 0;
     int32_t failed_measure_time = 0;
+    int32_t idle_check_time = 0;
   };
 }
