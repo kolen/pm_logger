@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'socket'
 require 'pp'
+require 'csv'
 
 GET_CURRENT = 1
 GET_RECORDED = 2
@@ -92,11 +93,17 @@ end
 puts "PM measurements"
 
 each_measurement(pm_boundaries, 60*60) do |time|
-  pp [Time.at(time), get_recorded(udp, time, DATA_TYPE_PM)]
+  data = get_recorded(udp, time, DATA_TYPE_PM)
+  CSV do |csv|
+    csv << [Time.at(time), data[:pm2_5], data[:pm10]]
+  end
 end
 
 puts "Temperature/humidity measurements"
 
 each_measurement(temp_boundaries, 60*10) do |time|
-  pp [Time.at(time), get_recorded(udp, time, DATA_TYPE_TEMPERATURE)]
+  data = get_recorded(udp, time, DATA_TYPE_TEMPERATURE)
+  CSV do |csv|
+    csv << [Time.at(time), data[:temperature], data[:humidity]]
+  end
 end
