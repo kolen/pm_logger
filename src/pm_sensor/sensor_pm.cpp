@@ -18,6 +18,11 @@ void pm_sensor::SensorPM::tick(int32_t time) {
   pm_sensor::PMMeasurement result;
   switch(state) {
   case SensorPMState::idle:
+    if (!idle_check_time) { idle_check_time = time; }
+    if (time - idle_check_time > 30) {
+      device.idleCheck();
+      idle_check_time = time;
+    }
     break;
   case SensorPMState::warmup:
     if (!measure_time) measure_time = time;

@@ -17,4 +17,7 @@ PMMeasurement SensorPMDeviceFake::measure() {
   return PMMeasurement { 123, 456 };
 }
 
+void SensorPMDeviceFake::idleCheck() {
+}
+
 #endif

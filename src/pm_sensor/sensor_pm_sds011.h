@@ -10,6 +10,7 @@ namespace pm_sensor {
     void start();
     void setSleepMode(bool sleep);
     PMMeasurement measure();
+    void idleCheck();
   private:
     SdsDustSensor sds;
   };

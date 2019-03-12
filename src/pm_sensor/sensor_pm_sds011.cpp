@@ -46,3 +46,10 @@ PMMeasurement SensorPMDeviceSDS011::measure() {
     return pm_sensor::PMMeasurement();
   }
 }
+
+void SensorPMDeviceSDS011::idleCheck() {
+  if (sds.queryWorkingState().isWorking()) {
+    Logging::println(PSTR("WARNING: SDS011 switched to wake mode by itself, re-activating sleep mode"));
+    setSleepMode(true);
+  }
+}

@@ -4,6 +4,7 @@
 
 using testing::InSequence;
 using testing::Return;
+using testing::AtLeast;
 using pm_sensor::PMMeasurement;
 
 class SensorPMDeviceMock : public pm_sensor::SensorPMDevice {
@@ -11,6 +12,7 @@ public:
   MOCK_METHOD0(start, void());
   MOCK_METHOD1(setSleepMode, void(bool));
   MOCK_METHOD0(measure, pm_sensor::PMMeasurement());
+  MOCK_METHOD0(idleCheck, void());
 };
 
 TEST(SensorPM, MeasurementSuccess) {
@@ -32,6 +34,9 @@ TEST(SensorPM, MeasurementSuccess) {
     .WillOnce(Return(PMMeasurement()))
     .WillOnce(Return(PMMeasurement(12.3, 45.6)));
   EXPECT_CALL(device, setSleepMode(true));
+
+  EXPECT_CALL(device, idleCheck())
+    .Times(AtLeast(1));
 
   int i;
   for(i=0; i<100; i++) {
