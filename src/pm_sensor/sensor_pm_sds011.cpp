@@ -15,6 +15,12 @@ void SensorPMDeviceSDS011::start() {
     sds.setQueryReportingMode();
   }
 
+  Logging::println(PSTR("Checking SDS011 working period"));
+  if (!sds.queryWorkingPeriod().isContinuous()) {
+    Logging::println(PSTR("SDS011 has working period enabled, disabling"));
+    sds.setContinuousWorkingPeriod();
+  }
+
   Logging::println(sds.queryFirmwareVersion().toString());
 }
 
