@@ -9,7 +9,7 @@ void pm_sensor::SensorPM::start() {
 }
 
 namespace {
-  const int32_t warmup_time = 10;
+  const int32_t warmup_time = 30;
   const int32_t measurement_timeout = 120;
   const int32_t measurement_retry = 2;
 }
