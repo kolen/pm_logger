@@ -48,8 +48,13 @@ PMMeasurement SensorPMDeviceSDS011::measure() {
 }
 
 void SensorPMDeviceSDS011::idleCheck() {
-  if (sds.queryWorkingState().isWorking()) {
-    Logging::println(PSTR("WARNING: SDS011 switched to wake mode by itself, re-activating sleep mode"));
-    setSleepMode(true);
-  }
+  // Sometimes SDS011 wakes up by itself, either due to bug, or to
+  // some power instability.
+  //
+  // "Query working state" command (and probably any communication on
+  // serial port) causes SDS011 to wake up (might be a bug in
+  // firmware). Putting it to sleep makes it wake up then sleep
+  // again. So this does not work.
+  //
+  // TODO: it should be powered off completely externally.
 }
