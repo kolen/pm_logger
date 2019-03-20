@@ -26,13 +26,13 @@ impl QueryCommand {
         match self {
             QueryCommand::GetCurrent => vec![1],
             QueryCommand::GetRecorded(time, ch) => {
-                let mut buf = vec![0; 5];
+                let mut buf = vec![0; 6];
                 buf[0] = 2;
                 BigEndian::write_u32(
                     &mut buf[1..],
                     time.duration_since(time::UNIX_EPOCH).unwrap().as_secs() as u32,
                 );
-                buf[4] = ch as u8;
+                buf[5] = ch as u8;
                 buf
             }
             QueryCommand::GetRecordedBoundaries(ch) => {
