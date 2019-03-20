@@ -151,7 +151,9 @@ impl Puller {
     }
 
     fn query(&self, command: QueryCommand) -> Result<(), io::Error> {
-        self.socket.send(&command.encode())?;
+        let bytes = command.encode();
+        trace!("Sending query command: {:x?}", &bytes);
+        self.socket.send(&bytes)?;
         Ok(())
     }
 
@@ -166,9 +168,13 @@ impl Puller {
             match self.socket.recv(&mut buffer) {
                 Ok(read_size) => {
                     buffer.truncate(read_size);
+                    trace!("Received packet: {:x?}", &buffer);
                     match verify(&buffer).into() {
                         ResponseVerification::Valid => break Ok(buffer),
-                        ResponseVerification::Invalid => continue,
+                        ResponseVerification::Invalid => {
+                            debug!("Unrelated packet received: {:?}", &buffer);
+                            continue
+                        }
                     }
                 }
                 Err(e) => match e.kind() {
