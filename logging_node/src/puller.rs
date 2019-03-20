@@ -59,9 +59,9 @@ pub struct CharacteristicDecodeError;
 
 #[derive(Debug)]
 pub struct Boundaries {
-    characteristic: QueryCharacteristic,
-    last_sample_at: time::SystemTime,
-    num_samples: u16,
+    pub characteristic: QueryCharacteristic,
+    pub last_sample_at: time::SystemTime,
+    pub num_samples: u16,
 }
 
 pub trait NetworkedCharacteristic {
