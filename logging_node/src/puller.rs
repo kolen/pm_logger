@@ -204,13 +204,14 @@ impl Puller {
         &self,
         time: time::SystemTime,
     ) -> Result<C, PullerError> {
-        self.query(QueryCommand::GetRecorded(
-            time,
-            <C as NetworkedCharacteristic>::query_characteristic(),
-        ))?;
-        let response = self
-            .wait_for_response(|resp| resp[0] == ResponseType::Recorded as u8 && resp.len() == 5)?;
-        Ok(NetworkedCharacteristic::decode(&response[1..])?)
+        let characteristic = <C as NetworkedCharacteristic>::query_characteristic();
+        self.query(QueryCommand::GetRecorded(time, characteristic))?;
+        let response = self.wait_for_response(|resp| {
+            resp[0] == ResponseType::Recorded as u8
+                && resp.len() == 10
+                && resp[5] == characteristic as u8
+        })?;
+        Ok(NetworkedCharacteristic::decode(&response[6..])?)
     }
 
     /// Retrieve time interval of samples stored on device.
