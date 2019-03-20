@@ -51,7 +51,7 @@ enum ResponseType {
     Boundaries = 3,
 }
 
-const READ_TIMEOUT_SECS: u64 = 5;
+const READ_TIMEOUT: time::Duration = time::Duration::from_secs(5);
 const RECV_BUFFER_SIZE: usize = 64;
 
 #[derive(Debug, Clone)]
@@ -143,12 +143,11 @@ pub struct AllCharacteristics {
 }
 
 impl Puller {
-    pub fn new(address: impl net::ToSocketAddrs) -> Self {
-        let socket = net::UdpSocket::bind(address).unwrap();
-        socket
-            .set_read_timeout(Some(time::Duration::from_secs(READ_TIMEOUT_SECS)))
-            .unwrap();
-        Puller { socket: socket }
+    pub fn new(address: impl net::ToSocketAddrs) -> Result<Self, io::Error> {
+        let socket = net::UdpSocket::bind("0.0.0.0:0").unwrap();
+        socket.set_read_timeout(Some(READ_TIMEOUT))?;
+        socket.connect(address)?;
+        Ok(Puller { socket: socket })
     }
 
     fn query(&self, command: QueryCommand) -> Result<(), io::Error> {
