@@ -173,7 +173,7 @@ impl Puller {
                         ResponseVerification::Valid => break Ok(buffer),
                         ResponseVerification::Invalid => {
                             debug!("Unrelated packet received: {:?}", &buffer);
-                            continue
+                            continue;
                         }
                     }
                 }
