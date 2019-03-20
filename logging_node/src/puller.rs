@@ -118,6 +118,7 @@ impl From<bool> for ResponseVerification {
     }
 }
 
+#[derive(Debug)]
 pub enum PullerError {
     Timeout,
     SocketError(io::Error),
