@@ -25,9 +25,9 @@ const READ_TIMEOUT_SECS: u64 = 5;
 const RECV_BUFFER_SIZE: usize = 64;
 
 #[derive(Debug, Clone)]
-struct CharacteristicDecodeError;
+pub struct CharacteristicDecodeError;
 
-trait NetworkedCharacteristic {
+pub trait NetworkedCharacteristic {
     fn decode(input: &[u8]) -> Result<Self, CharacteristicDecodeError>
     where
         Self: Characteristic + std::marker::Sized;
@@ -72,7 +72,7 @@ impl From<bool> for ResponseVerification {
     }
 }
 
-enum PullerError {
+pub enum PullerError {
     Timeout,
     SocketError(io::Error),
 }
