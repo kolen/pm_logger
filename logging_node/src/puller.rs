@@ -114,11 +114,13 @@ impl Puller {
         }
     }
 
-    pub fn get_current<C: Characteristic + NetworkedCharacteristic>(&self) -> Result<C, PullerError> {
+    pub fn get_current<C: Characteristic + NetworkedCharacteristic>(
+        &self,
+    ) -> Result<C, PullerError> {
         self.query(QueryCommand::GetCurrent);
-        let response = self.wait_for_response(|resp| {
-            resp[0] == ResponseType::Current as u8 && resp.len() == 5
-        })?;
+        let response = self
+            .wait_for_response(|resp| resp[0] == ResponseType::Current as u8 && resp.len() == 5)?;
+        // TODO: length should be checked in single place, remove this unwrap
         Ok(C::decode(&response[1..]).unwrap())
     }
 
