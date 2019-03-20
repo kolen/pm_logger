@@ -80,7 +80,9 @@ pub enum PullerError {
 impl Puller {
     pub fn new(address: impl net::ToSocketAddrs) -> Self {
         let socket = net::UdpSocket::bind(address).unwrap();
-        socket.set_read_timeout(Some(time::Duration::from_secs(READ_TIMEOUT_SECS)));
+        socket
+            .set_read_timeout(Some(time::Duration::from_secs(READ_TIMEOUT_SECS)))
+            .unwrap();
         Puller { socket: socket }
     }
 
