@@ -9,7 +9,7 @@ use logging_node::puller;
 use logging_node::schema;
 use std::time;
 
-fn all_samples<C>(puller: &puller::Puller) -> Vec<(time::SystemTime, C)>
+fn all_samples<C>(puller: &puller::Puller) -> Vec<(time::SystemTime, Option<C>)>
 where
     C: Characteristic + puller::NetworkedCharacteristic,
 {
@@ -52,8 +52,8 @@ fn main() {
     for (time, value_pm) in all_pm {
         let record = NewPM {
             time: time.duration_since(time::UNIX_EPOCH).unwrap().as_secs() as i32,
-            pm2_5: value_pm.pm2_5 as i32,
-            pm10: value_pm.pm10 as i32,
+            pm2_5: value_pm.map(|x| x.pm2_5 as i32),
+            pm10: value_pm.map(|x| x.pm10 as i32),
         };
 
         diesel::insert_into(schema::measurements_pm::table)
@@ -67,8 +67,8 @@ fn main() {
     for (time, value_pm) in &all_temp {
         let record = NewTempHumidity {
             time: time.duration_since(time::UNIX_EPOCH).unwrap().as_secs() as i32,
-            temperature: value_pm.temperature as i32,
-            humidity: value_pm.humidity as i32,
+            temperature: value_pm.map(|x| x.temperature as i32),
+            humidity: value_pm.map(|x| x.humidity as i32),
         };
 
         diesel::insert_into(schema::measurements_temp_humidity::table)

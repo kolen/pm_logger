@@ -65,21 +65,32 @@ pub struct Boundaries {
 }
 
 pub trait NetworkedCharacteristic {
-    fn decode(input: &[u8]) -> Result<Self, CharacteristicDecodeError>
+    /// Decodes measured characteristic value from slice of network
+    /// packet, returning characteristic value or None if "no data
+    /// available" is recorded for that sample.
+    fn decode(input: &[u8]) -> Result<Option<Self>, CharacteristicDecodeError>
     where
         Self: Characteristic + std::marker::Sized;
+
     fn query_characteristic() -> QueryCharacteristic;
 }
 
 impl NetworkedCharacteristic for TemperatureHumidity {
-    fn decode(input: &[u8]) -> Result<Self, CharacteristicDecodeError> {
+    fn decode(input: &[u8]) -> Result<Option<Self>, CharacteristicDecodeError> {
         if input.len() != 4 {
             return Err(CharacteristicDecodeError);
         }
-        Ok(TemperatureHumidity {
-            temperature: BigEndian::read_i16(&input[0..]),
-            humidity: BigEndian::read_i16(&input[2..]),
-        })
+        let temperature = BigEndian::read_i16(&input[0..]);
+        let humidity = BigEndian::read_i16(&input[2..]);
+
+        if temperature == 0 && humidity == 0 {
+            return Ok(None);
+        }
+
+        Ok(Some(TemperatureHumidity {
+            temperature: temperature,
+            humidity: humidity,
+        }))
     }
 
     fn query_characteristic() -> QueryCharacteristic {
@@ -88,14 +99,22 @@ impl NetworkedCharacteristic for TemperatureHumidity {
 }
 
 impl NetworkedCharacteristic for PM {
-    fn decode(input: &[u8]) -> Result<Self, CharacteristicDecodeError> {
+    fn decode(input: &[u8]) -> Result<Option<Self>, CharacteristicDecodeError> {
         if input.len() != 4 {
             return Err(CharacteristicDecodeError);
         }
-        Ok(PM {
-            pm2_5: BigEndian::read_i16(&input[0..]),
-            pm10: BigEndian::read_i16(&input[2..]),
-        })
+
+        let pm2_5 = BigEndian::read_i16(&input[0..]);
+        let pm10 = BigEndian::read_i16(&input[2..]);
+
+        if pm2_5 == 0 && pm10 == 0 {
+            return Ok(None);
+        }
+
+        Ok(Some(PM {
+            pm2_5: pm2_5,
+            pm10: pm10,
+        }))
     }
 
     fn query_characteristic() -> QueryCharacteristic {
@@ -138,8 +157,8 @@ impl From<io::Error> for PullerError {
 }
 
 pub struct AllCharacteristics {
-    pub temperature_humidity: TemperatureHumidity,
-    pub pm: PM,
+    pub temperature_humidity: Option<TemperatureHumidity>,
+    pub pm: Option<PM>,
 }
 
 impl Puller {
@@ -203,7 +222,7 @@ impl Puller {
     pub fn get_recorded<C: Characteristic + NetworkedCharacteristic>(
         &self,
         time: time::SystemTime,
-    ) -> Result<C, PullerError> {
+    ) -> Result<Option<C>, PullerError> {
         let characteristic = <C as NetworkedCharacteristic>::query_characteristic();
         self.query(QueryCommand::GetRecorded(time, characteristic))?;
         let response = self.wait_for_response(|resp| {
