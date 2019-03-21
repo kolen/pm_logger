@@ -190,7 +190,7 @@ impl Puller {
     pub fn get_current(&self) -> Result<AllCharacteristics, PullerError> {
         self.query(QueryCommand::GetCurrent)?;
         let response = self
-            .wait_for_response(|resp| resp[0] == ResponseType::Current as u8 && resp.len() == 9)?;
+            .wait_for_response(|resp| resp.len() == 9 && resp[0] == ResponseType::Current as u8)?;
         Ok(AllCharacteristics {
             temperature_humidity: NetworkedCharacteristic::decode(&response[1..])?,
             pm: NetworkedCharacteristic::decode(&response[5..])?,
@@ -207,8 +207,8 @@ impl Puller {
         let characteristic = <C as NetworkedCharacteristic>::query_characteristic();
         self.query(QueryCommand::GetRecorded(time, characteristic))?;
         let response = self.wait_for_response(|resp| {
-            resp[0] == ResponseType::Recorded as u8
-                && resp.len() == 10
+            resp.len() == 10
+                && resp[0] == ResponseType::Recorded as u8
                 && resp[5] == characteristic as u8
         })?;
         Ok(NetworkedCharacteristic::decode(&response[6..])?)
@@ -221,9 +221,9 @@ impl Puller {
     ) -> Result<Boundaries, PullerError> {
         self.query(QueryCommand::GetRecordedBoundaries(characteristic))?;
         let response = self.wait_for_response(|resp| {
-            resp[0] == ResponseType::Boundaries as u8
+            resp.len() == 8
+                && resp[0] == ResponseType::Boundaries as u8
                 && resp[1] == characteristic as u8
-                && resp.len() == 8
         })?;
         Ok(Boundaries {
             characteristic: characteristic,
