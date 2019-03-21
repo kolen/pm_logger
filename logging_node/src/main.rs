@@ -1,12 +1,14 @@
-extern crate logging_node;
 extern crate env_logger;
+extern crate logging_node;
 
-use logging_node::puller;
 use logging_node::characteristics::{Characteristic, TemperatureHumidity, PM};
+use logging_node::puller;
 use std::time;
 
 fn all_samples<C>(puller: &puller::Puller) -> Vec<(time::SystemTime, C)>
-where C: Characteristic + puller::NetworkedCharacteristic {
+where
+    C: Characteristic + puller::NetworkedCharacteristic,
+{
     // TODO: get rid of unwraps
     let characteristic = <C as puller::NetworkedCharacteristic>::query_characteristic();
     let boundaries = puller.get_boundaries(characteristic).unwrap();
@@ -16,12 +18,14 @@ where C: Characteristic + puller::NetworkedCharacteristic {
         puller::QueryCharacteristic::TemperatureHumidity => 60 * 10,
     });
 
-    (0..boundaries.num_samples).scan(boundaries.last_sample_at, |time, _i| {
-        let current_time = *time;
-        let value = puller.get_recorded(current_time).unwrap();
-        *time = *time - interval;
-        Some((current_time, value))
-    }).collect()
+    (0..boundaries.num_samples)
+        .scan(boundaries.last_sample_at, |time, _i| {
+            let current_time = *time;
+            let value = puller.get_recorded(current_time).unwrap();
+            *time = *time - interval;
+            Some((current_time, value))
+        })
+        .collect()
 }
 
 fn main() {
