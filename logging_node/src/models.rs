@@ -18,14 +18,14 @@ pub struct TempHumidity {
 #[table_name="measurements_pm"]
 pub struct NewPM {
     pub time: i32, // TODO: try to map to SystemTime
-    pub pm2_5: i32,
-    pub pm10: i32,
+    pub pm2_5: Option<i32>,
+    pub pm10: Option<i32>,
 }
 
 #[derive(Insertable)]
 #[table_name="measurements_temp_humidity"]
 pub struct NewTempHumidity {
     pub time: i32, // TODO: try to map to SystemTime
-    pub temperature: i32,
-    pub humidity: i32,
+    pub temperature: Option<i32>,
+    pub humidity: Option<i32>,
 }

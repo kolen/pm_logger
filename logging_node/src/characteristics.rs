@@ -14,5 +14,4 @@ pub struct PM {
     pub pm10: i16,
 }
 
-
 impl Characteristic for PM {}
