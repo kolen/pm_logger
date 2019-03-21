@@ -1,8 +1,12 @@
 extern crate env_logger;
 extern crate logging_node;
 
+use diesel::prelude::*;
 use logging_node::characteristics::{Characteristic, TemperatureHumidity, PM};
+use logging_node::database;
+use logging_node::models::*;
 use logging_node::puller;
+use logging_node::schema;
 use std::time;
 
 fn all_samples<C>(puller: &puller::Puller) -> Vec<(time::SystemTime, C)>
@@ -30,6 +34,9 @@ where
 
 fn main() {
     env_logger::init();
+
+    let conn = database::establish_connection();
+
     let puller = puller::Puller::new("pm_sensor.local:12000").unwrap();
 
     println!(
@@ -39,7 +46,37 @@ fn main() {
     );
 
     println!("All PM samples:");
-    println!("{:?}", all_samples::<PM>(&puller));
+    let all_pm = all_samples::<PM>(&puller);
+    println!("{:?}", all_pm);
+
+    for (time, value_pm) in all_pm {
+        let record = NewPM {
+            time: time.duration_since(time::UNIX_EPOCH).unwrap().as_secs() as i32,
+            pm2_5: value_pm.pm2_5 as i32,
+            pm10: value_pm.pm10 as i32,
+        };
+
+        diesel::insert_into(schema::measurements_pm::table)
+            .values(&record)
+            .execute(&conn)
+            .unwrap();
+    }
+
+    let all_temp = all_samples::<TemperatureHumidity>(&puller);
+
+    for (time, value_pm) in &all_temp {
+        let record = NewTempHumidity {
+            time: time.duration_since(time::UNIX_EPOCH).unwrap().as_secs() as i32,
+            temperature: value_pm.temperature as i32,
+            humidity: value_pm.humidity as i32,
+        };
+
+        diesel::insert_into(schema::measurements_temp_humidity::table)
+            .values(&record)
+            .execute(&conn)
+            .unwrap();
+    }
+
     println!("All temperature samples:");
-    println!("{:?}", all_samples::<TemperatureHumidity>(&puller));
+    println!("{:?}", all_temp);
 }
