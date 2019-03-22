@@ -1,9 +1,9 @@
 use crate::characteristics::{Characteristic, TemperatureHumidity, PM};
 use byteorder::{BigEndian, ByteOrder};
+use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use std::convert::From;
 use std::io;
 use std::net;
-use std::time;
 
 pub struct Puller {
     socket: net::UdpSocket,
@@ -17,7 +17,7 @@ pub enum QueryCharacteristic {
 
 enum QueryCommand {
     GetCurrent,
-    GetRecorded(time::SystemTime, QueryCharacteristic),
+    GetRecorded(DateTime<Utc>, QueryCharacteristic),
     GetRecordedBoundaries(QueryCharacteristic),
 }
 
@@ -28,10 +28,7 @@ impl QueryCommand {
             QueryCommand::GetRecorded(time, ch) => {
                 let mut buf = vec![0; 6];
                 buf[0] = 2;
-                BigEndian::write_u32(
-                    &mut buf[1..],
-                    time.duration_since(time::UNIX_EPOCH).unwrap().as_secs() as u32,
-                );
+                BigEndian::write_u32(&mut buf[1..], time.timestamp() as u32);
                 buf[5] = ch as u8;
                 buf
             }
@@ -51,7 +48,7 @@ enum ResponseType {
     Boundaries = 3,
 }
 
-const READ_TIMEOUT: time::Duration = time::Duration::from_secs(5);
+const READ_TIMEOUT: i64 = 5;
 const RECV_BUFFER_SIZE: usize = 64;
 
 #[derive(Debug, Clone)]
@@ -60,7 +57,7 @@ pub struct CharacteristicDecodeError;
 #[derive(Debug)]
 pub struct Boundaries {
     pub characteristic: QueryCharacteristic,
-    pub last_sample_at: time::SystemTime,
+    pub last_sample_at: DateTime<Utc>,
     pub num_samples: u16,
 }
 
@@ -164,7 +161,7 @@ pub struct AllCharacteristics {
 impl Puller {
     pub fn new(address: impl net::ToSocketAddrs) -> Result<Self, io::Error> {
         let socket = net::UdpSocket::bind("0.0.0.0:0").unwrap();
-        socket.set_read_timeout(Some(READ_TIMEOUT))?;
+        socket.set_read_timeout(Some(Duration::seconds(READ_TIMEOUT).to_std().unwrap()))?;
         socket.connect(address)?;
         Ok(Puller { socket: socket })
     }
@@ -221,10 +218,10 @@ impl Puller {
     /// what to request based on it.
     pub fn get_recorded<C: Characteristic + NetworkedCharacteristic>(
         &self,
-        time: time::SystemTime,
+        time: impl Into<DateTime<Utc>>,
     ) -> Result<Option<C>, PullerError> {
         let characteristic = <C as NetworkedCharacteristic>::query_characteristic();
-        self.query(QueryCommand::GetRecorded(time, characteristic))?;
+        self.query(QueryCommand::GetRecorded(time.into(), characteristic))?;
         let response = self.wait_for_response(|resp| {
             resp.len() == 10
                 && resp[0] == ResponseType::Recorded as u8
@@ -244,10 +241,12 @@ impl Puller {
                 && resp[0] == ResponseType::Boundaries as u8
                 && resp[1] == characteristic as u8
         })?;
+        let last_sample_ts = BigEndian::read_u32(&response[2..]) as i64;
+        let last_sample_at =
+            DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(last_sample_ts, 0), Utc);
         Ok(Boundaries {
             characteristic: characteristic,
-            last_sample_at: time::UNIX_EPOCH
-                + time::Duration::from_secs(BigEndian::read_u32(&response[2..]) as u64),
+            last_sample_at: last_sample_at,
             num_samples: BigEndian::read_u16(&response[6..]),
         })
     }
