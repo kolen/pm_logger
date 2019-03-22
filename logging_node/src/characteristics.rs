@@ -1,4 +1,4 @@
-use crate::schema::{measurements_pm, measurements_temp_humidity};
+use crate::schema::measurements_pm;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use diesel::sqlite::Sqlite;
 use diesel::Queryable;
@@ -30,7 +30,7 @@ where
     pub value: Option<C>,
 }
 
-trait CharacteristicFromColumns {
+pub trait CharacteristicFromColumns {
     fn characteristic_from_columns(c1: i32, c2: i32) -> Self;
 }
 
@@ -51,3 +51,25 @@ impl CharacteristicFromColumns for TemperatureHumidity {
         }
     }
 }
+
+// measurements_temp_humidity table has the same column structure, and
+// therefore the same SqlType, as measurements_pm, so that works for
+// it too
+impl<C> Queryable<measurements_pm::SqlType, Sqlite> for Sample<C>
+where
+    C: CharacteristicFromColumns + Characteristic,
+{
+    type Row = (i32, Option<i32>, Option<i32>);
+
+    fn build(row: Self::Row) -> Self {
+        Sample {
+            time: DateTime::from_utc(NaiveDateTime::from_timestamp(row.0 as i64, 0), Utc),
+            value: row.1.and_then(|c1| {
+                row.2.and_then(|c2| {
+                    Some(<C as CharacteristicFromColumns>::characteristic_from_columns(c1, c2))
+                })
+            }),
+        }
+    }
+}
+
