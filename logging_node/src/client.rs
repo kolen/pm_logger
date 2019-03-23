@@ -5,7 +5,7 @@ use std::convert::From;
 use std::io;
 use std::net;
 
-pub struct Puller {
+pub struct Client {
     socket: net::UdpSocket,
 }
 
@@ -135,21 +135,21 @@ impl From<bool> for ResponseVerification {
 }
 
 #[derive(Debug)]
-pub enum PullerError {
+pub enum ClientError {
     Timeout,
     SocketError(io::Error),
     CharacteristicDecodeError,
 }
 
-impl From<CharacteristicDecodeError> for PullerError {
+impl From<CharacteristicDecodeError> for ClientError {
     fn from(_err: CharacteristicDecodeError) -> Self {
-        PullerError::CharacteristicDecodeError
+        ClientError::CharacteristicDecodeError
     }
 }
 
-impl From<io::Error> for PullerError {
-    fn from(err: io::Error) -> PullerError {
-        PullerError::SocketError(err)
+impl From<io::Error> for ClientError {
+    fn from(err: io::Error) -> ClientError {
+        ClientError::SocketError(err)
     }
 }
 
@@ -158,12 +158,12 @@ pub struct AllCharacteristics {
     pub pm: Option<PM>,
 }
 
-impl Puller {
+impl Client {
     pub fn new(address: impl net::ToSocketAddrs) -> Result<Self, io::Error> {
         let socket = net::UdpSocket::bind("0.0.0.0:0").unwrap();
         socket.set_read_timeout(Some(Duration::seconds(READ_TIMEOUT).to_std().unwrap()))?;
         socket.connect(address)?;
-        Ok(Puller { socket: socket })
+        Ok(Client { socket: socket })
     }
 
     fn query(&self, command: QueryCommand) -> Result<(), io::Error> {
@@ -173,7 +173,7 @@ impl Puller {
         Ok(())
     }
 
-    fn wait_for_response<F, R>(&self, verify: F) -> Result<Vec<u8>, PullerError>
+    fn wait_for_response<F, R>(&self, verify: F) -> Result<Vec<u8>, ClientError>
     where
         F: Fn(&[u8]) -> R,
         R: Into<ResponseVerification>,
@@ -194,8 +194,8 @@ impl Puller {
                     }
                 }
                 Err(e) => match e.kind() {
-                    io::ErrorKind::WouldBlock => break Err(PullerError::Timeout),
-                    _ => break Err(PullerError::SocketError(e)),
+                    io::ErrorKind::WouldBlock => break Err(ClientError::Timeout),
+                    _ => break Err(ClientError::SocketError(e)),
                 },
             }
         }
@@ -203,7 +203,7 @@ impl Puller {
 
     /// Retrieve latest known values of all characteristics supported
     /// by device.
-    pub fn get_current(&self) -> Result<AllCharacteristics, PullerError> {
+    pub fn get_current(&self) -> Result<AllCharacteristics, ClientError> {
         self.query(QueryCommand::GetCurrent)?;
         let response = self
             .wait_for_response(|resp| resp.len() == 9 && resp[0] == ResponseType::Current as u8)?;
@@ -219,7 +219,7 @@ impl Puller {
     pub fn get_recorded<C: Characteristic + NetworkedCharacteristic>(
         &self,
         time: impl Into<DateTime<Utc>>,
-    ) -> Result<Option<C>, PullerError> {
+    ) -> Result<Option<C>, ClientError> {
         let characteristic = <C as NetworkedCharacteristic>::query_characteristic();
         self.query(QueryCommand::GetRecorded(time.into(), characteristic))?;
         let response = self.wait_for_response(|resp| {
@@ -234,7 +234,7 @@ impl Puller {
     pub fn get_boundaries(
         &self,
         characteristic: QueryCharacteristic,
-    ) -> Result<Boundaries, PullerError> {
+    ) -> Result<Boundaries, ClientError> {
         self.query(QueryCommand::GetRecordedBoundaries(characteristic))?;
         let response = self.wait_for_response(|resp| {
             resp.len() == 8
