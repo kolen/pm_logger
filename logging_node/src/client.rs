@@ -4,6 +4,7 @@ use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use std::convert::From;
 use std::io;
 use std::net;
+use std::ops::RangeInclusive;
 
 pub struct Client {
     socket: net::UdpSocket,
@@ -77,6 +78,12 @@ impl Boundaries {
             *time = *time - interval;
             Some(current_time)
         })
+    }
+
+    pub fn date_range(&self) -> RangeInclusive<DateTime<Utc>> {
+        let first_sample_at =
+            self.last_sample_at - self.sampling_interval() * (self.num_samples - 1) as i32;
+        first_sample_at..=self.last_sample_at
     }
 }
 
