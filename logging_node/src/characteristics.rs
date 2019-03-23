@@ -73,3 +73,65 @@ where
     }
 }
 
+// It's very hard to implement Insertable for that, so no Insertable
+// for now. Also you can't just return impl Insertable in
+// non-polymorphic function, you have to specify its Value type, which
+// is hard. Probably going to wait for existential types
+// https://rust-lang.github.io/rfcs/2071-impl-trait-existential-types.html
+// and their support in Diesel
+//
+// See also: https://stackoverflow.com/a/49096462/123642
+
+// Making something coposable for Diesel is currently hard due to
+// types issues
+
+/// Makes expression for `.values` to insert `Sample<pm>` into database.
+///
+/// ```no_run
+/// # #[macro_use] extern crate logging_node;
+/// use diesel::insert_into;
+/// use diesel::sqlite::SqliteConnection;
+/// use diesel::prelude::*;
+/// use chrono::prelude::*;
+/// use logging_node::characteristics::{Sample, PM};
+///
+/// let my_sample = Sample {
+///     time: Utc::now(),
+///     value: Some(PM { pm2_5: 100, pm10: 200 }),
+/// };
+/// let connection = SqliteConnection::establish(":memory:")
+///     .unwrap();
+///
+/// insert_into(logging_node::schema::measurements_pm::table)
+///     .values(insert_pm_values!(my_sample))
+///     .execute(&connection)
+///     .unwrap();
+/// ```
+///
+#[macro_export]
+macro_rules! insert_pm_values {
+    ($sample:expr) => {
+        (
+            logging_node::schema::measurements_pm::time.eq(($sample).time.timestamp() as i32),
+            logging_node::schema::measurements_pm::pm2_5
+                .eq(($sample).value.map(|vv| vv.pm2_5 as i32)),
+            logging_node::schema::measurements_pm::pm10
+                .eq(($sample).value.map(|vv| vv.pm10 as i32)),
+        )
+    };
+}
+
+/// See insert_pm_values
+#[macro_export]
+macro_rules! insert_temp_humidity_values {
+    ($sample:expr) => {
+        (
+            logging_node::schema::measurements_temp_humidity::time
+                .eq(($sample).time.timestamp() as i32),
+            logging_node::schema::measurements_temp_humidity::temperature
+                .eq(($sample).value.map(|vv| vv.temperature as i32)),
+            logging_node::schema::measurements_temp_humidity::humidity
+                .eq(($sample).value.map(|vv| vv.humidity as i32)),
+        )
+    };
+}
