@@ -8,4 +8,3 @@ pub mod characteristics;
 pub mod puller;
 pub mod database;
 pub mod schema;
-pub mod models;
