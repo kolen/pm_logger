@@ -61,6 +61,25 @@ pub struct Boundaries {
     pub num_samples: u16,
 }
 
+impl Boundaries {
+    pub fn sampling_interval(&self) -> Duration {
+        match self.characteristic {
+            QueryCharacteristic::PM => Duration::hours(1),
+            QueryCharacteristic::TemperatureHumidity => Duration::minutes(10),
+        }
+    }
+
+    /// Returns sequence of times covered by this boundaries
+    pub fn times(&self) -> impl Iterator<Item = DateTime<Utc>> {
+        let interval = self.sampling_interval();
+        (0..self.num_samples).scan(self.last_sample_at, move |time, _i| {
+            let current_time = *time;
+            *time = *time - interval;
+            Some(current_time)
+        })
+    }
+}
+
 pub trait NetworkedCharacteristic {
     /// Decodes measured characteristic value from slice of network
     /// packet, returning characteristic value or None if "no data
