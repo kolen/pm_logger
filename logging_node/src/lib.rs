@@ -5,6 +5,6 @@ extern crate diesel;
 extern crate dotenv;
 
 pub mod characteristics;
-pub mod puller;
+pub mod client;
 pub mod database;
 pub mod schema;
