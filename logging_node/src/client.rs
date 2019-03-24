@@ -3,6 +3,7 @@ use byteorder::{BigEndian, ByteOrder};
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use failure::Error;
 use std::convert::From;
+use std::fmt;
 use std::io;
 use std::net;
 use std::ops::RangeInclusive;
@@ -15,6 +16,15 @@ pub struct Client {
 pub enum QueryCharacteristic {
     PM = 1,
     TemperatureHumidity = 2,
+}
+
+impl fmt::Display for QueryCharacteristic {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            PM => write!(f, "PM"),
+            TemperatureHumidity => write!(f, "temperature/humidity"),
+        }
+    }
 }
 
 enum QueryCommand {
@@ -85,6 +95,16 @@ impl Boundaries {
         let first_sample_at =
             self.last_sample_at - self.sampling_interval() * (self.num_samples - 1) as i32;
         first_sample_at..=self.last_sample_at
+    }
+}
+
+impl fmt::Display for Boundaries {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{} samples of {}, last: {}",
+            self.num_samples, self.characteristic, self.last_sample_at
+        )
     }
 }
 
