@@ -60,17 +60,17 @@ macro_rules! retrieve_dates_for_range_impl {
             connection: &SqliteConnection,
         ) -> Result<HashSet<DateTime<Utc>>, diesel::result::Error> {
             Ok($table::table
-               .select($table::time)
-               .filter($table::time.between(
-                   range.start().timestamp() as i32,
-                   range.end().timestamp() as i32,
-               ))
-               .load::<i32>(connection)?
-               .into_iter()
-               .map(|ts| Utc.timestamp(ts as i64, 0))
-               .collect())
+                .select($table::time)
+                .filter($table::time.between(
+                    range.start().timestamp() as i32,
+                    range.end().timestamp() as i32,
+                ))
+                .load::<i32>(connection)?
+                .into_iter()
+                .map(|ts| Utc.timestamp(ts as i64, 0))
+                .collect())
         }
-    }
+    };
 }
 
 impl StorableCharacteristic for PM {
