@@ -113,7 +113,8 @@ impl Puller {
     }
 
     /// Update samples of characteristic that are available on the
-    /// device but isn't currently stored in the database
+    /// device but isn't currently stored in the database. Polymorphic
+    /// to characteristic type.
     pub fn update_characteristic<C>(&self) -> Result<(), PullerError>
     where
         C: Characteristic + NetworkedCharacteristic + StorableCharacteristic,
