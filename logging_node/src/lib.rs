@@ -6,7 +6,9 @@ extern crate dotenv;
 #[macro_use]
 extern crate failure;
 
+#[macro_use]
 pub mod characteristics;
 pub mod client;
 pub mod database;
+pub mod puller;
 pub mod schema;
