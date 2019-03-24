@@ -119,17 +119,7 @@ impl Puller {
         C: Characteristic + NetworkedCharacteristic + StorableCharacteristic,
     {
         debug!("Update characteristic");
-        let boundaries = self
-            .client
-            .get_boundaries(<C as NetworkedCharacteristic>::query_characteristic())?;
-        debug!("Retured boundaries: {}", boundaries);
-        let database_times: HashSet<DateTime<Utc>> =
-            <C as StorableCharacteristic>::retrieve_dates_for_range(
-                boundaries.date_range(),
-                &*self.connection,
-            )?;
-        let all_times: HashSet<DateTime<Utc>> = boundaries.times().collect();
-        let unfilled_times = &all_times - &database_times;
+        let unfilled_times = self.unfilled_times::<C>()?;
         debug!("Requesting new samples: {:?}", unfilled_times);
 
         for time in unfilled_times {
@@ -149,5 +139,24 @@ impl Puller {
             }
         }
         Ok(())
+    }
+
+    /// Returns set of points in time which does not have samples
+    /// stored in database
+    fn unfilled_times<C>(&self) -> Result<HashSet<DateTime<Utc>>, PullerError>
+    where
+        C: Characteristic + NetworkedCharacteristic + StorableCharacteristic,
+    {
+        let boundaries = self
+            .client
+            .get_boundaries(<C as NetworkedCharacteristic>::query_characteristic())?;
+        debug!("Retured boundaries: {}", boundaries);
+        let database_times: HashSet<DateTime<Utc>> =
+            <C as StorableCharacteristic>::retrieve_dates_for_range(
+                boundaries.date_range(),
+                &*self.connection,
+            )?;
+        let all_times: HashSet<DateTime<Utc>> = boundaries.times().collect();
+        Ok(&all_times - &database_times)
     }
 }
