@@ -1,6 +1,7 @@
 use crate::characteristics::{Characteristic, TemperatureHumidity, PM};
 use byteorder::{BigEndian, ByteOrder};
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use failure::Error;
 use std::convert::From;
 use std::io;
 use std::net;
@@ -160,10 +161,13 @@ impl From<bool> for ResponseVerification {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Fail)]
 pub enum ClientError {
+    #[fail(display = "timeout waiting for response from device")]
     Timeout,
-    SocketError(io::Error),
+    #[fail(display = "socket error")] //TODO: check
+    SocketError(#[fail(cause)] io::Error),
+    #[fail(display = "error decoding characteristic value")]
     CharacteristicDecodeError,
 }
 
@@ -185,7 +189,7 @@ pub struct AllCharacteristics {
 }
 
 impl Client {
-    pub fn new(address: impl net::ToSocketAddrs) -> Result<Self, io::Error> {
+    pub fn new(address: impl net::ToSocketAddrs) -> Result<Self, Error> {
         let socket = net::UdpSocket::bind("0.0.0.0:0").unwrap();
         socket.set_read_timeout(Some(Duration::seconds(READ_TIMEOUT).to_std().unwrap()))?;
         socket.connect(address)?;
