@@ -112,11 +112,9 @@ where
 macro_rules! insert_pm_values {
     ($sample:expr) => {
         (
-            logging_node::schema::measurements_pm::time.eq(($sample).time.timestamp() as i32),
-            logging_node::schema::measurements_pm::pm2_5
-                .eq(($sample).value.map(|vv| vv.pm2_5 as i32)),
-            logging_node::schema::measurements_pm::pm10
-                .eq(($sample).value.map(|vv| vv.pm10 as i32)),
+            $crate::schema::measurements_pm::time.eq(($sample).time.timestamp() as i32),
+            $crate::schema::measurements_pm::pm2_5.eq(($sample).value.map(|vv| vv.pm2_5 as i32)),
+            $crate::schema::measurements_pm::pm10.eq(($sample).value.map(|vv| vv.pm10 as i32)),
         )
     };
 }
@@ -126,11 +124,10 @@ macro_rules! insert_pm_values {
 macro_rules! insert_temp_humidity_values {
     ($sample:expr) => {
         (
-            logging_node::schema::measurements_temp_humidity::time
-                .eq(($sample).time.timestamp() as i32),
-            logging_node::schema::measurements_temp_humidity::temperature
+            $crate::schema::measurements_temp_humidity::time.eq(($sample).time.timestamp() as i32),
+            $crate::schema::measurements_temp_humidity::temperature
                 .eq(($sample).value.map(|vv| vv.temperature as i32)),
-            logging_node::schema::measurements_temp_humidity::humidity
+            $crate::schema::measurements_temp_humidity::humidity
                 .eq(($sample).value.map(|vv| vv.humidity as i32)),
         )
     };
