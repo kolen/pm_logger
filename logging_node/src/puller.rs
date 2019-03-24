@@ -119,7 +119,10 @@ impl Puller {
     where
         C: Characteristic + NetworkedCharacteristic + StorableCharacteristic,
     {
-        debug!("Update characteristic");
+        debug!(
+            "Update characteristic {}",
+            <C as NetworkedCharacteristic>::query_characteristic()
+        );
         let unfilled_times = self.unfilled_times::<C>()?;
         debug!("Requesting new samples: {:?}", unfilled_times);
 
