@@ -5,9 +5,10 @@ extern crate logging_node;
 use chrono::Duration;
 use diesel::insert_or_ignore_into;
 use diesel::prelude::*;
+use dotenv::dotenv;
 use logging_node::characteristics::{Characteristic, Sample, TemperatureHumidity, PM};
-use logging_node::database;
 use logging_node::client;
+use logging_node::database;
 use logging_node::schema;
 
 fn all_samples<C>(puller: &client::Client) -> Vec<(Sample<C>)>
@@ -37,6 +38,7 @@ where
 }
 
 fn main() {
+    dotenv().ok();
     env_logger::init();
 
     let conn = database::establish_connection();
