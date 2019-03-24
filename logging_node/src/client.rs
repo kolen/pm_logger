@@ -21,8 +21,8 @@ pub enum QueryCharacteristic {
 impl fmt::Display for QueryCharacteristic {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            PM => write!(f, "PM"),
-            TemperatureHumidity => write!(f, "temperature/humidity"),
+            QueryCharacteristic::PM => write!(f, "PM"),
+            QueryCharacteristic::TemperatureHumidity => write!(f, "temperature/humidity"),
         }
     }
 }
