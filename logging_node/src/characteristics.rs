@@ -3,7 +3,7 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use diesel::sqlite::Sqlite;
 use diesel::Queryable;
 
-pub trait Characteristic {}
+pub trait Characteristic: Sized {}
 
 #[derive(Debug, Clone, Copy)]
 pub struct TemperatureHumidity {
