@@ -1,0 +1,23 @@
+{
+  "name": "homebridge-pm-sensor",
+  "version": "0.0.1",
+  "description": "Homebridge plugin to interact with pm_sensor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "iot",
+    "homebridge",
+    "homebridge-plugin",
+    "pm25",
+    "pm2_5",
+    "pm10"
+  ],
+  "engines": {
+    "node": ">=0.12.0",
+    "homebridge": ">=0.2.0"
+  },
+  "author": "",
+  "license": "MIT"
+}
