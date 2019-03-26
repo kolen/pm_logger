@@ -24,7 +24,7 @@ void Server::respondGetCurrent() {
   buffer[7] = (data.current_pm.pm10 & 0xff00) >> 8;
   buffer[8] = data.current_pm.pm10 & 0xff;
 
-  network_responder.sendResponse(buffer, 8);
+  network_responder.sendResponse(buffer, 9);
 }
 
 void Server::respondGetRecorded(const uint8_t* request_data, int length) {
