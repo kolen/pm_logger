@@ -1,0 +1,9 @@
+#!/bin/sh
+
+rrdtool graph /tmp/graph.png --imgformat PNG \
+	--width 700 --height 300 \
+	--end now --start end-7d \
+	DEF:temperature=temp_humidity.rrd:temperature:AVERAGE \
+	DEF:humidity=temp_humidity.rrd:humidity:AVERAGE \
+	LINE1:temperature#FF220C:"Temperature" \
+	LINE1:humidity#41EAD4:"Humidity"
