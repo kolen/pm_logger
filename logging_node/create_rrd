@@ -1,0 +1,9 @@
+#!/bin/sh
+
+rrdtool create temp_humidity.rrd \
+	--start 01.03.2019 \
+	--step 10m \
+	--no-overwrite \
+	DS:temperature:GAUGE:1h:-50:50 \
+	DS:humidity:GAUGE:1h:10:100 \
+	RRA:LAST:0:1:52560
