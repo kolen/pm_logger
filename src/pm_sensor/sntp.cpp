@@ -11,7 +11,7 @@ void SNTPClient::start() {
 }
 
 int32_t SNTPClient::query() {
-  Logging::println(PSTR("Querying SNTP"));
+  Logging::println(FLS("Querying SNTP"));
   while(udp.parsePacket() > 0);
 
   uint8_t packet[48];
@@ -34,7 +34,7 @@ int32_t SNTPClient::query() {
     }
     delay(100);
   }
-  Logging::println(PSTR("SNTP response timeout"));
+  Logging::println(FLS("SNTP response timeout"));
   delay(10000); // TODO: handle retries properly
   return 0;
 }

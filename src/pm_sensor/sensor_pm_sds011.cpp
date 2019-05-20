@@ -6,19 +6,19 @@ using pm_sensor::SensorPMDeviceSDS011;
 using pm_sensor::PMMeasurement;
 
 void SensorPMDeviceSDS011::start() {
-  Logging::println(PSTR("Starting SDS011"));
+  Logging::println(FLS("Starting SDS011"));
   pinMode(switch_pin, OUTPUT);
   sds.begin();
 
-  Logging::println(PSTR("Checking SDS011 reporting mode"));
+  Logging::println(FLS("Checking SDS011 reporting mode"));
   if (sds.queryReportingMode().isActive()) {
-    Logging::println(PSTR("SDS011 in active reporting mode, setting query reporting mode"));
+    Logging::println(FLS("SDS011 in active reporting mode, setting query reporting mode"));
     sds.setQueryReportingMode();
   }
 
-  Logging::println(PSTR("Checking SDS011 working period"));
+  Logging::println(FLS("Checking SDS011 working period"));
   if (!sds.queryWorkingPeriod().isContinuous()) {
-    Logging::println(PSTR("SDS011 has working period enabled, disabling"));
+    Logging::println(FLS("SDS011 has working period enabled, disabling"));
     sds.setContinuousWorkingPeriod();
   }
 
@@ -32,13 +32,13 @@ void SensorPMDeviceSDS011::setSleepMode(bool sleep) {
 PMMeasurement SensorPMDeviceSDS011::measure() {
   auto pm = sds.queryPm();
   if (pm.isOk()) {
-    Logging::print(PSTR("SDS011 PM data: "));
+    Logging::print(FLS("SDS011 PM data: "));
     Logging::print(pm.pm25);
-    Logging::print(PSTR(", "));
+    Logging::print(FLS(", "));
     Logging::println(pm.pm10);
     return pm_sensor::PMMeasurement(pm.pm25, pm.pm10);
   } else {
-    Logging::print(PSTR("Could not read values from sensor, reason: "));
+    Logging::print(FLS("Could not read values from sensor, reason: "));
     Logging::println(pm.statusToString());
     return pm_sensor::PMMeasurement();
   }

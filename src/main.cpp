@@ -83,9 +83,9 @@ void setup() {
   Serial.begin(9600);
   #endif
 
-  Logging::println(PSTR("pm_sensor starting"));
+  Logging::println(FLS("pm_sensor starting"));
 
-  Logging::println(PSTR("Starting server and networking"));
+  Logging::println(FLS("Starting server and networking"));
   server.start();
 
   // TODO: make it work without wifi (and therefore time) too. Wifi is
@@ -99,12 +99,12 @@ void setup() {
   Serial.println("");
   #endif
 
-  Logging::println(PSTR("Starting time"));
+  Logging::println(FLS("Starting time"));
   time_.start();
 
   sensor_pm.start();
 
-  Logging::println(PSTR("Setting up scheduler"));
+  Logging::println(FLS("Setting up scheduler"));
 
   //                              3   7   11  15  19  23
   hourly_scheduler.hours_mask = 0b100000000000111111111111;
@@ -118,7 +118,7 @@ void setup() {
   //Wire.begin(sdaPin, sclPin);
   #endif
 
-  Logging::println(PSTR("Setting up DHT22"));
+  Logging::println(FLS("Setting up DHT22"));
   sensor_dht.start();
 
   // FIXME: should not be under ifdef
@@ -127,22 +127,22 @@ void setup() {
   //display.start();
   #endif
 
-  Logging::println(PSTR("Initialization complete, entering main loop"));
+  Logging::println(FLS("Initialization complete, entering main loop"));
 }
 
 int sent = 0;
 
 void loop() {
-  //Logging::println(PSTR("Main loop - time tick"));
+  //Logging::println(FLS("Main loop - time tick"));
   time_.tick();
-  //Logging::println(PSTR("Main loop - getting current time"));
+  //Logging::println(FLS("Main loop - getting current time"));
   int32_t current_time = time_.now();
 
-  //Logging::println(PSTR("Main loop - schedulers tick"));
+  //Logging::println(FLS("Main loop - schedulers tick"));
   hourly_scheduler.tick(current_time);
   minutely_scheduler.tick(current_time);
 
-  //Logging::println(PSTR("Main loop - sensors tick"));
+  //Logging::println(FLS("Main loop - sensors tick"));
   sensor_pm.tick(current_time);
   sensor_dht.tick(current_time);
 
@@ -151,16 +151,16 @@ void loop() {
   //display.update();
   #endif
 
-  //Logging::println(PSTR("Main loop - server tick"));
+  //Logging::println(FLS("Main loop - server tick"));
   server.tick();
 
-  //Logging::println(PSTR("Main loop - delay"));
+  //Logging::println(FLS("Main loop - delay"));
 
   // FIXME: should be no delay at all, or very small one
   #ifdef ARDUINO
   delay(10);
   #endif
-  //Logging::println(PSTR("Main loop - finished"));
+  //Logging::println(FLS("Main loop - finished"));
 }
 
 #ifndef ARDUINO

@@ -67,11 +67,11 @@ static inline unsigned long millis_impl() {
 
 void Time::syncIfNecessary() {
   if (time_since_last_sync < 0 || time_since_last_sync > SYNC_INTERVAL) {
-    Logging::println(PSTR("Syncing time"));
+    Logging::println(FLS("Syncing time"));
     int32_t synced_time = getNTPTime();
     if (!synced_time) { return; }
 
-    Logging::print(PSTR("Synced time: "));
+    Logging::print(FLS("Synced time: "));
     Logging::println(synced_time);
     last_millis = millis_impl();
     current_time = synced_time;
