@@ -21,9 +21,9 @@ void SensorDHT::measure() {
   float temperature = 56.78;
   #endif
 
-  Logging::print(PSTR("Temperature: "));
+  Logging::print(FLS("Temperature: "));
   Logging::print(temperature);
-  Logging::print(PSTR(", humidity: "));
+  Logging::print(FLS(", humidity: "));
   Logging::println(humidity);
   if (isnan(humidity) || isnan(temperature)) {
     Logging::println("Failed to read from DHT sensor!");

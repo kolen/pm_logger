@@ -6,6 +6,9 @@
 #include <iostream>
 #endif
 
+// Not needed here, but needed by almost any users of Logging
+#include "pm_sensor/flash_strings.h"
+
 namespace pm_sensor {
   class Logging {
   public:
