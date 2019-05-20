@@ -1,0 +1,6 @@
+#!/bin/sh
+
+DB=logging_node.sqlite
+
+sqlite3 -header -csv $DB "select datetime(time, 'unixepoch', 'localtime') time, pm2_5 * 0.1 pm2_5, pm10 * 0.1 pm10 from measurements_pm" > pm.csv
+sqlite3 -header -csv $DB "select datetime(time, 'unixepoch', 'localtime') time, temperature * 0.1 temperature, humidity * 0.1 humidity from measurements_temp_humidity" > temperature_humidity.csv
