@@ -7,6 +7,7 @@ using pm_sensor::PMMeasurement;
 
 void SensorPMDeviceSDS011::start() {
   Logging::println(PSTR("Starting SDS011"));
+  pinMode(switch_pin, OUTPUT);
   sds.begin();
 
   Logging::println(PSTR("Checking SDS011 reporting mode"));
@@ -25,11 +26,7 @@ void SensorPMDeviceSDS011::start() {
 }
 
 void SensorPMDeviceSDS011::setSleepMode(bool sleep) {
-  if (sleep) {
-    sds.sleep();
-  } else {
-    sds.wakeup();
-  }
+  digitalWrite(switch_pin, !sleep);
 }
 
 PMMeasurement SensorPMDeviceSDS011::measure() {

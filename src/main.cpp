@@ -24,9 +24,10 @@ using namespace pm_sensor;
 #ifdef ARDUINO
 // int sdaPin = D1;
 // int sclPin = D2;
-int dhtPin = D1;
+int dhtPin = D7;
 int rxPin = D5;
 int txPin = D6;
+int sds_switch_pin = D0;
 #else
 int dhtPin = -1;
 #endif
@@ -43,7 +44,7 @@ PosixNetworkResponder network_responder;
 pm_sensor::Server server(data, network_responder);
 
 #ifdef ARDUINO
-SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin);
+SensorPMDeviceSDS011 sensor_pm_device(rxPin, txPin, sds_switch_pin);
 #else
 SensorPMDeviceFake sensor_pm_device;
 #endif
