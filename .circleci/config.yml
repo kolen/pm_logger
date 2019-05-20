@@ -9,6 +9,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: run apt-get update
+          command: sudo apt-get update
+      - run:
           name: install packages
           command: sudo apt-get install -y ninja-build python3-pip
       - restore_cache:
