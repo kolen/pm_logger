@@ -1,0 +1,8 @@
+.title KiCad schematic
+.include "irf9510.lib"
+MQ2 input load_v pwr IRF9510
+R2 pwr input 100k
+RLoad1 load_v GND 10
+V0 pwr GND 5
+V1 input GND 5
+.end
