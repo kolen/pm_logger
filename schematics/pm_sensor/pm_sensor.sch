@@ -465,15 +465,15 @@ $EndComp
 $Comp
 L power:GND #PWR0102
 U 1 1 5CDF1575
-P 8850 2400
-F 0 "#PWR0102" H 8850 2150 50  0001 C CNN
-F 1 "GND" H 8855 2227 50  0000 C CNN
-F 2 "" H 8850 2400 50  0001 C CNN
-F 3 "" H 8850 2400 50  0001 C CNN
-F 4 "I" H 8850 2400 50  0001 C CNN "Spice_Primitive"
-F 5 "dc 0" H 8850 2400 50  0001 C CNN "Spice_Model"
-F 6 "Y" H 8850 2400 50  0001 C CNN "Spice_Netlist_Enabled"
-	1    8850 2400
+P 8850 2700
+F 0 "#PWR0102" H 8850 2450 50  0001 C CNN
+F 1 "GND" H 8855 2527 50  0000 C CNN
+F 2 "" H 8850 2700 50  0001 C CNN
+F 3 "" H 8850 2700 50  0001 C CNN
+F 4 "I" H 8850 2700 50  0001 C CNN "Spice_Primitive"
+F 5 "dc 0" H 8850 2700 50  0001 C CNN "Spice_Model"
+F 6 "Y" H 8850 2700 50  0001 C CNN "Spice_Netlist_Enabled"
+	1    8850 2700
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -519,12 +519,12 @@ Connection ~ 8850 1450
 $Comp
 L Device:R R6
 U 1 1 5CE2396C
-P 8400 2050
-F 0 "R6" V 8193 2050 50  0000 C CNN
-F 1 "300" V 8284 2050 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 8330 2050 50  0001 C CNN
-F 3 "~" H 8400 2050 50  0001 C CNN
-	1    8400 2050
+P 8100 2050
+F 0 "R6" V 7893 2050 50  0000 C CNN
+F 1 "300" V 7984 2050 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 8030 2050 50  0001 C CNN
+F 3 "~" H 8100 2050 50  0001 C CNN
+	1    8100 2050
 	0    1    1    0   
 $EndComp
 $Comp
@@ -541,16 +541,14 @@ $EndComp
 Wire Wire Line
 	8650 950  8850 950 
 Connection ~ 8850 950 
-Wire Wire Line
-	8850 2250 8850 2400
-Text GLabel 8150 2050 0    50   Output ~ 0
+Text GLabel 7850 2050 0    50   Output ~ 0
 sds_switch
 Text GLabel 9350 1650 3    50   Output ~ 0
 sds_vcc
 Text GLabel 4550 2300 2    50   Output ~ 0
 sds_vcc
 Wire Wire Line
-	8150 2050 8250 2050
+	7850 2050 7950 2050
 Text GLabel 2900 2250 2    50   Output ~ 0
 sds_switch
 NoConn ~ 2650 2650
@@ -615,14 +613,50 @@ Wire Wire Line
 Wire Wire Line
 	4350 2300 4500 2300
 $Comp
-L power:GND #PWR?
+L power:GND #PWR0120
 U 1 1 5CE71516
 P 4500 2600
-F 0 "#PWR?" H 4500 2350 50  0001 C CNN
+F 0 "#PWR0120" H 4500 2350 50  0001 C CNN
 F 1 "GND" H 4505 2427 50  0000 C CNN
 F 2 "" H 4500 2600 50  0001 C CNN
 F 3 "" H 4500 2600 50  0001 C CNN
 	1    4500 2600
 	1    0    0    -1  
 $EndComp
+$Comp
+L power:GND #PWR01
+U 1 1 5CEA2330
+P 8400 2700
+F 0 "#PWR01" H 8400 2450 50  0001 C CNN
+F 1 "GND" H 8405 2527 50  0000 C CNN
+F 2 "" H 8400 2700 50  0001 C CNN
+F 3 "" H 8400 2700 50  0001 C CNN
+F 4 "I" H 8400 2700 50  0001 C CNN "Spice_Primitive"
+F 5 "dc 0" H 8400 2700 50  0001 C CNN "Spice_Model"
+F 6 "Y" H 8400 2700 50  0001 C CNN "Spice_Netlist_Enabled"
+	1    8400 2700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R9
+U 1 1 5CEA2ED1
+P 8400 2300
+F 0 "R9" H 8470 2346 50  0000 L CNN
+F 1 "10k" H 8470 2255 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 8330 2300 50  0001 C CNN
+F 3 "~" H 8400 2300 50  0001 C CNN
+	1    8400 2300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8850 2250 8850 2700
+Wire Wire Line
+	8250 2050 8400 2050
+Wire Wire Line
+	8400 2150 8400 2050
+Connection ~ 8400 2050
+Wire Wire Line
+	8400 2050 8550 2050
+Wire Wire Line
+	8400 2450 8400 2700
 $EndSCHEMATC
