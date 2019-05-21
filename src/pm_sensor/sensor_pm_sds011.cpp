@@ -8,6 +8,9 @@ using pm_sensor::PMMeasurement;
 void SensorPMDeviceSDS011::start() {
   Logging::println(FLS("Starting SDS011"));
   pinMode(switch_pin, OUTPUT);
+  // Sleep mode actually turns on the sensor, and is done externally,
+  // see #12. So must be turned on before doing anything.
+  setSleepMode(false);
   sds.begin();
 
   Logging::println(FLS("Checking SDS011 reporting mode"));
