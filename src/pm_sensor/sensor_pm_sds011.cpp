@@ -13,6 +13,9 @@ void SensorPMDeviceSDS011::start() {
   setSleepMode(false);
   sds.begin();
 
+  // TODO: handle absence/not readiness of SDS011
+  Logging::println(sds.queryFirmwareVersion().toString());
+
   Logging::println(FLS("Checking SDS011 reporting mode"));
   if (sds.queryReportingMode().isActive()) {
     Logging::println(FLS("SDS011 in active reporting mode, setting query reporting mode"));
@@ -24,8 +27,6 @@ void SensorPMDeviceSDS011::start() {
     Logging::println(FLS("SDS011 has working period enabled, disabling"));
     sds.setContinuousWorkingPeriod();
   }
-
-  Logging::println(sds.queryFirmwareVersion().toString());
 }
 
 void SensorPMDeviceSDS011::setSleepMode(bool sleep) {
