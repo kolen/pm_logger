@@ -29,9 +29,13 @@ void SensorPMDeviceSDS011::start() {
 }
 
 void SensorPMDeviceSDS011::setSleepMode(bool sleep) {
-  digitalWrite(switch_pin, !sleep);
-  // Wait for sensor to turn on. TODO: make it async.
-  if (!sleep) {
+  if (sleep) {
+    Logging::println(FLS("SDS011 sleep on (turning off)"));
+    digitalWrite(switch_pin, LOW);
+  } else {
+    Logging::println(FLS("SDS011 sleep off (turning on)"));
+    digitalWrite(switch_pin, HIGH);
+    // Wait for sensor to turn on. TODO: make it async.
     delay(500);
   }
 }
