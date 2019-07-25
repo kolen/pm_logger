@@ -51,11 +51,11 @@ jobs:
       - run:
           name: Build logging_node
           working_directory: ~/pm_sensor/logging_node
-          command: rustup run stable cargo build
+          command: cargo build
       - run:
           name: Test logging_node
           working_directory: ~/pm_sensor/logging_node
-          command: rustup run stable cargo test
+          command: cargo test
       - save_cache:
           name: Save cargo cache
           key: project-cache
