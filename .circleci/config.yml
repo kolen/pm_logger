@@ -58,7 +58,7 @@ jobs:
           command: cargo test
       - save_cache:
           name: Save cargo cache
-          key: project-cache
+          key: v1-pm_sensor-cargo
           paths:
             - "~/.cargo"
             - "~/pm_sensor/logging_node/target"
