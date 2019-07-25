@@ -3,8 +3,8 @@ version: 2
 jobs:
   build:
     docker:
-      # No specific image for C++
-      - image: circleci/rust:1.34.1
+      # Has C++ too
+      - image: circleci/rust:1.36
     working_directory: ~/pm_sensor
     steps:
       - checkout
@@ -44,3 +44,21 @@ jobs:
       - store_artifacts:
           path: /home/circleci/pm_sensor/builddir/meson-logs
           destination: meson-logs
+
+      - restore_cache:
+          name: Restore cargo cache
+          key: v1-pm_sensor-cargo
+      - run:
+          name: Build logging_node
+          working_directory: ~/pm_sensor/logging_node
+          command: cargo build
+      - run:
+          name: Test logging_node
+          working_directory: ~/pm_sensor/logging_node
+          command: cargo test
+      - save_cache:
+          name: Save cargo cache
+          key: project-cache
+          paths:
+            - "~/.cargo"
+            - "~/pm_sensor/logging_node/target"
