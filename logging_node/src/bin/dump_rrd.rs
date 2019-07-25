@@ -4,7 +4,7 @@ extern crate logging_node;
 
 use diesel::prelude::*;
 use dotenv::dotenv;
-use logging_node::characteristics::{Characteristic, Sample, TemperatureHumidity, PM};
+use logging_node::characteristics::{Characteristic, Sample, TemperatureHumidity};
 use logging_node::database;
 use logging_node::schema::measurements_temp_humidity;
 use std::process::Command;
