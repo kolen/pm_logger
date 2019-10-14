@@ -16,12 +16,10 @@ namespace pm_sensor {
   public:
   DataRecorder(T *data_buffer, size_t capacity, int32_t sampling_period) :
     num_samples_capacity(capacity),
-      num_samples_filled(0),
-      sampling_period(sampling_period),
-      last_sample_time(0),
-      data_buffer(data_buffer) {
-	memset(data_buffer, 0, capacity * sizeof(T));
-      }
+    num_samples_filled(0),
+    sampling_period(sampling_period),
+    last_sample_time(0),
+    data_buffer(data_buffer) { }
 
     void add_sample(T& sample, int32_t sample_time);
     T get_at_time(int32_t sample_time) const;

@@ -11,7 +11,7 @@ struct MyDataPoint {
 };
 
 TEST(DataRecorder, Basics) {
-  MyDataPoint storage[6];
+  MyDataPoint storage[6] = {};
   pm_sensor::DataRecorder<MyDataPoint> data_recorder(storage, 6, 60);
   int32_t time_base = 23874723;
   MyDataPoint pt1 = {0xa1, 0x01};
