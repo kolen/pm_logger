@@ -51,8 +51,8 @@ namespace pm_sensor {
     TemperatureHumidityMeasurement current_temperature_humidity;
     PMMeasurement current_pm;
 
-    TemperatureHumidityMeasurement temp_humidity_data[temp_humidity_capacity];
-    PMMeasurement pm_data[pm_capacity];
+    TemperatureHumidityMeasurement temp_humidity_data[temp_humidity_capacity] = {};
+    PMMeasurement pm_data[pm_capacity] = {};
     DataRecorder<TemperatureHumidityMeasurement> temp_humidity_recorder;
     DataRecorder<PMMeasurement> pm_recorder;
 
