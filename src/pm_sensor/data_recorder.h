@@ -44,7 +44,7 @@ namespace pm_sensor {
     memmove(data_buffer + num_samples,
 	    data_buffer,
 	    num_samples_moved * sizeof(T));
-    memset(data_buffer, 0, num_samples * sizeof(T));
+    std::fill(data_buffer, data_buffer + num_samples, T{});
   }
 
   template<typename T>
