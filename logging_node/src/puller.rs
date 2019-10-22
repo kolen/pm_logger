@@ -96,11 +96,13 @@ impl Puller {
             .client
             .get_boundaries(<C as NetworkedCharacteristic>::query_characteristic())?;
         debug!("Retured boundaries: {}", boundaries);
-        let database_times: HashSet<DateTime<Utc>> =
-            <C as StorableCharacteristic>::retrieve_dates_for_range(
-                boundaries.date_range(),
+        let database_times: HashSet<DateTime<Utc>> = match boundaries.date_range() {
+            Some(date_range) => <C as StorableCharacteristic>::retrieve_dates_for_range(
+                date_range,
                 &*self.connection,
-            )?;
+            )?,
+            None => HashSet::new(),
+        };
         let all_times: HashSet<DateTime<Utc>> = boundaries.times().collect();
         Ok(&all_times - &database_times)
     }
