@@ -33,7 +33,8 @@ impl From<diesel::result::Error> for PullerError {
 }
 
 pub enum UpdateResult {
-    UpdateComplete, UpdateIncomplete,
+    UpdateComplete,
+    UpdateIncomplete,
 }
 
 impl Puller {
