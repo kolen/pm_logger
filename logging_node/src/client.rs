@@ -91,10 +91,13 @@ impl Boundaries {
         })
     }
 
-    pub fn date_range(&self) -> RangeInclusive<DateTime<Utc>> {
+    pub fn date_range(&self) -> Option<RangeInclusive<DateTime<Utc>>> {
+        if self.num_samples == 0 {
+            return None;
+        }
         let first_sample_at =
             self.last_sample_at - self.sampling_interval() * (self.num_samples - 1) as i32;
-        first_sample_at..=self.last_sample_at
+        Some(first_sample_at..=self.last_sample_at)
     }
 }
 
