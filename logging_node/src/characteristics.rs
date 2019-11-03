@@ -35,6 +35,19 @@ impl PM {
 impl Characteristic for PM {}
 
 #[derive(Debug, Clone, Copy)]
+pub struct Pressure {
+    pub pressure: i32,
+}
+
+impl Pressure {
+    pub fn pressure(&self) -> i32 {
+        self.pressure
+    }
+}
+
+impl Characteristic for Pressure {}
+
+#[derive(Debug, Clone, Copy)]
 pub struct Sample<C>
 where
     C: Characteristic,

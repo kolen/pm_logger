@@ -7,6 +7,13 @@ table! {
 }
 
 table! {
+    measurements_pressure (time) {
+        time -> Integer,
+        pressure -> Nullable<Integer>,
+    }
+}
+
+table! {
     measurements_temp_humidity (time) {
         time -> Integer,
         temperature -> Nullable<Integer>,
@@ -16,5 +23,6 @@ table! {
 
 allow_tables_to_appear_in_same_query!(
     measurements_pm,
+    measurements_pressure,
     measurements_temp_humidity,
 );
