@@ -114,7 +114,7 @@ void setup() {
   Logging::println(FLS("Setting up scheduler"));
 
   //                              3   7   11  15  19  23
-  hourly_scheduler.hours_mask = 0b100000000000111111111111;
+  hourly_scheduler.hours_mask = 0b111111111111111111111111;
   hourly_scheduler.callback = hourlySchedulerCallback;
 
   minutely_scheduler.period = 10;
