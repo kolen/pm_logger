@@ -17,6 +17,7 @@ DATA_TYPE_PRESSURE = 3
 
 udp = UDPSocket.new
 udp.connect("pm_sensor.local", 12000)
+#udp.connect("localhost", 12000)
 
 def get_current(udp)
   udp.send([GET_CURRENT].pack("c"))
