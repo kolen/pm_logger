@@ -4,7 +4,7 @@
 using pm_sensor::Server;
 
 enum struct RequestType: uint8_t { get_current = 1, get_recorded = 2, get_recorded_boundaries = 3 };
-enum struct DataType: uint8_t { pm = 1, temperature = 2 };
+enum struct DataType: uint8_t { pm = 1, temperature = 2, pressure = 3 };
 enum struct ResponseType: uint8_t { current = 1, recorded = 2, recorded_boundaries = 3 };
 
 void Server::start() {
@@ -12,7 +12,7 @@ void Server::start() {
 }
 
 void Server::respondGetCurrent() {
-  uint8_t buffer[9];
+  uint8_t buffer[13];
 
   buffer[0] = static_cast<uint8_t>(ResponseType::current);
   buffer[1] = (data.current_temperature_humidity.temperature & 0xff00) >> 8;
@@ -23,8 +23,12 @@ void Server::respondGetCurrent() {
   buffer[6] = data.current_pm.pm2_5 & 0xff;
   buffer[7] = (data.current_pm.pm10 & 0xff00) >> 8;
   buffer[8] = data.current_pm.pm10 & 0xff;
+  buffer[9] = (data.current_pressure & 0xff000000) >> 24;
+  buffer[10] = (data.current_pressure & 0xff0000) >> 16;
+  buffer[11] = (data.current_pressure & 0xff00) >> 8;
+  buffer[12] = data.current_pressure & 0xff;
 
-  network_responder.sendResponse(buffer, 9);
+  network_responder.sendResponse(buffer, 13);
 }
 
 void Server::respondGetRecorded(const uint8_t* request_data, int length) {
@@ -71,6 +75,15 @@ void Server::respondGetRecorded(const uint8_t* request_data, int length) {
       network_responder.sendResponse(response, 10);
     }
     break;
+  case DataType::pressure:
+    {
+      auto data_pressure = data.pressure_recorder.get_at_time(time);
+      response[6] = (data_pressure & 0xff000000) >> 24;
+      response[7] = (data_pressure & 0xff0000) >> 16;
+      response[8] = (data_pressure & 0xff00) >> 8;
+      response[9] = data_pressure & 0xff;
+      network_responder.sendResponse(response, 10);
+    }
   }
 }
 
@@ -91,6 +104,10 @@ void Server::respondGetRecordedBoundaries(const uint8_t* request_data, int lengt
   case DataType::temperature:
     last_sample_time = data.temp_humidity_recorder.last_sample_time;
     num_samples = data.temp_humidity_recorder.num_samples_filled;
+    break;
+  case DataType::pressure:
+    last_sample_time = data.pressure_recorder.last_sample_time;
+    num_samples = data.pressure_recorder.num_samples_filled;
     break;
   default:
     return;

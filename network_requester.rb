@@ -13,6 +13,7 @@ RESPONSE_RECORDED_BOUNDARIES = 3
 
 DATA_TYPE_PM = 1
 DATA_TYPE_TEMPERATURE = 2
+DATA_TYPE_PRESSURE = 3
 
 udp = UDPSocket.new
 udp.connect("pm_sensor.local", 12000)
@@ -20,21 +21,24 @@ udp.connect("pm_sensor.local", 12000)
 def get_current(udp)
   udp.send([GET_CURRENT].pack("c"))
 
-  data = udp.recvfrom(9)[0].unpack("c s>s> s>s>")
+  data = udp.recvfrom(9)[0].unpack("c s>s> s>s> l>")
   return if data[0] != RESPONSE_CURRENT
   {
     type: :current,
     temperature: data[1],
     humidity: data[1],
     pm2_5: data[2],
-    pm10: data[3]
+    pm10: data[3],
+    pressure: data[4],
   }
 end
 
 def get_recorded(udp, time, type)
   udp.send [GET_RECORDED, time, type].pack("c l> c"), 0
 
-  data = udp.recvfrom(10)[0].unpack("c l> c s>s>")
+  bin = udp.recvfrom(10)[0]
+  data = bin.unpack("c l> c s>s>")
+  data2 = bin.unpack("c l> c l>")
   return if data[0] != RESPONSE_RECORDED
   return if data[1] != time
   return if data[2] != type
@@ -53,6 +57,12 @@ def get_recorded(udp, time, type)
       data_type: :temperature,
       temperature: data[3],
       humidity: data[4]
+    }
+  when DATA_TYPE_PRESSURE
+    {
+      type: :recorded,
+      data_type: :pressure,
+      pressure: data2[3]
     }
   end
 end
@@ -75,8 +85,10 @@ end
 
 pm_boundaries = get_boundaries(udp, DATA_TYPE_PM)
 temp_boundaries = get_boundaries(udp, DATA_TYPE_TEMPERATURE)
+pressure_boundaries = get_boundaries(udp, DATA_TYPE_PRESSURE)
 pp pm_boundaries
 pp temp_boundaries
+pp pressure_boundaries
 
 def each_measurement(boundary, period)
   return if boundary[:last_sample_ts].zero?
@@ -105,5 +117,14 @@ each_measurement(temp_boundaries, 60*10) do |time|
   data = get_recorded(udp, time, DATA_TYPE_TEMPERATURE)
   CSV do |csv|
     csv << [Time.at(time), data[:temperature], data[:humidity]]
+  end
+end
+
+puts "Pressure measurements"
+
+each_measurement(pressure_boundaries, 60*10) do |time|
+  data = get_recorded(udp, time, DATA_TYPE_PRESSURE)
+  CSV do |csv|
+    csv << [Time.at(time), data[:pressure]]
   end
 end
