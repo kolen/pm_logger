@@ -1,5 +1,5 @@
-use crate::characteristics::{Characteristic, Sample, TemperatureHumidity, PM};
-use crate::schema::{measurements_pm, measurements_temp_humidity};
+use crate::characteristics::{Characteristic, Pressure, Sample, TemperatureHumidity, PM};
+use crate::schema::{measurements_pm, measurements_pressure, measurements_temp_humidity};
 use chrono::{DateTime, NaiveDateTime, TimeZone, Utc};
 use diesel::insert_into;
 use diesel::prelude::*;
@@ -103,6 +103,17 @@ macro_rules! insert_temp_humidity_values {
     };
 }
 
+#[macro_export]
+macro_rules! insert_pressure_values {
+    ($sample:expr) => {
+        (
+            $crate::schema::measurements_pressure::time.eq(($sample).time.timestamp() as i32),
+            $crate::schema::measurements_pressure::pressure
+                .eq(($sample).value.map(|vv| vv.pressure as i32)),
+        )
+    };
+}
+
 impl StorableCharacteristic for PM {
     retrieve_dates_for_range_impl!(measurements_pm);
 
@@ -126,6 +137,20 @@ impl StorableCharacteristic for TemperatureHumidity {
     ) -> Result<(), diesel::result::Error> {
         insert_into(measurements_temp_humidity::table)
             .values(insert_temp_humidity_values!(&sample))
+            .execute(connection)
+            .map(|_| ())
+    }
+}
+
+impl StorableCharacteristic for Pressure {
+    retrieve_dates_for_range_impl!(measurements_pressure);
+
+    fn insert_sample(
+        sample: Sample<Self>,
+        connection: &SqliteConnection,
+    ) -> Result<(), diesel::result::Error> {
+        insert_into(measurements_pressure::table)
+            .values(insert_pressure_values!(&sample))
             .execute(connection)
             .map(|_| ())
     }
