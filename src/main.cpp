@@ -15,6 +15,7 @@
 #endif
 #include "pm_sensor/sensor_pm.h"
 #include "pm_sensor/sensor_dht.h"
+#include "pm_sensor/sensor_bmp.h"
 #include "pm_sensor/time.h"
 #include "pm_sensor/scheduler.h"
 #include "pm_sensor/logging.h"
@@ -55,18 +56,23 @@ MinutelyScheduler minutely_scheduler;
 Time time_;
 
 int32_t pm_sample_time = 0;
-int32_t temp_sample_time = 0;
+int32_t temp_pressure_sample_time = 0;
 
 void pm_measurement_callback(PMMeasurement measurement) {
   data.addPM(measurement, pm_sample_time);
 }
 
 void dht_measurement_callback(TemperatureHumidityMeasurement measurement) {
-  data.addTempHumidity(measurement, temp_sample_time);
+  data.addTempHumidity(measurement, temp_pressure_sample_time);
+}
+
+void bmp_measurement_callback(int32_t pressure) {
+  data.addPressure(pressure, temp_pressure_sample_time);
 }
 
 SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
 SensorDHT sensor_dht(dht_measurement_callback, dhtPin);
+SensorBMP sensor_bmp(bmp_measurement_callback);
 
 void hourlySchedulerCallback(int32_t current_time) {
   pm_sample_time = current_time;
@@ -74,8 +80,9 @@ void hourlySchedulerCallback(int32_t current_time) {
 }
 
 void minutelySchedulerCallback(int32_t current_time) {
-  temp_sample_time = current_time;
+  temp_pressure_sample_time = current_time;
   sensor_dht.measure();
+  sensor_bmp.measure();
 }
 
 void setup() {
@@ -121,6 +128,9 @@ void setup() {
   Logging::println(FLS("Setting up DHT22"));
   sensor_dht.start();
 
+  Logging::println(FLS("Setting up BMP"));
+  sensor_bmp.start();
+
   // FIXME: should not be under ifdef
   #ifdef ARDUINO
   // Display is disabled for now
@@ -145,6 +155,7 @@ void loop() {
   //Logging::println(FLS("Main loop - sensors tick"));
   sensor_pm.tick(current_time);
   sensor_dht.tick(current_time);
+  sensor_bmp.tick(current_time);
 
   // FIXME: should not be under ifdef
   #ifdef ARDUINO

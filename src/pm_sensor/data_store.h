@@ -10,6 +10,9 @@ namespace pm_sensor {
   const int pm_period = 60 * 60;
   const int pm_capacity = 48;
 
+  const int pressure_period = 10 * 60;
+  const int pressure_capacity = 24 * 6;
+
   int16_t float_to_stored(float value);
 
   struct TemperatureHumidityMeasurement {
@@ -46,15 +49,21 @@ namespace pm_sensor {
       current_temperature_humidity(),
       current_pm(),
       temp_humidity_recorder(temp_humidity_data, temp_humidity_capacity, temp_humidity_period),
-      pm_recorder(pm_data, pm_capacity, pm_period) { }
+      pm_recorder(pm_data, pm_capacity, pm_period),
+      pressure_recorder(pressure_data, pressure_capacity, pressure_period)
+    { }
 
     TemperatureHumidityMeasurement current_temperature_humidity;
     PMMeasurement current_pm;
+    int32_t current_pressure;
 
     TemperatureHumidityMeasurement temp_humidity_data[temp_humidity_capacity] = {};
     PMMeasurement pm_data[pm_capacity] = {};
+    int32_t pressure_data[pressure_capacity] = {};
+
     DataRecorder<TemperatureHumidityMeasurement> temp_humidity_recorder;
     DataRecorder<PMMeasurement> pm_recorder;
+    DataRecorder<int32_t> pressure_recorder;
 
     void addTempHumidity(TemperatureHumidityMeasurement measurement, int32_t time) {
       Logging::print("Humidity: ");
@@ -91,6 +100,16 @@ namespace pm_sensor {
 		<< std::endl
 		<< pm_recorder;
       #endif
+    }
+
+    void addPressure(int32_t measurement, int32_t time) {
+      Logging::print(FLS("Pressure: "));
+      Logging::print(measurement);
+
+      current_pressure = measurement;
+      if (time) {
+        pressure_recorder.add_sample(measurement, time);
+      }
     }
   };
 }
