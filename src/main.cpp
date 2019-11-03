@@ -23,8 +23,8 @@
 using namespace pm_sensor;
 
 #ifdef ARDUINO
-// int sdaPin = D1;
-// int sclPin = D2;
+int sdaPin = D1;
+int sclPin = D2;
 int dhtPin = D7;
 int rxPin = D5;
 int txPin = D6;
@@ -121,8 +121,8 @@ void setup() {
   minutely_scheduler.callback = minutelySchedulerCallback;
 
   #ifdef ARDUINO
-  // i2c is disabled for now
-  //Wire.begin(sdaPin, sclPin);
+  Logging::println(FLS("Initializing i2c"));
+  Wire.begin(sdaPin, sclPin);
   #endif
 
   Logging::println(FLS("Setting up DHT22"));
