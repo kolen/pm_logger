@@ -1,4 +1,4 @@
-use crate::characteristics::{Characteristic, TemperatureHumidity, PM};
+use crate::characteristics::{Characteristic, Pressure, TemperatureHumidity, PM};
 use byteorder::{BigEndian, ByteOrder};
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use failure::Error;
@@ -16,6 +16,7 @@ pub struct Client {
 pub enum QueryCharacteristic {
     PM = 1,
     TemperatureHumidity = 2,
+    Pressure = 3,
 }
 
 impl fmt::Display for QueryCharacteristic {
@@ -23,6 +24,7 @@ impl fmt::Display for QueryCharacteristic {
         match self {
             QueryCharacteristic::PM => write!(f, "PM"),
             QueryCharacteristic::TemperatureHumidity => write!(f, "temperature/humidity"),
+            QueryCharacteristic::Pressure => write!(f, "pressure"),
         }
     }
 }
@@ -78,6 +80,7 @@ impl Boundaries {
         match self.characteristic {
             QueryCharacteristic::PM => Duration::hours(1),
             QueryCharacteristic::TemperatureHumidity => Duration::minutes(10),
+            QueryCharacteristic::Pressure => Duration::minutes(10),
         }
     }
 
@@ -166,6 +169,26 @@ impl NetworkedCharacteristic for PM {
 
     fn query_characteristic() -> QueryCharacteristic {
         QueryCharacteristic::PM
+    }
+}
+
+impl NetworkedCharacteristic for Pressure {
+    fn decode(input: &[u8]) -> Result<Option<Self>, CharacteristicDecodeError> {
+        if input.len() != 4 {
+            return Err(CharacteristicDecodeError);
+        }
+
+        let pressure = BigEndian::read_i32(&input[..]);
+
+        if pressure == 0 {
+            return Ok(None);
+        }
+
+        Ok(Some(Pressure { pressure }))
+    }
+
+    fn query_characteristic() -> QueryCharacteristic {
+        QueryCharacteristic::Pressure
     }
 }
 
