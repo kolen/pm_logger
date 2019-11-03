@@ -15,5 +15,6 @@ namespace pm_sensor {
     void measure();
   private:
     std::function<void(int32_t)> callback;
+    Adafruit_BMP085 bmp;
   };
 }
