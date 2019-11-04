@@ -44,7 +44,7 @@ impl Puller {
                 env::var("LOGGER_HOST").expect("LOGGER_HOST env variable must be set"),
             )
             .unwrap(),
-            connection: connection,
+            connection,
         }
     }
 
