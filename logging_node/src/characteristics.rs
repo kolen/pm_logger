@@ -40,7 +40,7 @@ pub struct Pressure {
 }
 
 impl Pressure {
-    pub fn pressure(&self) -> i32 {
+    pub fn pressure(self) -> i32 {
         self.pressure
     }
 }
