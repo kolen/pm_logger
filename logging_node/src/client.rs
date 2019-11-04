@@ -138,8 +138,8 @@ impl NetworkedCharacteristic for TemperatureHumidity {
         }
 
         Ok(Some(TemperatureHumidity {
-            temperature: temperature,
-            humidity: humidity,
+            temperature,
+            humidity,
         }))
     }
 
@@ -161,10 +161,7 @@ impl NetworkedCharacteristic for PM {
             return Ok(None);
         }
 
-        Ok(Some(PM {
-            pm2_5: pm2_5,
-            pm10: pm10,
-        }))
+        Ok(Some(PM { pm2_5, pm10 }))
     }
 
     fn query_characteristic() -> QueryCharacteristic {
@@ -239,7 +236,7 @@ impl Client {
         let socket = net::UdpSocket::bind("0.0.0.0:0").unwrap();
         socket.set_read_timeout(Some(Duration::seconds(READ_TIMEOUT).to_std().unwrap()))?;
         socket.connect(address)?;
-        Ok(Client { socket: socket })
+        Ok(Client { socket })
     }
 
     fn query(&self, command: QueryCommand) -> Result<(), io::Error> {
@@ -321,8 +318,8 @@ impl Client {
         let last_sample_at =
             DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(last_sample_ts, 0), Utc);
         Ok(Boundaries {
-            characteristic: characteristic,
-            last_sample_at: last_sample_at,
+            characteristic,
+            last_sample_at,
             num_samples: BigEndian::read_u16(&response[6..]),
         })
     }
