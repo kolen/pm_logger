@@ -67,10 +67,7 @@ impl Puller {
             let result: Result<Option<C>, _> = self.client.get_recorded(time);
             match result {
                 Ok(value) => {
-                    let sample = Sample {
-                        time: time,
-                        value: value,
-                    };
+                    let sample = Sample { time, value };
                     <C as StorableCharacteristic>::insert_sample(sample, &*self.connection)?;
                 }
                 Err(e) => {
