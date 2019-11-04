@@ -1,5 +1,5 @@
-extern crate log;
 extern crate env_logger;
+extern crate log;
 extern crate logging_node;
 
 use diesel::prelude::*;
@@ -40,13 +40,16 @@ fn main() {
             ))
         });
 
-    Command::new("rrdtool").args(
-        vec![
-            String::from("update"),
-            String::from("temp_humidity.rrd"),
-            String::from("--"),
-        ]
-        .into_iter()
-        .chain(rrd_keys)
-    ).spawn().unwrap();
+    Command::new("rrdtool")
+        .args(
+            vec![
+                String::from("update"),
+                String::from("temp_humidity.rrd"),
+                String::from("--"),
+            ]
+            .into_iter()
+            .chain(rrd_keys),
+        )
+        .spawn()
+        .unwrap();
 }

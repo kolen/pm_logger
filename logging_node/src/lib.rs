@@ -8,8 +8,8 @@ extern crate failure;
 
 #[macro_use]
 pub mod characteristics;
-pub mod storable_characteristic;
 pub mod client;
 pub mod database;
 pub mod puller;
 pub mod schema;
+pub mod storable_characteristic;
