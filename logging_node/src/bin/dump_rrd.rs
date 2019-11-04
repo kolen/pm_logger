@@ -32,12 +32,12 @@ fn main() {
     let rrd_keys = samples
         .into_iter()
         .map(|sample: Sample<TemperatureHumidity>| {
-            String::from(format!(
+            format!(
                 "{}:{}:{}",
                 sample.time.timestamp(),
                 rrd_format_sample_number(sample, |v| v.temperature()),
                 rrd_format_sample_number(sample, |v| v.humidity())
-            ))
+            )
         });
 
     Command::new("rrdtool")
