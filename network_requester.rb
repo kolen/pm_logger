@@ -22,7 +22,7 @@ udp.connect("pm_sensor.local", 12000)
 def get_current(udp)
   udp.send([GET_CURRENT].pack("c"))
 
-  data = udp.recvfrom(9)[0].unpack("c s>s> s>s> l>")
+  data = udp.recvfrom(13)[0].unpack("c s>s> s>s> l>")
   return if data[0] != RESPONSE_CURRENT
   {
     type: :current,
