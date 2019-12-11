@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/kolen/pm_logger.svg?style=svg)](https://circleci.com/gh/kolen/pm_logger)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=kolen/mm_map_tools)](https://dependabot.com)
 
 # Firmware
 
