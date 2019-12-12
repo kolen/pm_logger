@@ -1,6 +1,6 @@
 .pio
 .pioenvs
 .piolibdeps
-/src/credentials.h
+/src/pm_sensor/credentials.h
 /builddir/
 ~*
