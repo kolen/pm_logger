@@ -14,6 +14,7 @@ namespace pm_sensor {
   const int pressure_capacity = 24 * 6;
 
   int16_t float_to_stored(float value);
+  float stored_to_float(int16_t value);
 
   struct TemperatureHumidityMeasurement {
   public:
