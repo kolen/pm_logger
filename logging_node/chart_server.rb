@@ -23,12 +23,17 @@ get '/' do
     <section>
       <div id="chart-pressure"/>
     </section>
+    <section>
+      <pre id="refreshProgress" style="background: #000; color: #b9b9b9; overflow: scroll;"></pre>
+      <button id="refreshButton">Request fresh data from device</button>
+    </section>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.49.5/plotly.min.js" integrity="sha256-xHSdfdbRiDxTEfXllbJsH/p3znMFWgSVajVxZaSn958=" crossorigin="anonymous"></script>
     <script src="app.js"></script>
   END
 end
 
 get '/app.js' do
+  headers "Cache-Control" => "must-revalidate"
   send_file 'chart_server.js'
 end
 
@@ -46,4 +51,15 @@ get '/data/pressure.json' do
     .map { |ts, pressure| [format_time(ts), format_pressure(pressure)] }
     .transpose
     .to_json
+end
+
+post '/refresh' do
+  stream do |out|
+    IO.popen("target/release/logging_node", err: [:child, :out]) do |io|
+      io.each do |line|
+        out << line
+      end
+    end
+    out << "\nProcess finished with return value #{$?.exitstatus}"
+  end
 end
