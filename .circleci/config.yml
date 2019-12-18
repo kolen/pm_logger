@@ -26,6 +26,11 @@ jobs:
           paths:
             - ~/.local/lib/python3.5/site-packages/
             - ~/.cache/pip/
+      - run:
+          name: Create credentials header
+          command: |
+            cp ~/pm_sensor/src/pm_sensor/credentials.h.example \
+               ~/pm_sensor/src/pm_sensor/credentials.h
       - restore_cache:
           name: Restore meson subprojects cache
           keys:
