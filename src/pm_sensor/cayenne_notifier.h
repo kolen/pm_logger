@@ -6,7 +6,7 @@
 namespace pm_sensor {
   class CayenneNotifier {
   public:
-    CayenneNotifier(char* username, char* password, char* clientID):
+    CayenneNotifier(const char* username, const char* password, const char* clientID):
       username(username), password(password), clientID(clientID) { }
 
     void begin();
@@ -15,8 +15,8 @@ namespace pm_sensor {
     void notifyTempHumidity(TemperatureHumidityMeasurement tempHumidity);
     void notifyPressure(int32_t pressure);
   private:
-    char* username;
-    char* password;
-    char* clientID;
+    const char* username;
+    const char* password;
+    const char* clientID;
   };
 }

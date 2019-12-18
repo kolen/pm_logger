@@ -20,6 +20,13 @@ enum class CayenneChannel: unsigned int
 void CayenneNotifier::begin() {
   #ifdef ARDUINO
   Cayenne.begin(username, password, clientID, NULL, NULL);
+  #else
+  Logging::print("Init cayenne ");
+  Logging::print(username);
+  Logging::print(" ");
+  Logging::print(password);
+  Logging::print(" ");
+  Logging::println(clientID);
   #endif
 }
 
