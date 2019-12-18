@@ -55,7 +55,7 @@ end
 
 post '/refresh' do
   stream do |out|
-    IO.popen("target/release/logging_node", err: [:child, :out]) do |io|
+    IO.popen("logging_node", err: [:child, :out]) do |io|
       io.each do |line|
         out << line
       end

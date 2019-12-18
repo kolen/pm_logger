@@ -6,18 +6,17 @@
 		<string>org.lol.logging_node</string>
 
 		<key>Program</key>
-		<string>/Users/kolen/items/pm_sensor/logging_node/target/release/logging_node</string>
+		<string>/Users/kolen/.cargo/bin/logging_node</string>
 
 		<key>WorkingDirectory</key>
-		<string>/Users/kolen/items/pm_sensor/logging_node</string>
+		<string>/Users/kolen/.logging_node</string>
 
 		<key>StartInterval</key>
 		<integer>3600</integer>
 
 		<key>StandardOutPath</key>
-		<string>/Users/kolen/items/pm_sensor/logging_node/out.log</string>
+		<string>/Users/kolen/.logging_node/out.log</string>
 		<key>StandardErrorPath</key>
-		<string>/Users/kolen/items/pm_sensor/logging_node/error.log</string>
-
+		<string>/Users/kolen/.logging_node/error.log</string>
 	</dict>
 </plist>
