@@ -42,6 +42,7 @@ def format_time(timestamp)
 end
 
 def format_pressure(pressure_pa)
+  return nil if pressure_pa.nil?
   BigDecimal(pressure_pa) / BigDecimal("100")
 end
 
