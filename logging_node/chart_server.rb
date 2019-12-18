@@ -56,7 +56,7 @@ end
 
 post '/refresh' do
   stream do |out|
-    IO.popen("logging_node", err: [:child, :out]) do |io|
+    IO.popen("DATABASE_URL=#{Dir.home}/.logging_node/logging_node.sqlite logging_node", err: [:child, :out]) do |io|
       io.each do |line|
         out << line
       end
