@@ -13,7 +13,7 @@ require 'sinatra'
 require 'date'
 require 'bigdecimal'
 
-db = SQLite3::Database.new "logging_node.sqlite"
+db = SQLite3::Database.new "#{Dir.home}/.logging_node/logging_node.sqlite"
 
 get '/' do
   js = <<~END
