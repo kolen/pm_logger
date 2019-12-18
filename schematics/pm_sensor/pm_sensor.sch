@@ -88,149 +88,6 @@ Wire Wire Line
 	4350 2100 4650 2100
 Text GLabel 4650 2100 2    50   Output ~ 0
 sds_tx
-Text GLabel 4050 3400 0    50   BiDi ~ 0
-sda_3v
-$Comp
-L Transistor_FET:2N7000 Q1
-U 1 1 5CDD4658
-P 4450 3300
-F 0 "Q1" V 4701 3300 50  0000 C CNN
-F 1 "2N7000TA" V 4792 3300 50  0000 C CNN
-F 2 "Package_TO_SOT_THT:TO-92_Inline_Wide" H 4650 3225 50  0001 L CIN
-F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 4450 3300 50  0001 L CNN
-	1    4450 3300
-	0    1    1    0   
-$EndComp
-$Comp
-L power:+3.3V #PWR0105
-U 1 1 5CDDB7EF
-P 4150 3000
-F 0 "#PWR0105" H 4150 2850 50  0001 C CNN
-F 1 "+3.3V" H 4165 3173 50  0000 C CNN
-F 2 "" H 4150 3000 50  0001 C CNN
-F 3 "" H 4150 3000 50  0001 C CNN
-	1    4150 3000
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R R2
-U 1 1 5CDDC466
-P 4150 3200
-F 0 "R2" H 4220 3246 50  0000 L CNN
-F 1 "10k" H 4220 3155 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 4080 3200 50  0001 C CNN
-F 3 "~" H 4150 3200 50  0001 C CNN
-	1    4150 3200
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4050 3400 4150 3400
-Wire Wire Line
-	4150 3350 4150 3400
-Connection ~ 4150 3400
-Wire Wire Line
-	4150 3400 4250 3400
-Wire Wire Line
-	4150 3000 4150 3050
-$Comp
-L Device:R R4
-U 1 1 5CDDD43B
-P 4750 3200
-F 0 "R4" H 4820 3246 50  0000 L CNN
-F 1 "10k" H 4820 3155 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 4680 3200 50  0001 C CNN
-F 3 "~" H 4750 3200 50  0001 C CNN
-	1    4750 3200
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+5V #PWR0106
-U 1 1 5CDDFA1E
-P 4750 3000
-F 0 "#PWR0106" H 4750 2850 50  0001 C CNN
-F 1 "+5V" H 4765 3173 50  0000 C CNN
-F 2 "" H 4750 3000 50  0001 C CNN
-F 3 "" H 4750 3000 50  0001 C CNN
-	1    4750 3000
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4750 3000 4750 3050
-Wire Wire Line
-	4650 3400 4750 3400
-Wire Wire Line
-	4750 3400 4750 3350
-Wire Wire Line
-	4750 3400 4950 3400
-Connection ~ 4750 3400
-Text GLabel 4950 3400 2    50   BiDi ~ 0
-sda_5v
-Text GLabel 4050 4350 0    50   Output ~ 0
-scl_3v
-$Comp
-L power:+3.3V #PWR0107
-U 1 1 5CDFE055
-P 4150 3950
-F 0 "#PWR0107" H 4150 3800 50  0001 C CNN
-F 1 "+3.3V" H 4165 4123 50  0000 C CNN
-F 2 "" H 4150 3950 50  0001 C CNN
-F 3 "" H 4150 3950 50  0001 C CNN
-	1    4150 3950
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R R3
-U 1 1 5CDFE05B
-P 4150 4150
-F 0 "R3" H 4220 4196 50  0000 L CNN
-F 1 "10k" H 4220 4105 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 4080 4150 50  0001 C CNN
-F 3 "~" H 4150 4150 50  0001 C CNN
-	1    4150 4150
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4050 4350 4150 4350
-Wire Wire Line
-	4150 4300 4150 4350
-Connection ~ 4150 4350
-Wire Wire Line
-	4150 4350 4250 4350
-Wire Wire Line
-	4150 3950 4150 4000
-$Comp
-L Device:R R5
-U 1 1 5CDFE066
-P 4750 4150
-F 0 "R5" H 4820 4196 50  0000 L CNN
-F 1 "10k" H 4820 4105 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 4680 4150 50  0001 C CNN
-F 3 "~" H 4750 4150 50  0001 C CNN
-	1    4750 4150
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+5V #PWR0108
-U 1 1 5CDFE06C
-P 4750 3950
-F 0 "#PWR0108" H 4750 3800 50  0001 C CNN
-F 1 "+5V" H 4765 4123 50  0000 C CNN
-F 2 "" H 4750 3950 50  0001 C CNN
-F 3 "" H 4750 3950 50  0001 C CNN
-	1    4750 3950
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4750 3950 4750 4000
-Wire Wire Line
-	4650 4350 4750 4350
-Wire Wire Line
-	4750 4350 4750 4300
-Wire Wire Line
-	4750 4350 4950 4350
-Connection ~ 4750 4350
-Text GLabel 4950 4350 2    50   Output ~ 0
-scl_5v
 Text GLabel 5950 900  0    50   BiDi ~ 0
 sda_3v
 $Comp
@@ -286,95 +143,6 @@ F 3 "" H 6400 1200 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Connector:Conn_01x04_Male J3
-U 1 1 5CE08ABF
-P 6600 2000
-F 0 "J3" H 6572 1882 50  0000 R CNN
-F 1 "conn_display" H 6572 1973 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 6600 2000 50  0001 C CNN
-F 3 "~" H 6600 2000 50  0001 C CNN
-	1    6600 2000
-	-1   0    0    1   
-$EndComp
-Text GLabel 5950 1800 0    50   Output ~ 0
-scl_5v
-Text GLabel 5950 1900 0    50   BiDi ~ 0
-sda_5v
-$Comp
-L power:GND #PWR0112
-U 1 1 5CE0C0FA
-P 5950 2100
-F 0 "#PWR0112" H 5950 1850 50  0001 C CNN
-F 1 "GND" H 5955 1927 50  0000 C CNN
-F 2 "" H 5950 2100 50  0001 C CNN
-F 3 "" H 5950 2100 50  0001 C CNN
-	1    5950 2100
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+5V #PWR0113
-U 1 1 5CE0C9E0
-P 5950 2000
-F 0 "#PWR0113" H 5950 1850 50  0001 C CNN
-F 1 "+5V" V 5965 2128 50  0000 L CNN
-F 2 "" H 5950 2000 50  0001 C CNN
-F 3 "" H 5950 2000 50  0001 C CNN
-	1    5950 2000
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	5950 2000 6400 2000
-Wire Wire Line
-	5950 2100 6400 2100
-Wire Wire Line
-	5950 1900 6400 1900
-Wire Wire Line
-	5950 1800 6400 1800
-$Comp
-L power:+5V #PWR0114
-U 1 1 5CE0F7E8
-P 4200 900
-F 0 "#PWR0114" H 4200 750 50  0001 C CNN
-F 1 "+5V" H 4215 1073 50  0000 C CNN
-F 2 "" H 4200 900 50  0001 C CNN
-F 3 "" H 4200 900 50  0001 C CNN
-	1    4200 900 
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR0115
-U 1 1 5CE106B0
-P 4200 1200
-F 0 "#PWR0115" H 4200 950 50  0001 C CNN
-F 1 "GND" H 4205 1027 50  0000 C CNN
-F 2 "" H 4200 1200 50  0001 C CNN
-F 3 "" H 4200 1200 50  0001 C CNN
-	1    4200 1200
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:C C1
-U 1 1 5CE11046
-P 4200 1050
-F 0 "C1" H 4315 1096 50  0000 L CNN
-F 1 "100nF" H 4315 1005 50  0000 L CNN
-F 2 "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm" H 4238 900 50  0001 C CNN
-F 3 "~" H 4200 1050 50  0001 C CNN
-	1    4200 1050
-	1    0    0    -1  
-$EndComp
-$Comp
-L Transistor_FET:2N7000 Q2
-U 1 1 5CE152C1
-P 4450 4250
-F 0 "Q2" V 4701 4250 50  0000 C CNN
-F 1 "2N7000TA" V 4792 4250 50  0000 C CNN
-F 2 "Package_TO_SOT_THT:TO-92_Inline_Wide" H 4650 4175 50  0001 L CIN
-F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 4450 4250 50  0001 L CNN
-	1    4450 4250
-	0    1    1    0   
-$EndComp
-$Comp
 L power:GND #PWR0116
 U 1 1 5CDD7496
 P 2250 3450
@@ -385,16 +153,6 @@ F 3 "" H 2250 3450 50  0001 C CNN
 	1    2250 3450
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	4150 3000 4450 3000
-Wire Wire Line
-	4450 3000 4450 3100
-Connection ~ 4150 3000
-Wire Wire Line
-	4150 3950 4450 3950
-Wire Wire Line
-	4450 3950 4450 4050
-Connection ~ 4150 3950
 $Comp
 L New_Library:BMP180_breakout D1
 U 1 1 5CDDA03B
@@ -406,12 +164,8 @@ F 3 "" H 6700 750 50  0001 C CNN
 	1    6700 1050
 	1    0    0    -1  
 $EndComp
-NoConn ~ 1850 2250
 NoConn ~ 1850 2550
 NoConn ~ 1850 2650
-NoConn ~ 2650 3050
-NoConn ~ 2650 2550
-NoConn ~ 2650 2150
 $Comp
 L power:+3.3V #PWR0117
 U 1 1 5CDE0ACD
@@ -551,18 +305,6 @@ Wire Wire Line
 	7850 2050 7950 2050
 Text GLabel 2900 2250 2    50   Output ~ 0
 sds_switch
-NoConn ~ 2650 2650
-$Comp
-L Connector_Generic:Conn_01x03 J2
-U 1 1 5CE58BB4
-P 2400 1050
-F 0 "J2" H 2480 1092 50  0000 L CNN
-F 1 "Conn_01x03" H 2480 1001 50  0000 L CNN
-F 2 "" H 2400 1050 50  0001 C CNN
-F 3 "~" H 2400 1050 50  0001 C CNN
-	1    2400 1050
-	1    0    0    -1  
-$EndComp
 $Comp
 L power:+3.3V #PWR0103
 U 1 1 5CDD0905
@@ -659,4 +401,87 @@ Wire Wire Line
 	8400 2050 8550 2050
 Wire Wire Line
 	8400 2450 8400 2700
+$Comp
+L Connector:Conn_01x08_Male J3
+U 1 1 5DC0FF82
+P 3800 3800
+F 0 "J3" H 3908 4281 50  0000 C CNN
+F 1 "display_conn" H 3908 4190 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 3800 3800 50  0001 C CNN
+F 3 "~" H 3800 3800 50  0001 C CNN
+	1    3800 3800
+	1    0    0    -1  
+$EndComp
+Text GLabel 4300 3500 2    50   Input ~ 0
+rst
+$Comp
+L power:GND #PWR03
+U 1 1 5DC17D5F
+P 4600 3600
+F 0 "#PWR03" H 4600 3350 50  0001 C CNN
+F 1 "GND" H 4605 3427 50  0000 C CNN
+F 2 "" H 4600 3600 50  0001 C CNN
+F 3 "" H 4600 3600 50  0001 C CNN
+	1    4600 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR04
+U 1 1 5DC18403
+P 4600 4200
+F 0 "#PWR04" H 4600 3950 50  0001 C CNN
+F 1 "GND" H 4605 4027 50  0000 C CNN
+F 2 "" H 4600 4200 50  0001 C CNN
+F 3 "" H 4600 4200 50  0001 C CNN
+	1    4600 4200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4000 4200 4600 4200
+Wire Wire Line
+	4000 3600 4600 3600
+Wire Wire Line
+	4000 3500 4300 3500
+Text GLabel 1700 2250 0    50   Input ~ 0
+rst
+Wire Wire Line
+	1700 2250 1850 2250
+$Comp
+L power:+3.3V #PWR02
+U 1 1 5DC1A90F
+P 4300 4000
+F 0 "#PWR02" H 4300 3850 50  0001 C CNN
+F 1 "+3.3V" V 4315 4128 50  0000 L CNN
+F 2 "" H 4300 4000 50  0001 C CNN
+F 3 "" H 4300 4000 50  0001 C CNN
+	1    4300 4000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4000 4000 4300 4000
+Text GLabel 4050 3700 2    50   Input ~ 0
+display_dc
+Wire Wire Line
+	4000 3700 4050 3700
+Text GLabel 4050 3800 2    50   Input ~ 0
+display_din
+Wire Wire Line
+	4000 3800 4050 3800
+Text GLabel 4050 3900 2    50   Input ~ 0
+display_clk
+Wire Wire Line
+	4000 3900 4050 3900
+Text GLabel 2850 2550 2    50   Input ~ 0
+display_dc
+Text GLabel 2850 2650 2    50   Input ~ 0
+display_din
+Text GLabel 2850 3050 2    50   Input ~ 0
+display_clk
+Wire Wire Line
+	2650 3050 2850 3050
+NoConn ~ 2650 2150
+Wire Wire Line
+	2650 2550 2850 2550
+Wire Wire Line
+	2650 2650 2850 2650
 $EndSCHEMATC
