@@ -77,6 +77,7 @@ impl Puller {
         let mut complete = true;
         for time in unfilled_times {
             let result: Result<Option<C>, _> = self.client.get_recorded(time);
+            eprint!("{}", time.time().format("\r%H:%M "));
             match result {
                 Ok(value) => {
                     let sample = Sample { time, value };
