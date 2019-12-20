@@ -55,6 +55,15 @@ impl Puller {
     where
         C: Characteristic + NetworkedCharacteristic + StorableCharacteristic,
     {
+        self.connection
+            .exclusive_transaction(|| self.update_characteristic_inner::<C>())
+    }
+
+    /// Real meat of update_characteristic that happens inside transaction
+    fn update_characteristic_inner<C>(&self) -> Result<UpdateResult, PullerError>
+    where
+        C: Characteristic + NetworkedCharacteristic + StorableCharacteristic,
+    {
         info!(
             "Update characteristic {}",
             <C as NetworkedCharacteristic>::query_characteristic()
