@@ -122,7 +122,7 @@ impl StorableCharacteristic for PM {
         connection: &SqliteConnection,
     ) -> Result<(), diesel::result::Error> {
         insert_into(measurements_pm::table)
-            .values(insert_pm_values!(&sample))
+            .values(insert_pm_values!(sample))
             .execute(connection)
             .map(|_| ())
     }
@@ -136,7 +136,7 @@ impl StorableCharacteristic for TemperatureHumidity {
         connection: &SqliteConnection,
     ) -> Result<(), diesel::result::Error> {
         insert_into(measurements_temp_humidity::table)
-            .values(insert_temp_humidity_values!(&sample))
+            .values(insert_temp_humidity_values!(sample))
             .execute(connection)
             .map(|_| ())
     }
@@ -150,7 +150,7 @@ impl StorableCharacteristic for Pressure {
         connection: &SqliteConnection,
     ) -> Result<(), diesel::result::Error> {
         insert_into(measurements_pressure::table)
-            .values(insert_pressure_values!(&sample))
+            .values(insert_pressure_values!(sample))
             .execute(connection)
             .map(|_| ())
     }
