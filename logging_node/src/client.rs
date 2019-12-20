@@ -29,6 +29,7 @@ impl fmt::Display for QueryCharacteristic {
     }
 }
 
+#[allow(clippy::enum_variant_names)] // All commands are 'get' for now
 enum QueryCommand {
     GetCurrent,
     GetRecorded(DateTime<Utc>, QueryCharacteristic),
