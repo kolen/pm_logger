@@ -55,6 +55,9 @@ impl Puller {
     where
         C: Characteristic + NetworkedCharacteristic + StorableCharacteristic,
     {
+        // Multiple logging_node processes could be running in
+        // parallel so we wrap whole update process in exclusive
+        // transaction
         self.connection
             .exclusive_transaction(|| self.update_characteristic_inner::<C>())
     }
