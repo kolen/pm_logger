@@ -16,6 +16,10 @@
                 <dict>
 	          <key>DATABASE_URL</key>
 	          <string>/Users/kolen/.logging_node/logging_node.sqlite</string>
+                  <key>LOGGER_HOST</key>
+                  <string>pm_sensor.local:12000</string>
+                  <key>RUST_LOG</key>
+                  <string>debug</string>
                 </dict>
 
 		<key>StartInterval</key>
