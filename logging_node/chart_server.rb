@@ -12,6 +12,7 @@ require 'sqlite3'
 require 'sinatra'
 require 'date'
 require 'bigdecimal'
+require 'pty'
 
 db = SQLite3::Database.new "#{Dir.home}/.logging_node/logging_node.sqlite"
 
@@ -20,14 +21,17 @@ get '/' do
   END
 
   template = <<~END
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" integrity="sha256-uTIrmf95e6IHlacC0wpDaPS58eWF314UC7OgdrD6AdU=" crossorigin="anonymous" />
     <section>
       <div id="chart-pressure"/>
     </section>
     <section>
-      <pre id="refreshProgress" style="background: #000; color: #b9b9b9; overflow: scroll;"></pre>
+      <div id="terminal" style="width: 0; padding: 2px;"></div>
       <button id="refreshButton">Request fresh data from device</button>
     </section>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.49.5/plotly.min.js" integrity="sha256-xHSdfdbRiDxTEfXllbJsH/p3znMFWgSVajVxZaSn958=" crossorigin="anonymous"></script>
+    <!-- This is ancient version, as new versions does not work with script tag without npm -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js" integrity="sha256-tDeULIXIGkXbz7dkZ0qcQajBIS22qS8jQ6URaeMoVJs=" crossorigin="anonymous"></script>
     <script src="app.js"></script>
   END
 end
@@ -55,12 +59,19 @@ get '/data/pressure.json' do
 end
 
 post '/refresh' do
-  stream do |out|
-    IO.popen("DATABASE_URL=#{Dir.home}/.logging_node/logging_node.sqlite logging_node", err: [:child, :out]) do |io|
-      io.each do |line|
-        out << line
+  command = "DATABASE_URL=#{Dir.home}/.logging_node/logging_node.sqlite logging_node"
+
+  PTY.spawn(command) do |reader, _writer, pid|
+    stream do |out|
+      out << "Started logging_node (pid #{pid})\r\n"
+      begin
+        while true
+          fragment = reader.readpartial(0x1000)
+          out << fragment
+        end
+      rescue EOFError
+        out << "\r\nProcess finished\r\n"
       end
     end
-    out << "\nProcess finished with return value #{$?.exitstatus}"
   end
 end

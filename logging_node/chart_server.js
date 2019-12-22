@@ -1,3 +1,5 @@
+const term = new Terminal({rows: 10, cols: 80});
+
 async function initCharts() {
     console.log("started");
     let download = await fetch("data/pressure.json");
@@ -26,9 +28,7 @@ async function initCharts() {
 }
 
 async function refreshData() {
-    console.log("Starting refreshData");
-    let progress = document.getElementById("refreshProgress");
-    progress.textContent = "Refreshing...\n";
+    term.write("Refreshing...\r\n");
     let response = await fetch("refresh", {method: "POST"});
     let reader = await response.body.getReader();
 
@@ -36,12 +36,14 @@ async function refreshData() {
     let decoder = new TextDecoder("utf-8");
     do {
         chunk = await reader.read();
-        progress.textContent = progress.textContent + decoder.decode(chunk.value);
+        term.writeUtf8(chunk.value);
     } while (!chunk.done);
 
     await initCharts();
 }
 
+term.open(document.getElementById('terminal'));
+term.setOption("cursorStyle", "block");
+term.setOption("cursorBlink", true);
 document.getElementById("refreshButton").addEventListener("click", refreshData);
-
 initCharts();
