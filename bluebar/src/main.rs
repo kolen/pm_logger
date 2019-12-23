@@ -6,7 +6,7 @@
 use bme280::BME280;
 use cortex_m_semihosting::hprintln;
 use panic_semihosting as _;
-use stm32f1xx_hal::{delay::Delay, gpio, i2c, pac, prelude::*, time::U32Ext};
+use stm32f1xx_hal::{delay::Delay, gpio, i2c, pac, prelude::*};
 
 #[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true)]
 const APP: () = {
