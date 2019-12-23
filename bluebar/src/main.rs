@@ -6,7 +6,7 @@
 use bme280::BME280;
 use cortex_m_semihosting::hprintln;
 use panic_semihosting as _;
-use stm32f1xx_hal::{delay::Delay, gpio, i2c, pac, prelude::*, time::KiloHertz};
+use stm32f1xx_hal::{delay::Delay, gpio, i2c, pac, prelude::*, time::U32Ext};
 
 #[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true)]
 const APP: () = {
@@ -41,7 +41,7 @@ const APP: () = {
             cx.device.I2C1,
             (scl, sda),
             &mut afio.mapr,
-            i2c::Mode::standard(KiloHertz(1)),
+            i2c::Mode::standard(1.khz()),
             clocks,
             &mut rcc.apb1,
         );
