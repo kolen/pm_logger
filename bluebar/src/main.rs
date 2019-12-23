@@ -58,6 +58,9 @@ const APP: () = {
     fn idle(cx: idle::Context) -> ! {
         let bme280 = cx.resources.bme280;
         hprintln!("Initializing").ok();
+        // Looks like we need some time before init. Adding this
+        // hprintln! makes it working, without it it fails with
+        // I2c(Acknowledge). Or to tweak some timeouts.
         bme280.init().unwrap();
         hprintln!("Measuring").ok();
         let measurements = bme280.measure().unwrap();
