@@ -5,10 +5,31 @@
 
 use bme280::BME280;
 use cortex_m_semihosting::hprintln;
+use embedded_hal::blocking::delay::DelayMs;
 use panic_semihosting as _;
-use stm32f1xx_hal::{delay::Delay, gpio, i2c, pac, prelude::*};
+use rtfm::cyccnt::{Duration, Instant, U32Ext};
+use stm32f1xx_hal::{gpio, i2c, pac, prelude::*, time::Hertz};
 
-#[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true)]
+/// Delay that is shitty and unpredictable, it could wait for much
+/// more than requested. See also:
+/// https://users.rust-lang.org/t/embedded-rtfm-timer-queue-blocking-wait/25369/5
+pub struct ShittyDelay {
+    sysclk_freq: Hertz,
+}
+
+impl ShittyDelay {
+    pub fn new(sysclk_freq: Hertz) -> Self {
+        ShittyDelay { sysclk_freq }
+    }
+}
+
+impl DelayMs<u8> for ShittyDelay {
+    fn delay_ms(&mut self, ms: u8) {
+        cortex_m::asm::delay(self.sysclk_freq.0 / (1_000_000 * (ms as u32)));
+    }
+}
+
+#[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
         bme280: bme280::BME280<
@@ -19,16 +40,21 @@ const APP: () = {
                     gpio::gpiob::PB9<gpio::Alternate<gpio::OpenDrain>>,
                 ),
             >,
-            stm32f1xx_hal::delay::Delay,
+            ShittyDelay,
         >,
+        period: Duration,
     }
 
-    #[init]
-    fn init(cx: init::Context) -> init::LateResources {
+    #[init(schedule = [periodic_measure])]
+    fn init(mut cx: init::Context) -> init::LateResources {
         let mut flash = cx.device.FLASH.constrain();
         let mut rcc = cx.device.RCC.constrain();
-        // Dunno what I do and how this works
-        let clocks = rcc.cfgr.adcclk(2.mhz()).freeze(&mut flash.acr);
+        let clocks = rcc
+            .cfgr
+            .use_hse(8.mhz())
+            .sysclk(72.mhz())
+            .pclk1(36.mhz())
+            .freeze(&mut flash.acr);
 
         // This thing probably configures alternate mode of
         // pins. Hmm...
@@ -45,30 +71,50 @@ const APP: () = {
             clocks,
             &mut rcc.apb1,
         );
-        let blocking_i2c = i2c::blocking_i2c(i2c, clocks, 1_000, 10, 1_000, 1_000);
-        let delay = Delay::new(cx.core.SYST, clocks);
-        let bme280 = BME280::new_primary(blocking_i2c, delay);
+        let blocking_i2c = i2c::blocking_i2c(i2c, clocks, 1_000_000, 10, 1_000_000, 1_000_000);
+        let delay = ShittyDelay::new(clocks.sysclk());
+        let mut bme280 = BME280::new_primary(blocking_i2c, delay);
+        bme280.init().expect("Init failed");
 
-        hprintln!("init").unwrap();
+        // TODO: find a better timer, this ticks at unknown rate and
+        // sucks
+        cx.core.DCB.enable_trace();
+        cx.core.DWT.enable_cycle_counter();
 
-        init::LateResources { bme280 }
+        // TODO: is there cleaner way?
+        //let period = clocks.sysclk().0.cycles();
+        let period = 1_000_000.cycles();
+
+        hprintln!("init").ok();
+        hprintln!("schedule period: {}", period.as_cycles()).ok();
+        hprintln!("init @ {:?}", cx.start).ok();
+
+        cx.schedule.periodic_measure(cx.start + period).unwrap();
+
+        hprintln!("Schedule ok").ok();
+
+        init::LateResources { bme280, period }
     }
 
-    #[idle(resources = [bme280])]
-    fn idle(cx: idle::Context) -> ! {
+    #[task(schedule = [periodic_measure], resources=[period, bme280])]
+    fn periodic_measure(cx: periodic_measure::Context) {
+        hprintln!("periodic_measure").ok();
+        let now = Instant::now();
+        hprintln!("scheduled = {:?}, now = {:?}", cx.scheduled, now).unwrap();
+
         let bme280 = cx.resources.bme280;
-        hprintln!("Initializing").ok();
-        // Looks like we need some time before init. Adding this
-        // hprintln! makes it working, without it it fails with
-        // I2c(Acknowledge). Or to tweak some timeouts.
-        bme280.init().unwrap();
-        hprintln!("Measuring").ok();
-        let measurements = bme280.measure().unwrap();
+        let measurements = bme280.measure().expect("Measure failed");
 
         hprintln!("Relative Humidity = {}%", measurements.humidity).ok();
         hprintln!("Temperature = {} deg C", measurements.temperature).ok();
         hprintln!("Pressure = {} pascals", measurements.pressure).ok();
 
-        loop {}
+        cx.schedule
+            .periodic_measure(cx.scheduled + *cx.resources.period)
+            .unwrap();
+    }
+
+    extern "C" {
+        fn DMA1_CHANNEL1();
     }
 };
