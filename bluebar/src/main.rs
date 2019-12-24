@@ -82,8 +82,7 @@ const APP: () = {
         cx.core.DWT.enable_cycle_counter();
 
         // TODO: is there cleaner way?
-        //let period = clocks.sysclk().0.cycles();
-        let period = 1_000_000.cycles();
+        let period = (clocks.sysclk().0 * 10).cycles();
 
         hprintln!("init").ok();
         hprintln!("schedule period: {}", period.as_cycles()).ok();
