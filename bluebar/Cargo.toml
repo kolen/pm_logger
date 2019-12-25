@@ -14,7 +14,8 @@ panic-semihosting = "0.5.3"
 cortex-m-rtfm = "0.5.1"
 bme280 = "0.1.2"
 embedded-hal = "0.2.3"
-pcd8544 = "0.1.8"
+pcd8544 = { git = "https://github.com/kolen/pcd8544", branch = "owned-pins" }
+rental = { version = "0.5.5", default-features=false }
 
 # Uncomment for the panic example.
 # panic-itm = "0.4.1"

@@ -14,7 +14,13 @@ use embedded_hal::digital::v1_compat::OldOutputPin;
 use panic_semihosting as _;
 use pcd8544::PCD8544;
 use rtfm::cyccnt::{Duration, Instant, U32Ext};
-use stm32f1xx_hal::{gpio, i2c, pac, prelude::*, time::Hertz};
+use stm32f1xx_hal::{
+    gpio,
+    gpio::{gpioa, gpiob, Alternate, OpenDrain, PushPull},
+    i2c, pac,
+    prelude::*,
+    time::Hertz,
+};
 
 /// Delay that is shitty and unpredictable, it could wait for much
 /// more than requested. See also:
@@ -42,11 +48,19 @@ const APP: () = {
             i2c::BlockingI2c<
                 pac::I2C1,
                 (
-                    gpio::gpiob::PB8<gpio::Alternate<gpio::OpenDrain>>,
-                    gpio::gpiob::PB9<gpio::Alternate<gpio::OpenDrain>>,
+                    gpiob::PB8<Alternate<OpenDrain>>,
+                    gpiob::PB9<Alternate<OpenDrain>>,
                 ),
             >,
             ShittyDelay,
+        >,
+        display: pcd8544::PCD8544<
+            OldOutputPin<gpiob::PB7<gpio::Output<PushPull>>>,
+            OldOutputPin<gpiob::PB6<gpio::Output<PushPull>>>,
+            OldOutputPin<gpiob::PB5<gpio::Output<PushPull>>>,
+            OldOutputPin<dummy_pin::DummyOutputPin>,
+            OldOutputPin<gpioa::PA12<gpio::Output<PushPull>>>,
+            OldOutputPin<dummy_pin::DummyOutputPin>,
         >,
         period: Duration,
     }
@@ -99,26 +113,23 @@ const APP: () = {
 
         hprintln!("Schedule ok").ok();
 
-        let mut pin_clk: OldOutputPin<_> = gpiob.pb7.into_push_pull_output(&mut gpiob.crl).into();
-        let mut pin_din: OldOutputPin<_> = gpiob.pb6.into_push_pull_output(&mut gpiob.crl).into();
-        let mut pin_dc: OldOutputPin<_> = gpiob.pb5.into_push_pull_output(&mut gpiob.crl).into();
-        let mut pin_rst: OldOutputPin<_> = gpioa.pa12.into_push_pull_output(&mut gpioa.crh).into();
+        let pin_clk: OldOutputPin<_> = gpiob.pb7.into_push_pull_output(&mut gpiob.crl).into();
+        let pin_din: OldOutputPin<_> = gpiob.pb6.into_push_pull_output(&mut gpiob.crl).into();
+        let pin_dc: OldOutputPin<_> = gpiob.pb5.into_push_pull_output(&mut gpiob.crl).into();
+        let pin_rst: OldOutputPin<_> = gpioa.pa12.into_push_pull_output(&mut gpioa.crh).into();
 
         // CE: pulled up to Vcc
-        let mut dummy_ce: OldOutputPin<_> = DummyOutputPin::new().into();
+        let dummy_ce: OldOutputPin<_> = DummyOutputPin::new().into();
         // Light: floating for now
-        let mut dummy_rst: OldOutputPin<_> = DummyOutputPin::new().into();
+        let dummy_light: OldOutputPin<_> = DummyOutputPin::new().into();
 
-        let _display = PCD8544::new(
-            &mut pin_clk,
-            &mut pin_din,
-            &mut pin_dc,
-            &mut dummy_ce,
-            &mut pin_rst,
-            &mut dummy_rst,
-        );
+        let display = PCD8544::new(pin_clk, pin_din, pin_dc, dummy_ce, pin_rst, dummy_light);
 
-        init::LateResources { bme280, period }
+        init::LateResources {
+            bme280,
+            display,
+            period,
+        }
     }
 
     #[task(schedule = [periodic_measure], resources=[period, bme280])]
