@@ -15,8 +15,7 @@ use panic_semihosting as _;
 use pcd8544::PCD8544;
 use rtfm::cyccnt::{Duration, Instant, U32Ext};
 use stm32f1xx_hal::{
-    gpio,
-    gpio::{gpioa, gpiob, Alternate, OpenDrain, PushPull},
+    gpio::{gpioa, gpiob, Alternate, OpenDrain, Output as GpioOutput, PushPull},
     i2c, pac,
     prelude::*,
     time::Hertz,
@@ -55,11 +54,11 @@ const APP: () = {
             ShittyDelay,
         >,
         display: pcd8544::PCD8544<
-            OldOutputPin<gpiob::PB7<gpio::Output<PushPull>>>,
-            OldOutputPin<gpiob::PB6<gpio::Output<PushPull>>>,
-            OldOutputPin<gpiob::PB5<gpio::Output<PushPull>>>,
+            OldOutputPin<gpiob::PB7<GpioOutput<PushPull>>>,
+            OldOutputPin<gpiob::PB6<GpioOutput<PushPull>>>,
+            OldOutputPin<gpiob::PB5<GpioOutput<PushPull>>>,
             OldOutputPin<DummyOutputPin>,
-            OldOutputPin<gpioa::PA12<gpio::Output<PushPull>>>,
+            OldOutputPin<gpioa::PA12<GpioOutput<PushPull>>>,
             OldOutputPin<DummyOutputPin>,
         >,
         period: Duration,
