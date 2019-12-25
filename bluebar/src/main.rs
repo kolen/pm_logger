@@ -3,10 +3,16 @@
 #![no_main]
 #![no_std]
 
+mod dummy_pin;
+
+use dummy_pin::DummyOutputPin;
+
 use bme280::BME280;
 use cortex_m_semihosting::hprintln;
 use embedded_hal::blocking::delay::DelayMs;
+use embedded_hal::digital::v1_compat::OldOutputPin;
 use panic_semihosting as _;
+use pcd8544::PCD8544;
 use rtfm::cyccnt::{Duration, Instant, U32Ext};
 use stm32f1xx_hal::{gpio, i2c, pac, prelude::*, time::Hertz};
 
@@ -59,6 +65,7 @@ const APP: () = {
         // This thing probably configures alternate mode of
         // pins. Hmm...
         let mut afio = cx.device.AFIO.constrain(&mut rcc.apb2);
+        let mut gpioa = cx.device.GPIOA.split(&mut rcc.apb2);
         let mut gpiob = cx.device.GPIOB.split(&mut rcc.apb2);
         let scl = gpiob.pb8.into_alternate_open_drain(&mut gpiob.crh);
         let sda = gpiob.pb9.into_alternate_open_drain(&mut gpiob.crh);
@@ -91,6 +98,23 @@ const APP: () = {
         cx.schedule.periodic_measure(cx.start + period).unwrap();
 
         hprintln!("Schedule ok").ok();
+
+        let mut pin_clk: OldOutputPin<_> = gpiob.pb7.into_push_pull_output(&mut gpiob.crl).into();
+        let mut pin_din: OldOutputPin<_> = gpiob.pb6.into_push_pull_output(&mut gpiob.crl).into();
+        let mut pin_dc: OldOutputPin<_> = gpiob.pb5.into_push_pull_output(&mut gpiob.crl).into();
+        let mut pin_rst: OldOutputPin<_> = gpioa.pa12.into_push_pull_output(&mut gpioa.crh).into();
+
+        let mut dummy_ce: OldOutputPin<_> = DummyOutputPin::new().into();
+        let mut dummy_rst: OldOutputPin<_> = DummyOutputPin::new().into();
+
+        let _display = PCD8544::new(
+            &mut pin_clk,
+            &mut pin_din,
+            &mut pin_dc,
+            &mut dummy_ce, // CE: pulled up to Vcc
+            &mut pin_rst,
+            &mut dummy_rst, // Light: floating
+        );
 
         init::LateResources { bme280, period }
     }

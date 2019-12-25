@@ -14,6 +14,7 @@ panic-semihosting = "0.5.3"
 cortex-m-rtfm = "0.5.1"
 bme280 = "0.1.2"
 embedded-hal = "0.2.3"
+pcd8544 = "0.1.8"
 
 # Uncomment for the panic example.
 # panic-itm = "0.4.1"
