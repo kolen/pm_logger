@@ -58,9 +58,9 @@ const APP: () = {
             OldOutputPin<gpiob::PB7<gpio::Output<PushPull>>>,
             OldOutputPin<gpiob::PB6<gpio::Output<PushPull>>>,
             OldOutputPin<gpiob::PB5<gpio::Output<PushPull>>>,
-            OldOutputPin<dummy_pin::DummyOutputPin>,
+            OldOutputPin<DummyOutputPin>,
             OldOutputPin<gpioa::PA12<gpio::Output<PushPull>>>,
-            OldOutputPin<dummy_pin::DummyOutputPin>,
+            OldOutputPin<DummyOutputPin>,
         >,
         period: Duration,
     }
