@@ -104,16 +104,18 @@ const APP: () = {
         let mut pin_dc: OldOutputPin<_> = gpiob.pb5.into_push_pull_output(&mut gpiob.crl).into();
         let mut pin_rst: OldOutputPin<_> = gpioa.pa12.into_push_pull_output(&mut gpioa.crh).into();
 
+        // CE: pulled up to Vcc
         let mut dummy_ce: OldOutputPin<_> = DummyOutputPin::new().into();
+        // Light: floating for now
         let mut dummy_rst: OldOutputPin<_> = DummyOutputPin::new().into();
 
         let _display = PCD8544::new(
             &mut pin_clk,
             &mut pin_din,
             &mut pin_dc,
-            &mut dummy_ce, // CE: pulled up to Vcc
+            &mut dummy_ce,
             &mut pin_rst,
-            &mut dummy_rst, // Light: floating
+            &mut dummy_rst,
         );
 
         init::LateResources { bme280, period }
