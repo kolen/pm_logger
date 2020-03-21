@@ -36,9 +36,10 @@ int dhtPin = -1;
 #endif
 
 DataStore data;
-CayenneNotifier cayenne_notifier(CAYENNE_USERNAME, CAYENNE_PASSWORD, CAYENNE_CLIENT_ID);
 
 #ifdef ARDUINO
+CayenneNotifier cayenne_notifier(CAYENNE_USERNAME, CAYENNE_PASSWORD, CAYENNE_CLIENT_ID);
+
 Display display(data);
 ArduinoNetworkResponder network_responder;
 #else
@@ -64,17 +65,23 @@ int32_t temp_pressure_sample_time = 0;
 
 void pm_measurement_callback(PMMeasurement measurement) {
   data.addPM(measurement, pm_sample_time);
+  #ifdef ARDUINO
   cayenne_notifier.notifyPM(measurement);
+  #endif
 }
 
 void dht_measurement_callback(TemperatureHumidityMeasurement measurement) {
   data.addTempHumidity(measurement, temp_pressure_sample_time);
+  #ifdef ARDUINO
   cayenne_notifier.notifyTempHumidity(measurement);
+  #endif
 }
 
 void bmp_measurement_callback(int32_t pressure) {
   data.addPressure(pressure, temp_pressure_sample_time);
+  #ifdef ARDUINO
   cayenne_notifier.notifyPressure(pressure);
+  #endif
 }
 
 SensorPM sensor_pm(pm_measurement_callback, sensor_pm_device);
@@ -145,7 +152,9 @@ void setup() {
   #endif
 
   Logging::println(FLS("Initializing Cayenne notifier"));
+  #ifdef ARDUINO
   cayenne_notifier.begin();
+  #endif
 
   Logging::println(FLS("Initialization complete, entering main loop"));
 }
@@ -183,7 +192,9 @@ void loop() {
   #endif
   //Logging::println(FLS("Main loop - finished"));
 
+  #ifdef ARDUINO
   cayenne_notifier.tick(current_time);
+  #endif
 }
 
 #ifndef ARDUINO
