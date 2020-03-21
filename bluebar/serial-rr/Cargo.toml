@@ -1,0 +1,8 @@
+[package]
+name = "serial-rr"
+version = "0.1.0"
+authors = ["kolen <incredible.angst@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+embedded-hal = "0.2.3"

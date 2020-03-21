@@ -5,6 +5,9 @@ readme = "README.md"
 name = "bluebar"
 version = "0.1.0"
 
+# [workspace]
+# members = ["serial-rr"]
+
 [dependencies]
 cortex-m = "0.6.0"
 cortex-m-rt = { version = "0.6.10", features = ["device"] }
@@ -15,7 +18,8 @@ cortex-m-rtfm = "0.5.1"
 bme280 = "0.1.2"
 embedded-hal = "0.2.3"
 pcd8544 = { git = "https://github.com/kolen/pcd8544", branch = "owned-pins" }
-rental = { version = "0.5.5", default-features=false }
+nom = { version = "5.0.1", default-features = false }
+mh-z19 = "0.2.1"
 
 # Uncomment for the panic example.
 # panic-itm = "0.4.1"
@@ -39,4 +43,5 @@ lto = true # better optimizations
 
 [profile.dev]
 opt-level = "s"
+debug = true
 lto = true

@@ -4,10 +4,12 @@
 #![no_std]
 
 mod dummy_pin;
+mod mh_zxx_rr;
 
 use dummy_pin::DummyOutputPin;
 
 use bme280::BME280;
+use core::fmt::Write;
 use cortex_m_semihosting::hprintln;
 use embedded_hal::blocking::delay::DelayMs;
 use embedded_hal::digital::v1_compat::OldOutputPin;
@@ -57,7 +59,7 @@ const APP: () = {
             OldOutputPin<gpiob::PB7<GpioOutput<PushPull>>>,
             OldOutputPin<gpiob::PB6<GpioOutput<PushPull>>>,
             OldOutputPin<gpiob::PB5<GpioOutput<PushPull>>>,
-            OldOutputPin<DummyOutputPin>,
+            OldOutputPin<gpioa::PA11<GpioOutput<PushPull>>>,
             OldOutputPin<gpioa::PA12<GpioOutput<PushPull>>>,
             OldOutputPin<DummyOutputPin>,
         >,
@@ -71,8 +73,8 @@ const APP: () = {
         let clocks = rcc
             .cfgr
             .use_hse(8.mhz())
-            .sysclk(72.mhz())
-            .pclk1(36.mhz())
+            .sysclk(16.mhz())
+            .pclk1(16.mhz())
             .freeze(&mut flash.acr);
 
         // This thing probably configures alternate mode of
@@ -102,13 +104,13 @@ const APP: () = {
         cx.core.DWT.enable_cycle_counter();
 
         // TODO: is there cleaner way?
-        let period = (clocks.sysclk().0 * 10).cycles();
+        let period = (clocks.sysclk().0 * 2).cycles();
 
         hprintln!("init").ok();
         hprintln!("schedule period: {}", period.as_cycles()).ok();
         hprintln!("init @ {:?}", cx.start).ok();
 
-        cx.schedule.periodic_measure(cx.start + period).unwrap();
+        cx.schedule.periodic_measure(cx.start).unwrap();
 
         hprintln!("Schedule ok").ok();
 
@@ -116,13 +118,14 @@ const APP: () = {
         let pin_din: OldOutputPin<_> = gpiob.pb6.into_push_pull_output(&mut gpiob.crl).into();
         let pin_dc: OldOutputPin<_> = gpiob.pb5.into_push_pull_output(&mut gpiob.crl).into();
         let pin_rst: OldOutputPin<_> = gpioa.pa12.into_push_pull_output(&mut gpioa.crh).into();
+        let pin_ce: OldOutputPin<_> = gpioa.pa11.into_push_pull_output(&mut gpioa.crh).into();
 
-        // CE: pulled up to Vcc
-        let dummy_ce: OldOutputPin<_> = DummyOutputPin::new().into();
         // Light: floating for now
         let dummy_light: OldOutputPin<_> = DummyOutputPin::new().into();
 
-        let display = PCD8544::new(pin_clk, pin_din, pin_dc, dummy_ce, pin_rst, dummy_light);
+        let mut display = PCD8544::new(pin_clk, pin_din, pin_dc, pin_ce, pin_rst, dummy_light);
+        display.init();
+        display.set_contrast(40);
 
         init::LateResources {
             bme280,
@@ -131,21 +134,30 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [periodic_measure], resources=[period, bme280])]
+    #[task(schedule = [periodic_measure], resources=[period, bme280, display])]
     fn periodic_measure(cx: periodic_measure::Context) {
-        hprintln!("periodic_measure").ok();
-        let now = Instant::now();
-        hprintln!("scheduled = {:?}, now = {:?}", cx.scheduled, now).unwrap();
-
+        hprintln!("Periodic measure").ok();
         let bme280 = cx.resources.bme280;
-        let measurements = bme280.measure().expect("Measure failed");
-
-        hprintln!("Relative Humidity = {}%", measurements.humidity).ok();
-        hprintln!("Temperature = {} deg C", measurements.temperature).ok();
-        hprintln!("Pressure = {} pascals", measurements.pressure).ok();
+        let display = cx.resources.display;
+        let period = *cx.resources.period;
+        display.clear();
+        writeln!(display, "{:?}", Instant::now()).ok();
+        match bme280.measure() {
+            Ok(m) => {
+                writeln!(
+                    display,
+                    "{} C, {}%, {} Pa",
+                    m.temperature, m.humidity, m.pressure
+                )
+                .ok();
+            }
+            Err(e) => {
+                writeln!(display, "{:?}", e).ok();
+            }
+        }
 
         cx.schedule
-            .periodic_measure(cx.scheduled + *cx.resources.period)
+            .periodic_measure(cx.scheduled + period)
             .unwrap();
     }
 
