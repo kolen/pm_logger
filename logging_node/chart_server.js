@@ -2,9 +2,9 @@ const term = new Terminal({rows: 10, cols: 80});
 
 async function initCharts() {
     console.log("started");
-    let download = await fetch("data/pressure.json");
-    let data = await download.json();
-    trace = {
+    const download = await fetch("data/pressure.json");
+    const data = await download.json();
+    const trace = {
         columnNames: {
             x: "time",
             y: "pressure"
