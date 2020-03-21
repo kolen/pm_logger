@@ -18,7 +18,7 @@ function PMSensor(log, config) {
   this.displayName = config["name"];
 
   this.temperatureService = new Service.TemperatureSensor(`Temperature ${this.displayName}`);
-  this.humidityService = new Service.HumiditySensor(`Humidity ${this.displayName}`)
+  this.humidityService = new Service.HumiditySensor(`Humidity ${this.displayName}`);
 
   this.socket = dgram.createSocket('udp4');
   this.interval = config.interval || 60 * 5;
