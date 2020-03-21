@@ -6,8 +6,8 @@
 #include "pm_sensor/data_store.h"
 #include "pm_sensor/server.h"
 #include "pm_sensor/cayenne_notifier.h"
-#include "pm_sensor/credentials.h"
 #ifdef ARDUINO
+ #include "pm_sensor/credentials.h"
  #include "pm_sensor/display.h"
  #include "pm_sensor/arduino_network_responder.h"
  #include "pm_sensor/sensor_pm_sds011.h"
