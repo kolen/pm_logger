@@ -33,7 +33,6 @@ async function refreshData() {
     let reader = await response.body.getReader();
 
     let chunk;
-    let decoder = new TextDecoder("utf-8");
     do {
         chunk = await reader.read();
         term.writeUtf8(chunk.value);
