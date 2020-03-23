@@ -1,5 +1,4 @@
 #include "pm_sensor/server.h"
-#include "pm_sensor/credentials.h"
 
 using pm_sensor::Server;
 
