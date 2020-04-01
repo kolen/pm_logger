@@ -2,7 +2,7 @@
 authors = ["kolen <incredible.angst@gmail.com>"]
 edition = "2018"
 readme = "README.md"
-name = "bluebar"
+name = "cephalgometer"
 version = "0.1.0"
 
 [dependencies]
@@ -26,7 +26,7 @@ embedded-hal = "0.2.3"
 
 # this lets you use `cargo fix`!
 [[bin]]
-name = "bluebar"
+name = "cephalgometer"
 test = false
 bench = false
 

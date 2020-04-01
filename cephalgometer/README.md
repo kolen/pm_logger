@@ -1,3 +1,15 @@
+# Cephalgometer
+
+Firmware for sensor board with:
+- BME280:
+  - temperature
+  - humidity
+  - atmospheric pressure
+- MH-Z14A CO<sub>2</sub> sensor
+- PCD8544-driven 84x48 display
+
+WIP
+
 # `cortex-m-quickstart`
 
 > A template for building applications for ARM Cortex-M microcontrollers
