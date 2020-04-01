@@ -10,10 +10,11 @@ cortex-m = "0.6.2"
 cortex-m-rt = { version = "0.6.12", features = ["device"] }
 cortex-m-semihosting = "0.3.5"
 stm32f1xx-hal = { version = "0.5.3", features = ["stm32f103", "rt"] }
+embedded-hal = "0.2.3"
 panic-semihosting = "0.5.3"
 cortex-m-rtfm = "0.5.1"
 bme280 = "0.2.1"
-embedded-hal = "0.2.3"
+#mh-z19 = "0.3.0"
 
 # Uncomment for the panic example.
 # panic-itm = "0.4.1"
