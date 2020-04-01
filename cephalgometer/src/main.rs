@@ -3,31 +3,14 @@
 #![no_main]
 #![no_std]
 
+mod shitty_delay;
+
 use bme280::BME280;
 use cortex_m_semihosting::hprintln;
-use embedded_hal::blocking::delay::DelayMs;
 use panic_semihosting as _;
 use rtfm::cyccnt::{Duration, Instant, U32Ext};
-use stm32f1xx_hal::{gpio, i2c, pac, prelude::*, time::Hertz};
-
-/// Delay that is shitty and unpredictable, it could wait for much
-/// more than requested. See also:
-/// https://users.rust-lang.org/t/embedded-rtfm-timer-queue-blocking-wait/25369/5
-pub struct ShittyDelay {
-    sysclk_freq: Hertz,
-}
-
-impl ShittyDelay {
-    pub fn new(sysclk_freq: Hertz) -> Self {
-        ShittyDelay { sysclk_freq }
-    }
-}
-
-impl DelayMs<u8> for ShittyDelay {
-    fn delay_ms(&mut self, ms: u8) {
-        cortex_m::asm::delay(self.sysclk_freq.0 / (1_000_000 * (ms as u32)));
-    }
-}
+use shitty_delay::ShittyDelay;
+use stm32f1xx_hal::{gpio, i2c, pac, prelude::*};
 
 #[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
