@@ -10,19 +10,15 @@ use cortex_m_semihosting::hprintln;
 use panic_semihosting as _;
 use rtfm::cyccnt::{Duration, Instant, U32Ext};
 use shitty_delay::ShittyDelay;
-use stm32f1xx_hal::{gpio, i2c, pac, prelude::*};
+use stm32f1xx_hal::gpio::gpiob::{PB8, PB9};
+use stm32f1xx_hal::gpio::{Alternate, OpenDrain};
+use stm32f1xx_hal::{i2c, pac, prelude::*};
 
 #[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
         bme280: bme280::BME280<
-            i2c::BlockingI2c<
-                pac::I2C1,
-                (
-                    gpio::gpiob::PB8<gpio::Alternate<gpio::OpenDrain>>,
-                    gpio::gpiob::PB9<gpio::Alternate<gpio::OpenDrain>>,
-                ),
-            >,
+            i2c::BlockingI2c<pac::I2C1, (PB8<Alternate<OpenDrain>>, PB9<Alternate<OpenDrain>>)>,
             ShittyDelay,
         >,
         period: Duration,
