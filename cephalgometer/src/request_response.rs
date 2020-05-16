@@ -26,7 +26,7 @@ pub fn get_message<R, M, E, P, T>(
     parse: P,
     buffer: &mut [u8],
     buffer_pos: &mut usize,
-    timer: &mut T,
+    timeout: &mut T,
 ) -> nb::Result<M, Error<R::Error>>
 where
     R: Read<u8>,
@@ -34,7 +34,7 @@ where
     T: timer::CountDown,
 {
     loop {
-        timer.wait().map_err(|e| e.map(|_| Error::Timeout))?;
+        timeout.wait().map_err(|e| e.map(|_| Error::Timeout))?;
         buffer[*buffer_pos] = serial_read
             .read()
             .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
@@ -56,7 +56,7 @@ where
 pub fn send_message<W, I, T>(
     serial_write: &mut W,
     message_outputter: I,
-    timer: &mut T,
+    timeout: &mut T,
 ) -> nb::Result<(), Error<W::Error>>
 where
     W: Write<u8>,
@@ -64,7 +64,7 @@ where
     T: timer::CountDown,
 {
     for char in message_outputter {
-        timer.wait().map_err(|e| e.map(|_| Error::Timeout))?;
+        timeout.wait().map_err(|e| e.map(|_| Error::Timeout))?;
         serial_write
             .write(char)
             .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
