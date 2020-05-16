@@ -13,6 +13,18 @@ pub enum Error<E> {
     SerialError(E),
 }
 
+impl<E> Error<E> {
+    pub fn map<O, F>(self, op: F) -> Error<O>
+    where
+        F: FnOnce(E) -> O,
+    {
+        match self {
+            Error::Timeout => Error::Timeout,
+            Error::SerialError(se) => Error::SerialError(op(se)),
+        }
+    }
+}
+
 /// Reads parsed message from `rx`
 ///
 /// Reads parsed message from `rx` side of serial, using parse
@@ -23,7 +35,7 @@ pub enum Error<E> {
 /// nature of `nb`, `buffer` and `buffer_pos` will change and be
 pub fn get_message<R, M, E, P, T>(
     serial_read: &mut R,
-    parse: P,
+    parse: &mut P,
     buffer: &mut [u8],
     buffer_pos: &mut usize,
     timeout: &mut T,
@@ -55,7 +67,7 @@ where
 
 pub fn send_message<W, I, T>(
     serial_write: &mut W,
-    message_outputter: I,
+    message_outputter: &mut I,
     timeout: &mut T,
 ) -> nb::Result<(), Error<W::Error>>
 where
@@ -70,4 +82,61 @@ where
             .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
     }
     Ok(())
+}
+
+pub enum SerialError<R, W> {
+    ReadError(R),
+    WriteError(W),
+}
+
+pub enum QueryState {
+    Writing,
+    Reading,
+    Completed,
+}
+
+/// Perform query, sending command and reading response
+///
+/// Perform query, sending command, waiting for, reading and parsing
+/// response with timeout. As this function is intended to be called
+/// continuously until non-`nb::WouldBlock` result, state is
+/// externalized to `message_outputter` (iterator state), `buffer`,
+/// `buffer_pos` and `query_state`: it's caller's responsibility to
+/// hold this state.
+pub fn query<R, W, M, E, P, I, T>(
+    serial_read: &mut R,
+    serial_write: &mut W,
+    message_outputter: &mut I,
+    timeout: &mut T,
+    parse: &mut P,
+    buffer: &mut [u8],
+    buffer_pos: &mut usize,
+    query_state: &mut QueryState,
+) -> nb::Result<M, Error<SerialError<R::Error, W::Error>>>
+where
+    R: Read<u8>,
+    W: Write<u8>,
+    P: Fn(&[u8]) -> ParseResult<M, E>,
+    I: Iterator<Item = u8>,
+    T: timer::CountDown,
+{
+    loop {
+        match *query_state {
+            QueryState::Writing => {
+                send_message(serial_write, message_outputter, timeout)
+                    .map_err(|e| e.map(|ie| ie.map(|iie| SerialError::WriteError(iie))))?;
+                *query_state = QueryState::Reading;
+            }
+            QueryState::Reading => {
+                let msg = get_message(serial_read, parse, buffer, buffer_pos, timeout)
+                    .map_err(|e| e.map(|ie| ie.map(|iie| SerialError::ReadError(iie))))?;
+                *query_state = QueryState::Completed;
+                return Ok(msg);
+            }
+            QueryState::Completed => {
+                // TODO: consider something other
+                panic!("Query already completed");
+            }
+        }
+    }
 }
