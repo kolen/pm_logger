@@ -8,7 +8,7 @@ pub enum ParseError<E> {
 }
 
 pub type ParseResult<M, E> = Result<M, ParseError<E>>;
-pub enum ResponseError<E> {
+pub enum Error<E> {
     Timeout,
     SerialError(E),
 }
@@ -32,18 +32,18 @@ impl<R: Read<u8>, W: Write<u8>> RequestResponse<R, W> {
         parse: P,
         buffer: &mut [u8],
         buffer_pos: &mut usize,
-        timer: &mut T
-    ) -> nb::Result<M, ResponseError<R::Error>>
+        timer: &mut T,
+    ) -> nb::Result<M, Error<R::Error>>
     where
         P: Fn(&[u8]) -> ParseResult<M, E>,
-        T: timer::CountDown
+        T: timer::CountDown,
     {
         loop {
-            timer.wait().map_err(|e| e.map(|_| ResponseError::Timeout))?;
+            timer.wait().map_err(|e| e.map(|_| Error::Timeout))?;
             buffer[*buffer_pos] = self
                 .serial_read
                 .read()
-                .map_err(|e| e.map(|ei| ResponseError::SerialError(ei)))?;
+                .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
             let parse_result = parse(&buffer[0..=*buffer_pos]);
             match parse_result {
                 Ok(m) => return Ok(m),
@@ -57,5 +57,23 @@ impl<R: Read<u8>, W: Write<u8>> RequestResponse<R, W> {
                 }
             }
         }
+    }
+
+    pub fn send_message<I, T>(
+        &mut self,
+        message_outputter: I,
+        timer: &mut T,
+    ) -> nb::Result<(), Error<W::Error>>
+    where
+        I: Iterator<Item = u8>,
+        T: timer::CountDown,
+    {
+        for char in message_outputter {
+            timer.wait().map_err(|e| e.map(|_| Error::Timeout))?;
+            self.serial_write
+                .write(char)
+                .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
+        }
+        Ok(())
     }
 }
