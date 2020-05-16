@@ -4,6 +4,7 @@
 
 mod dummy_output_pin;
 mod shitty_delay;
+mod request_response;
 
 use bme280::BME280;
 use cortex_m_semihosting::hprintln;
