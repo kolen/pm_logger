@@ -3,13 +3,14 @@
 #![no_std]
 
 mod dummy_output_pin;
-mod shitty_delay;
-mod request_response;
 mod mh_z19_packet_iter;
 mod mh_z_rr;
+mod request_response;
+mod shitty_delay;
 
 use bme280::BME280;
 use cortex_m_semihosting::hprintln;
+use mh_z_rr::MH_Z_RR;
 use panic_semihosting as _;
 use pcd8544::PCD8544;
 use rtfm::cyccnt::{Duration, Instant, U32Ext};
@@ -17,6 +18,8 @@ use shitty_delay::ShittyDelay;
 use stm32f1xx_hal::gpio::gpioa::{PA11, PA12};
 use stm32f1xx_hal::gpio::gpiob::{PB5, PB6, PB7, PB8, PB9};
 use stm32f1xx_hal::gpio::{Alternate, OpenDrain, Output, PushPull};
+use stm32f1xx_hal::serial::{self, Serial};
+use stm32f1xx_hal::stm32::USART1;
 use stm32f1xx_hal::{i2c, pac, prelude::*};
 
 #[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
@@ -36,6 +39,7 @@ const APP: () = {
             PA12<Output<PushPull>>,
             dummy_output_pin::DummyOutputPin,
         >,
+        mh: MH_Z_RR<serial::Rx<USART1>, serial::Tx<USART1>>,
     }
 
     #[init(schedule = [periodic_measure])]
@@ -96,15 +100,30 @@ const APP: () = {
         let pcd_light = dummy_output_pin::DummyOutputPin::new();
 
         // clk din dc ce rst light
-        let pcd8544 =
-            PCD8544::new(pcd_clk, pcd_din, pcd_dc, pcd_ce, pcd_rst, pcd_light).unwrap();
+        let pcd8544 = PCD8544::new(pcd_clk, pcd_din, pcd_dc, pcd_ce, pcd_rst, pcd_light).unwrap();
         // pins can't error on stm32, hopefully unwrap formatting code
         // will be removed by compiler
+
+        // ---------------- TODO: extaract -----------------------------
+
+        let mh_tx_pin = gpioa.pa9.into_alternate_push_pull(&mut gpioa.crh);
+        let mh_rx_pin = gpioa.pa10;
+        let mh_serial = Serial::usart1(
+            cx.device.USART1,
+            (mh_tx_pin, mh_rx_pin),
+            &mut afio.mapr,
+            serial::Config::default().baudrate(9_600.bps()),
+            clocks,
+            &mut rcc.apb2,
+        );
+        let (mh_tx, mh_rx) = mh_serial.split();
+        let mh = MH_Z_RR::new(mh_rx, mh_tx);
 
         init::LateResources {
             bme280,
             period,
             pcd8544,
+            mh,
         }
     }
 
