@@ -7,38 +7,33 @@ use mh_z19;
 const PACKET_LENGTH: usize = 9; // Can't read get from mh_z19::Packet type btw
 
 #[allow(non_camel_case_types)]
-struct MH_Z_RR<R, W, TF, T>
+pub struct MH_Z_RR<R, W>
 where
     R: serial::Read<u8>,
     W: serial::Write<u8>,
-    TF: Fn() -> T,
-    T: timer::CountDown,
 {
     serial_read: R,
     serial_write: W,
-    timeout_factory: TF,
 }
 
-struct ReadConcentrationProgress<'a, R, W, TF, T>
+pub struct ReadConcentrationProgress<'a, 'b, R, W, T>
 where
     R: serial::Read<u8>,
     W: serial::Write<u8>,
-    TF: Fn() -> T,
     T: timer::CountDown,
 {
-    mh_z_rr: &'a mut MH_Z_RR<R, W, TF, T>,
+    mh_z_rr: &'a mut MH_Z_RR<R, W>,
     msg_iter: PacketIter,
     buffer: mh_z19::Packet,
     buffer_pos: usize,
     query_state: request_response::QueryState,
-    timeout: T,
+    timeout: &'b mut T,
 }
 
-impl<'a, R, W, TF, T> ReadConcentrationProgress<'a, R, W, TF, T>
+impl<'a, 'b, R, W, T> ReadConcentrationProgress<'a, 'b, R, W, T>
 where
     R: serial::Read<u8>,
     W: serial::Write<u8>,
-    TF: Fn() -> T,
     T: timer::CountDown,
 {
     pub fn run(
@@ -77,7 +72,7 @@ where
             &mut self.mh_z_rr.serial_read,
             &mut self.mh_z_rr.serial_write,
             &mut self.msg_iter,
-            &mut self.timeout,
+            self.timeout,
             &mut parse,
             &mut self.buffer,
             &mut self.buffer_pos,
@@ -86,14 +81,12 @@ where
     }
 }
 
-impl<R, W, TF, T> MH_Z_RR<R, W, TF, T>
+impl<R, W> MH_Z_RR<R, W>
 where
     R: serial::Read<u8>,
     W: serial::Write<u8>,
-    TF: Fn() -> T,
-    T: timer::CountDown,
 {
-    pub fn new(serial_read: R, serial_write: W, timeout_factory: TF) -> Self
+    pub fn new(serial_read: R, serial_write: W) -> Self
     where
         R: serial::Read<u8>,
         W: serial::Write<u8>,
@@ -101,16 +94,15 @@ where
         MH_Z_RR {
             serial_read,
             serial_write,
-            timeout_factory,
         }
     }
 
-    pub fn read_gas_concentration(
-        &mut self,
+    pub fn read_gas_concentration<'a, 'b, T: timer::CountDown>(
+        &'a mut self,
         device_number: u8,
-    ) -> ReadConcentrationProgress<R, W, TF, T> {
+        timeout: &'b mut T,
+    ) -> ReadConcentrationProgress<'a, 'b, R, W, T> {
         let msg_iter = mh_z19::read_gas_concentration(device_number).into();
-        let timeout = (self.timeout_factory)();
         ReadConcentrationProgress {
             mh_z_rr: self,
             msg_iter,
