@@ -16,7 +16,7 @@ panic-semihosting = "0.5.3"
 cortex-m-rtfm = "0.5.1"
 bme280 = "0.2.1"
 pcd8544 = { path = "../../pcd8544" }
-#mh-z19 = "0.3.0"
+mh-z19 = "0.3.0"
 
 # Uncomment for the panic example.
 # panic-itm = "0.4.1"
