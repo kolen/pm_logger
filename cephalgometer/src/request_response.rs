@@ -8,6 +8,7 @@ pub enum ParseError<E> {
 }
 
 pub type ParseResult<M, E> = Result<M, ParseError<E>>;
+#[derive(Debug)]
 pub enum Error<E> {
     Timeout,
     SerialError(E),
@@ -84,6 +85,7 @@ where
     Ok(())
 }
 
+#[derive(Debug)]
 pub enum SerialError<R, W> {
     ReadError(R),
     WriteError(W),
