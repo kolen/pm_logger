@@ -26,6 +26,17 @@ impl<E> Error<E> {
     }
 }
 
+fn check_timeout<T, E>(timer: &mut T) -> nb::Result<(), Error<E>>
+where
+    T: timer::CountDown,
+{
+    match timer.wait() {
+        Ok(()) => Err(nb::Error::Other(Error::Timeout)),
+        Err(nb::Error::WouldBlock) => Ok(()),
+        Err(_) => panic!("Timer error"),
+    }
+}
+
 /// Reads parsed message from `rx`
 ///
 /// Reads parsed message from `rx` side of serial, using parse
@@ -47,7 +58,7 @@ where
     T: timer::CountDown,
 {
     loop {
-        timeout.wait().map_err(|e| e.map(|_| Error::Timeout))?;
+        check_timeout(timeout)?;
         buffer[*buffer_pos] = serial_read
             .read()
             .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
@@ -77,7 +88,7 @@ where
     T: timer::CountDown,
 {
     for char in message_outputter {
-        timeout.wait().map_err(|e| e.map(|_| Error::Timeout))?;
+        check_timeout(timeout)?;
         serial_write
             .write(char)
             .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
