@@ -36,6 +36,8 @@ get '/' do
   END
 end
 
+enable :logging
+
 get '/app.js' do
   headers "Cache-Control" => "must-revalidate"
   send_file 'chart_server.js'
