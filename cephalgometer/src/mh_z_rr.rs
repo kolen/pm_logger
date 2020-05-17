@@ -46,11 +46,31 @@ where
     ) -> nb::Result<u32, request_response::Error<request_response::SerialError<R::Error, W::Error>>>
     {
         fn parse(data: &[u8]) -> request_response::ParseResult<u32, mh_z19::MHZ19Error> {
-            if data.len() < PACKET_LENGTH {
-                Err(request_response::ParseError::Incomplete)
-            } else {
-                mh_z19::parse_gas_contentration_ppm(data)
-                    .map_err(|e| request_response::ParseError::Error(e))
+            // mh_z19 as of 0.3.0 does not support deciding early if
+            // packet is bad or more data required, so we redo parts
+            // of parsing here
+            match data.len() {
+                1 => {
+                    if data[0] == 0xff {
+                        Err(request_response::ParseError::Incomplete)
+                    } else {
+                        Err(request_response::ParseError::Error(
+                            mh_z19::MHZ19Error::WrongStartByte(data[0]),
+                        ))
+                    }
+                }
+                2 => {
+                    if data[1] == 0x86 {
+                        Err(request_response::ParseError::Incomplete)
+                    } else {
+                        Err(request_response::ParseError::Error(
+                            mh_z19::MHZ19Error::WrongPacketType(0x86, data[1]),
+                        ))
+                    }
+                }
+                PACKET_LENGTH => mh_z19::parse_gas_contentration_ppm(data)
+                    .map_err(|e| request_response::ParseError::Error(e)),
+                _ => Err(request_response::ParseError::Incomplete),
             }
         };
         request_response::query(
