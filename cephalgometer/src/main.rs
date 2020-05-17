@@ -141,14 +141,15 @@ const APP: () = {
 
         let bme280 = cx.resources.bme280;
         let measurements = bme280.measure().expect("Measure failed");
-
-        cx.resources.timeout.reset();
-        let mut co2_runner = cx.resources.mh_z.read_gas_concentration(1, cx.resources.timeout);
-        let co2 = block!(co2_runner.run()).expect("CO2 measure failed");
-
         hprintln!("Relative Humidity = {}%", measurements.humidity).ok();
         hprintln!("Temperature = {} deg C", measurements.temperature).ok();
         hprintln!("Pressure = {} pascals", measurements.pressure).ok();
+
+        cx.resources.timeout.reset();
+        hprintln!("Timer reset").ok();
+        let mut co2_runner = cx.resources.mh_z.read_gas_concentration(1, cx.resources.timeout);
+        hprintln!("read_gas_concentration ok").ok();
+        let co2 = block!(co2_runner.run()).expect("CO2 measure failed");
         hprintln!("CO2 = {} PPM", co2).ok();
 
         cx.schedule
