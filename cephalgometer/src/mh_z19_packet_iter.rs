@@ -19,7 +19,9 @@ impl Iterator for PacketIter {
     type Item = u8;
     fn next(&mut self) -> Option<Self::Item> {
         if self.pos < PACKET_SIZE {
-            Some(self.packet[self.pos])
+            let value = self.packet[self.pos];
+            self.pos += 1;
+            Some(value)
         } else {
             None
         }
