@@ -19,8 +19,10 @@ use stm32f1xx_hal::gpio::gpioa::{PA11, PA12};
 use stm32f1xx_hal::gpio::gpiob::{PB5, PB6, PB7, PB8, PB9};
 use stm32f1xx_hal::gpio::{Alternate, OpenDrain, Output, PushPull};
 use stm32f1xx_hal::serial::{self, Serial};
-use stm32f1xx_hal::stm32::USART1;
+use stm32f1xx_hal::stm32::{USART1, TIM2};
 use stm32f1xx_hal::{i2c, pac, prelude::*};
+use stm32f1xx_hal::timer::{Timer, CountDownTimer};
+use nb::block;
 
 #[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
@@ -38,8 +40,9 @@ const APP: () = {
             PA11<Output<PushPull>>,
             PA12<Output<PushPull>>,
             dummy_output_pin::DummyOutputPin,
-        >,
-        mh: MH_Z_RR<serial::Rx<USART1>, serial::Tx<USART1>>,
+            >,
+        timeout: CountDownTimer<TIM2>,
+        mh_z: MH_Z_RR<serial::Rx<USART1>, serial::Tx<USART1>>,
     }
 
     #[init(schedule = [periodic_measure])]
@@ -104,7 +107,7 @@ const APP: () = {
         // pins can't error on stm32, hopefully unwrap formatting code
         // will be removed by compiler
 
-        // ---------------- TODO: extaract -----------------------------
+        // ---------------- TODO: extract -----------------------------
 
         let mh_tx_pin = gpioa.pa9.into_alternate_push_pull(&mut gpioa.crh);
         let mh_rx_pin = gpioa.pa10;
@@ -117,17 +120,20 @@ const APP: () = {
             &mut rcc.apb2,
         );
         let (mh_tx, mh_rx) = mh_serial.split();
-        let mh = MH_Z_RR::new(mh_rx, mh_tx);
+        let mh_z = MH_Z_RR::new(mh_rx, mh_tx);
+
+        let timeout = Timer::tim2(cx.device.TIM2, &clocks, &mut rcc.apb1).start_count_down(1.hz());
 
         init::LateResources {
             bme280,
             period,
             pcd8544,
-            mh,
+            timeout,
+            mh_z,
         }
     }
 
-    #[task(schedule = [periodic_measure], resources=[period, bme280])]
+    #[task(schedule = [periodic_measure], resources=[period, bme280, mh_z, timeout])]
     fn periodic_measure(cx: periodic_measure::Context) {
         hprintln!("periodic_measure").ok();
         let now = Instant::now();
@@ -136,9 +142,14 @@ const APP: () = {
         let bme280 = cx.resources.bme280;
         let measurements = bme280.measure().expect("Measure failed");
 
+        cx.resources.timeout.reset();
+        let mut co2_runner = cx.resources.mh_z.read_gas_concentration(1, cx.resources.timeout);
+        let co2 = block!(co2_runner.run()).expect("CO2 measure failed");
+
         hprintln!("Relative Humidity = {}%", measurements.humidity).ok();
         hprintln!("Temperature = {} deg C", measurements.temperature).ok();
         hprintln!("Pressure = {} pascals", measurements.pressure).ok();
+        hprintln!("CO2 = {} PPM", co2).ok();
 
         cx.schedule
             .periodic_measure(cx.scheduled + *cx.resources.period)
