@@ -19,9 +19,6 @@ where
     timeout_factory: TF,
 }
 
-// Arrays can't be converted into iterator for now, see
-// https://github.com/rust-lang/rust/issues/65798
-
 struct ReadConcentrationProgress<'a, R, W, TF, T>
 where
     R: serial::Read<u8>,
