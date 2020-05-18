@@ -16,7 +16,8 @@ panic-semihosting = "0.5.3"
 cortex-m-rtfm = "0.5.1"
 bme280 = "0.2.1"
 pcd8544 = { path = "../../pcd8544" }
-mh-z19 = "0.3.0"
+serial-request-response = { path = "serial-request-response" }
+mh-z-rr = { path = "mh-z-rr" }
 
 # Uncomment for the panic example.
 # panic-itm = "0.4.1"
@@ -41,3 +42,5 @@ lto = true # better optimizations
 [profile.dev]
 opt-level = "s"
 lto = true
+
+[workspace]

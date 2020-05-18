@@ -3,9 +3,6 @@
 #![no_std]
 
 mod dummy_output_pin;
-mod mh_z19_packet_iter;
-mod mh_z_rr;
-mod request_response;
 mod shitty_delay;
 
 use bme280::BME280;

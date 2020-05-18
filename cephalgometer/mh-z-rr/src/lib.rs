@@ -1,8 +1,11 @@
+#![no_std]
+mod mh_z19_packet_iter;
+
 use crate::mh_z19_packet_iter::PacketIter;
-use crate::request_response;
 use embedded_hal::serial;
 use embedded_hal::timer;
 use mh_z19;
+use serial_request_response::{self, ParseError, ParseResult, QueryState, SerialError};
 
 const PACKET_LENGTH: usize = 9; // Can't read get from mh_z19::Packet type btw
 
@@ -26,7 +29,7 @@ where
     msg_iter: PacketIter,
     buffer: mh_z19::Packet,
     buffer_pos: usize,
-    query_state: request_response::QueryState,
+    query_state: QueryState,
     timeout: &'b mut T,
 }
 
@@ -38,37 +41,37 @@ where
 {
     pub fn run(
         &mut self,
-    ) -> nb::Result<u32, request_response::Error<request_response::SerialError<R::Error, W::Error>>>
-    {
-        fn parse(data: &[u8]) -> request_response::ParseResult<u32, mh_z19::MHZ19Error> {
+    ) -> nb::Result<u32, serial_request_response::Error<SerialError<R::Error, W::Error>>> {
+        fn parse(data: &[u8]) -> ParseResult<u32, mh_z19::MHZ19Error> {
             // mh_z19 as of 0.3.0 does not support deciding early if
             // packet is bad or more data required, so we redo parts
             // of parsing here
             match data.len() {
                 1 => {
                     if data[0] == 0xff {
-                        Err(request_response::ParseError::Incomplete)
+                        Err(ParseError::Incomplete)
                     } else {
-                        Err(request_response::ParseError::Error(
-                            mh_z19::MHZ19Error::WrongStartByte(data[0]),
-                        ))
+                        Err(ParseError::Error(mh_z19::MHZ19Error::WrongStartByte(
+                            data[0],
+                        )))
                     }
                 }
                 2 => {
                     if data[1] == 0x86 {
-                        Err(request_response::ParseError::Incomplete)
+                        Err(ParseError::Incomplete)
                     } else {
-                        Err(request_response::ParseError::Error(
-                            mh_z19::MHZ19Error::WrongPacketType(0x86, data[1]),
-                        ))
+                        Err(ParseError::Error(mh_z19::MHZ19Error::WrongPacketType(
+                            0x86, data[1],
+                        )))
                     }
                 }
-                PACKET_LENGTH => mh_z19::parse_gas_contentration_ppm(data)
-                    .map_err(|e| request_response::ParseError::Error(e)),
-                _ => Err(request_response::ParseError::Incomplete),
+                PACKET_LENGTH => {
+                    mh_z19::parse_gas_contentration_ppm(data).map_err(|e| ParseError::Error(e))
+                }
+                _ => Err(ParseError::Incomplete),
             }
         };
-        request_response::query(
+        serial_request_response::query(
             &mut self.mh_z_rr.serial_read,
             &mut self.mh_z_rr.serial_write,
             &mut self.msg_iter,
@@ -108,8 +111,22 @@ where
             msg_iter,
             buffer: [0; 9],
             buffer_pos: 0,
-            query_state: request_response::QueryState::Writing,
+            query_state: QueryState::Writing,
             timeout,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // struct DummyMH {
+    //     received_data:
+    // }
+
+    #[test]
+    fn test_basic() {
+        panic!("lol");
     }
 }

@@ -1,3 +1,4 @@
+#![no_std]
 use core::result::Result;
 use embedded_hal::serial::{Read, Write};
 use embedded_hal::timer;

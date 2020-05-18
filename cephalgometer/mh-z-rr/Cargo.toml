@@ -1,0 +1,10 @@
+[package]
+name = "mh-z-rr"
+edition = "2018"
+version = "0.1.0"
+
+[dependencies]
+nb = "0.1.2"
+serial-request-response = { path = "../serial-request-response" }
+embedded-hal = "0.2.3"
+mh-z19 = "0.3.0"
