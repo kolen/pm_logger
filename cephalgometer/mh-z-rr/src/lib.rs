@@ -116,17 +116,3 @@ where
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // struct DummyMH {
-    //     received_data:
-    // }
-
-    #[test]
-    fn test_basic() {
-        panic!("lol");
-    }
-}

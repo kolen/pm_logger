@@ -189,6 +189,7 @@ dependencies = [
  "mh-z19 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "nb 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serial-request-response 0.1.0",
+ "void 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
