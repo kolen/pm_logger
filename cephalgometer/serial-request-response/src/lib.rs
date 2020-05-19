@@ -105,6 +105,7 @@ pub enum SerialError<R, W> {
 
 pub enum QueryState {
     Writing,
+    Flushing,
     Reading,
     Completed,
 }
@@ -139,7 +140,12 @@ where
             QueryState::Writing => {
                 send_message(serial_write, message_outputter, timeout)
                     .map_err(|e| e.map(|ie| ie.map(|iie| SerialError::WriteError(iie))))?;
-                *query_state = QueryState::Reading;
+                *query_state = QueryState::Flushing;
+            }
+            QueryState::Flushing => {
+                if matches!(serial_write.flush(), Ok(())) {
+                    *query_state = QueryState::Reading;
+                }
             }
             QueryState::Reading => {
                 let msg = get_message(serial_read, parse, buffer, buffer_pos, timeout)
