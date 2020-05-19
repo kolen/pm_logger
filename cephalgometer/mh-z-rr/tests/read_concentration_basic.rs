@@ -91,6 +91,6 @@ fn test_basic() {
     let mut mh = MH_Z_RR::new(fake_r, fake_w);
     let mut fake_timer = FakeTimer {};
     let mut conc_progress = mh.read_gas_concentration(1, &mut fake_timer);
-    let conc = nb::block!(conc_progress.run());
-    dbg!(conc);
+    let conc = nb::block!(conc_progress.run()).unwrap();
+    assert_eq!(608, conc);
 }
