@@ -146,8 +146,10 @@ const APP: () = {
         hprintln!("Timer reset").ok();
         let mut co2_runner = cx.resources.mh_z.read_gas_concentration(1, cx.resources.timeout);
         hprintln!("read_gas_concentration ok").ok();
-        let co2 = block!(co2_runner.run()).expect("CO2 measure failed");
-        hprintln!("CO2 = {} PPM", co2).ok();
+        match block!(co2_runner.run()) {
+            Ok(co2) => hprintln!("CO2 = {} PPM", co2).ok(),
+            Err(e) => hprintln!("CO2 measure failed").ok(),
+        };
 
         cx.schedule
             .periodic_measure(cx.scheduled + *cx.resources.period)
