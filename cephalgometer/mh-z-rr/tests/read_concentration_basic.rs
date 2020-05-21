@@ -6,13 +6,12 @@ use void::Void;
 
 const FAKE_RESULT: [u8; 11] = [
     // First, garbage data
-    0x12, 0x00,
-    // Actual message
-    0xff, 0x86, 0x02, 0x60, 0x47, 0x00, 0x00, 0x00, 0xd1
+    0x12, 0x00, // Actual message
+    0xff, 0x86, 0x02, 0x60, 0x47, 0x00, 0x00, 0x00, 0xd1,
 ];
 
 struct FakeMH {
-    received: [u8; 16],
+    pub received: [u8; 16],
     sent_pos: usize,
     received_pos: usize,
     flushed: bool,
@@ -52,10 +51,15 @@ impl FakeMH {
         }
     }
 
-    fn into_pair(self) -> (FakeMHRead, FakeMHWrite) {
+    fn into_pair_and_self(self) -> (FakeMHRead, FakeMHWrite, Arc<Mutex<FakeMH>>) {
         let mh_r = Arc::new(Mutex::new(self));
         let mh_w = mh_r.clone();
-        (FakeMHRead { fake_mh: mh_r }, FakeMHWrite { fake_mh: mh_w })
+        let selff = mh_r.clone();
+        (
+            FakeMHRead { fake_mh: mh_r },
+            FakeMHWrite { fake_mh: mh_w },
+            selff,
+        )
     }
 }
 
@@ -92,10 +96,16 @@ impl serial::Read<u8> for FakeMHRead {
 
 #[test]
 fn test_basic() {
-    let (fake_r, fake_w) = FakeMH::new().into_pair();
+    let (fake_r, fake_w, fmh) = FakeMH::new().into_pair_and_self();
     let mut mh = MH_Z_RR::new(fake_r, fake_w);
     let mut fake_timer = FakeTimer {};
     let mut conc_progress = mh.read_gas_concentration(1, &mut fake_timer);
     let conc = nb::block!(conc_progress.run()).unwrap();
     assert_eq!(608, conc);
+
+    let lock = fmh.lock().unwrap();
+    assert_eq!(0xff, lock.received[0]);
+    assert_eq!(0x01, lock.received[1]);
+    assert_eq!(0x86, lock.received[2]);
+    assert_eq!(0x79, lock.received[8]);
 }
