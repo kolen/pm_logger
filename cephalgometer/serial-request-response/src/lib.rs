@@ -90,9 +90,8 @@ where
 {
     for char in message_outputter {
         check_timeout(timeout)?;
-        serial_write
-            .write(char)
-            .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
+        // TODO: remove block
+        nb::block!(serial_write.write(char)).map_err(|e| Error::SerialError(e))?;
     }
     Ok(())
 }
