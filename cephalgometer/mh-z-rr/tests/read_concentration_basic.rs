@@ -15,6 +15,8 @@ struct FakeMH {
     sent_pos: usize,
     received_pos: usize,
     flushed: bool,
+    read_cycle: u32,
+    write_cycle: u32,
 }
 
 struct FakeMHRead {
@@ -48,6 +50,8 @@ impl FakeMH {
             sent_pos: 0,
             received_pos: 0,
             flushed: false,
+            read_cycle: 0,
+            write_cycle: 0,
         }
     }
 
@@ -68,6 +72,12 @@ impl serial::Write<u8> for FakeMHWrite {
 
     fn write(&mut self, char: u8) -> std::result::Result<(), nb::Error<()>> {
         let mut lock = self.fake_mh.lock().unwrap();
+
+        lock.write_cycle += 1;
+        if lock.write_cycle % 10 != 2 {
+            return Err(nb::Error::WouldBlock);
+        }
+
         let received_pos = lock.received_pos;
         lock.received[received_pos] = char;
         lock.received_pos += 1;
@@ -76,6 +86,12 @@ impl serial::Write<u8> for FakeMHWrite {
 
     fn flush(&mut self) -> std::result::Result<(), nb::Error<()>> {
         let mut lock = self.fake_mh.lock().unwrap();
+
+        lock.write_cycle += 1;
+        if lock.write_cycle % 100 != 80 {
+            return Err(nb::Error::WouldBlock);
+        }
+
         lock.flushed = true;
         Ok(())
     }
@@ -85,6 +101,12 @@ impl serial::Read<u8> for FakeMHRead {
     type Error = ();
     fn read(&mut self) -> std::result::Result<u8, nb::Error<()>> {
         let mut lock = self.fake_mh.lock().unwrap();
+
+        lock.read_cycle += 1;
+        if lock.read_cycle % 10 != 5 {
+            return Err(nb::Error::WouldBlock);
+        }
+
         if !lock.flushed {
             panic!("Reading when read has not been flushed")
         }
