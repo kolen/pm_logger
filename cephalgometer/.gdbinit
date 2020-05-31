@@ -35,7 +35,7 @@ monitor arm semihosting enable
 # # enable ITM port 0
 # monitor itm port 0 on
 
-load
+# load
 
 # start the process but immediately halt the processor
-stepi
+# stepi
