@@ -139,8 +139,12 @@ where
             QueryState::Writing => {
                 send_message(serial_write, message_outputter, timeout)
                     .map_err(|e| e.map(|ie| ie.map(|iie| SerialError::WriteError(iie))))?;
-                *query_state = QueryState::Flushing;
+                *query_state = QueryState::Reading;
             }
+            // For some reason, flush does not work and just
+            // interferes with reading, causing
+            // `ReadError(Overrun)`. Disabled for now. Probably not
+            // needed for stm32f103.
             QueryState::Flushing => {
                 if matches!(serial_write.flush(), Ok(())) {
                     *query_state = QueryState::Reading;
