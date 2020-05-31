@@ -68,6 +68,7 @@ dependencies = [
  "pcd8544 0.1.7",
  "serial-request-response 0.1.0",
  "stm32f1xx-hal 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "void 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

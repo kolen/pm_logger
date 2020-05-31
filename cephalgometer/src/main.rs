@@ -1,25 +1,28 @@
-#![deny(unsafe_code)]
 #![no_main]
 #![no_std]
 
 mod dummy_output_pin;
+mod rtc_timeout;
 mod shitty_delay;
 
 use bme280::BME280;
+use core::fmt::Write;
+use core::mem;
 use cortex_m_semihosting::hprintln;
 use mh_z_rr::MH_Z_RR;
+use nb::block;
 use panic_semihosting as _;
 use pcd8544::PCD8544;
+use rtc_timeout::RTCTimeout;
 use rtfm::cyccnt::{Duration, Instant, U32Ext};
 use shitty_delay::ShittyDelay;
 use stm32f1xx_hal::gpio::gpioa::{PA11, PA12};
 use stm32f1xx_hal::gpio::gpiob::{PB5, PB6, PB7, PB8, PB9};
 use stm32f1xx_hal::gpio::{Alternate, OpenDrain, Output, PushPull};
+use stm32f1xx_hal::rtc::Rtc;
 use stm32f1xx_hal::serial::{self, Serial};
-use stm32f1xx_hal::stm32::{USART2, TIM2};
+use stm32f1xx_hal::stm32::USART2;
 use stm32f1xx_hal::{i2c, pac, prelude::*};
-use stm32f1xx_hal::timer::{Timer, CountDownTimer};
-use nb::block;
 
 #[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
@@ -37,8 +40,8 @@ const APP: () = {
             PA11<Output<PushPull>>,
             PA12<Output<PushPull>>,
             dummy_output_pin::DummyOutputPin,
-            >,
-        timeout: CountDownTimer<TIM2>,
+        >,
+        timeout: RTCTimeout,
         mh_z: MH_Z_RR<serial::Rx<USART2>, serial::Tx<USART2>>,
     }
 
@@ -75,13 +78,14 @@ const APP: () = {
         bme280.init().expect("Init failed");
 
         // TODO: find a better timer, this ticks at unknown rate and
-        // sucks
+        // sucks. Use RTC probably.
         cx.core.DCB.enable_trace();
         cx.core.DWT.enable_cycle_counter();
 
         // TODO: is there cleaner way?
         let period = (clocks.sysclk().0 * 10).cycles();
 
+        // TODO: use RTC
         hprintln!("schedule period: {}", period.as_cycles()).ok();
         cx.schedule.periodic_measure(cx.start + period).unwrap();
         hprintln!("Schedule ok").ok();
@@ -96,9 +100,12 @@ const APP: () = {
         let pcd_light = dummy_output_pin::DummyOutputPin::new();
 
         // clk din dc ce rst light
-        let pcd8544 = PCD8544::new(pcd_clk, pcd_din, pcd_dc, pcd_ce, pcd_rst, pcd_light).unwrap();
+        let mut pcd8544 =
+            PCD8544::new(pcd_clk, pcd_din, pcd_dc, pcd_ce, pcd_rst, pcd_light).unwrap();
         // pins can't error on stm32, hopefully unwrap formatting code
         // will be removed by compiler
+
+        pcd8544.clear().unwrap();
 
         // ---------------- TODO: extract -----------------------------
 
@@ -119,7 +126,13 @@ const APP: () = {
 
         let mh_z = MH_Z_RR::new(mh_rx, mh_tx);
 
-        let timeout = Timer::tim2(cx.device.TIM2, &clocks, &mut rcc.apb1).start_count_down(1.hz());
+        // Set up RTC
+        let mut backup_domain = rcc
+            .bkp
+            .constrain(cx.device.BKP, &mut rcc.apb1, &mut cx.device.PWR);
+        let rtc = Rtc::rtc(cx.device.RTC, &mut backup_domain);
+        let timeout = RTCTimeout::new(&rtc);
+        mem::forget(rtc);
 
         init::LateResources {
             bme280,
@@ -130,7 +143,7 @@ const APP: () = {
         }
     }
 
-    #[task(schedule = [periodic_measure], resources=[period, bme280, mh_z, timeout])]
+    #[task(schedule = [periodic_measure], resources=[period, bme280, pcd8544, mh_z, timeout])]
     fn periodic_measure(cx: periodic_measure::Context) {
         hprintln!("periodic_measure").ok();
         let now = Instant::now();
@@ -142,14 +155,39 @@ const APP: () = {
         hprintln!("Temperature = {} deg C", measurements.temperature).ok();
         hprintln!("Pressure = {} pascals", measurements.pressure).ok();
 
-        cx.resources.timeout.reset();
-        hprintln!("Timer reset").ok();
-        let mut co2_runner = cx.resources.mh_z.read_gas_concentration(1, cx.resources.timeout);
-        hprintln!("read_gas_concentration ok").ok();
+        cx.resources.timeout.start(5u32); // FIXME: baad API, probably shouldn't use timer trait
+        let mut co2_runner = cx
+            .resources
+            .mh_z
+            .read_gas_concentration(1, cx.resources.timeout);
+        let mut concentration: Option<u32> = None;
         match block!(co2_runner.run()) {
-            Ok(co2) => hprintln!("CO2 = {} PPM", co2).ok(),
-            Err(e) => hprintln!("CO2 measure failed, {:?}", e).ok(),
+            Ok(co2) => {
+                hprintln!("CO2 = {} PPM", co2).ok();
+                concentration = Some(co2);
+            }
+            Err(e) => {
+                hprintln!("CO2 measure failed, {:?}", e).ok();
+            }
         };
+
+        let pcd = cx.resources.pcd8544;
+        pcd.reset().unwrap();
+        writeln!(
+            pcd,
+            "{} C, {} %",
+            measurements.temperature, measurements.humidity
+        )
+        .unwrap();
+        writeln!(pcd, "{} pas", measurements.pressure).unwrap();
+        match concentration {
+            Some(conc) => {
+                writeln!(pcd, "{} PPM", conc).unwrap();
+            }
+            None => {
+                writeln!(pcd, "Can't read CO2").unwrap();
+            }
+        }
 
         cx.schedule
             .periodic_measure(cx.scheduled + *cx.resources.period)
