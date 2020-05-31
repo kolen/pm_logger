@@ -112,7 +112,11 @@ const APP: () = {
             clocks,
             &mut rcc.apb2,
         );
-        let (mh_tx, mh_rx) = mh_serial.split();
+        let (mh_tx, mut mh_rx) = mh_serial.split();
+        // TODO: check necessity, the idea was that it resets overrun
+        // flag before actual read is performed
+        mh_rx.read().ok();
+
         let mh_z = MH_Z_RR::new(mh_rx, mh_tx);
 
         let timeout = Timer::tim2(cx.device.TIM2, &clocks, &mut rcc.apb1).start_count_down(1.hz());
