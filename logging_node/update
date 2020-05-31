@@ -1,0 +1,2 @@
+#!/bin/sh
+DATABASE_URL=/Users/kolen/.logging_node/logging_node.sqlite LOGGER_HOST=pm_sensor.local:12000 RUST_LOG=debug /Users/kolen/.cargo/bin/logging_node
