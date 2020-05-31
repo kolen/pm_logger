@@ -82,12 +82,8 @@ const APP: () = {
         // TODO: is there cleaner way?
         let period = (clocks.sysclk().0 * 10).cycles();
 
-        hprintln!("init").ok();
         hprintln!("schedule period: {}", period.as_cycles()).ok();
-        hprintln!("init @ {:?}", cx.start).ok();
-
         cx.schedule.periodic_measure(cx.start + period).unwrap();
-
         hprintln!("Schedule ok").ok();
 
         // -------------- TODO: extract --------------------
