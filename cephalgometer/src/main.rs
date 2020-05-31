@@ -148,7 +148,7 @@ const APP: () = {
         hprintln!("read_gas_concentration ok").ok();
         match block!(co2_runner.run()) {
             Ok(co2) => hprintln!("CO2 = {} PPM", co2).ok(),
-            Err(e) => hprintln!("CO2 measure failed").ok(),
+            Err(e) => hprintln!("CO2 measure failed, {:?}", e).ok(),
         };
 
         cx.schedule
