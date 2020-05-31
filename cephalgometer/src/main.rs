@@ -16,7 +16,7 @@ use stm32f1xx_hal::gpio::gpioa::{PA11, PA12};
 use stm32f1xx_hal::gpio::gpiob::{PB5, PB6, PB7, PB8, PB9};
 use stm32f1xx_hal::gpio::{Alternate, OpenDrain, Output, PushPull};
 use stm32f1xx_hal::serial::{self, Serial};
-use stm32f1xx_hal::stm32::{USART1, TIM2};
+use stm32f1xx_hal::stm32::{USART2, TIM2};
 use stm32f1xx_hal::{i2c, pac, prelude::*};
 use stm32f1xx_hal::timer::{Timer, CountDownTimer};
 use nb::block;
@@ -39,7 +39,7 @@ const APP: () = {
             dummy_output_pin::DummyOutputPin,
             >,
         timeout: CountDownTimer<TIM2>,
-        mh_z: MH_Z_RR<serial::Rx<USART1>, serial::Tx<USART1>>,
+        mh_z: MH_Z_RR<serial::Rx<USART2>, serial::Tx<USART2>>,
     }
 
     #[init(schedule = [periodic_measure])]
@@ -102,15 +102,15 @@ const APP: () = {
 
         // ---------------- TODO: extract -----------------------------
 
-        let mh_tx_pin = gpioa.pa9.into_alternate_push_pull(&mut gpioa.crh);
-        let mh_rx_pin = gpioa.pa10;
-        let mh_serial = Serial::usart1(
-            cx.device.USART1,
+        let mh_tx_pin = gpioa.pa2.into_alternate_push_pull(&mut gpioa.crl);
+        let mh_rx_pin = gpioa.pa3;
+        let mh_serial = Serial::usart2(
+            cx.device.USART2,
             (mh_tx_pin, mh_rx_pin),
             &mut afio.mapr,
             serial::Config::default().baudrate(9_600.bps()),
             clocks,
-            &mut rcc.apb2,
+            &mut rcc.apb1,
         );
         let (mh_tx, mut mh_rx) = mh_serial.split();
         // TODO: check necessity, the idea was that it resets overrun
