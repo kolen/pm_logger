@@ -16,12 +16,13 @@ use pcd8544::PCD8544;
 use rtc_timeout::RTCTimeout;
 use rtfm::cyccnt::{Duration, Instant, U32Ext};
 use shitty_delay::ShittyDelay;
-use stm32f1xx_hal::gpio::gpioa::{PA11, PA12};
-use stm32f1xx_hal::gpio::gpiob::{PB5, PB6, PB7, PB8, PB9};
+use stm32f1xx_hal::gpio::gpioa::PA8;
+use stm32f1xx_hal::gpio::gpiob::{PB12, PB13, PB14, PB15, PB8, PB9};
 use stm32f1xx_hal::gpio::{Alternate, OpenDrain, Output, PushPull};
 use stm32f1xx_hal::rtc::Rtc;
 use stm32f1xx_hal::serial::{self, Serial};
-use stm32f1xx_hal::stm32::USART2;
+use stm32f1xx_hal::spi;
+use stm32f1xx_hal::stm32::{SPI2, USART2};
 use stm32f1xx_hal::{i2c, pac, prelude::*};
 
 #[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
@@ -34,11 +35,18 @@ const APP: () = {
         period: Duration,
         // PCD8544<CLK, DIN, DC, CE, RST, LIGHT>
         pcd8544: PCD8544<
-            PB7<Output<PushPull>>,
-            PB6<Output<PushPull>>,
-            PB5<Output<PushPull>>,
-            PA11<Output<PushPull>>,
-            PA12<Output<PushPull>>,
+            spi::Spi<
+                SPI2,
+                spi::Spi2NoRemap,
+                (
+                    spi::NoMiso,
+                    PB15<Alternate<PushPull>>,
+                    PB13<Alternate<PushPull>>,
+                ),
+            >,
+            PB14<Output<PushPull>>,
+            PB12<Output<PushPull>>,
+            PA8<Output<PushPull>>,
             dummy_output_pin::DummyOutputPin,
         >,
         timeout: RTCTimeout,
@@ -92,16 +100,30 @@ const APP: () = {
 
         // -------------- TODO: extract --------------------
 
-        let pcd_clk = gpiob.pb7.into_push_pull_output(&mut gpiob.crl);
-        let pcd_din = gpiob.pb6.into_push_pull_output(&mut gpiob.crl);
-        let pcd_dc = gpiob.pb5.into_push_pull_output(&mut gpiob.crl);
-        let pcd_ce = gpioa.pa11.into_push_pull_output(&mut gpioa.crh);
-        let pcd_rst = gpioa.pa12.into_push_pull_output(&mut gpioa.crh);
+        let pcd_sck = gpiob.pb13.into_alternate_push_pull(&mut gpiob.crh);
+        let pcd_mosi = gpiob.pb15.into_alternate_push_pull(&mut gpiob.crh);
+
+        let pcd_dc = gpiob.pb14.into_push_pull_output(&mut gpiob.crh);
+        let pcd_ce = gpiob.pb12.into_push_pull_output(&mut gpiob.crh);
+        let pcd_rst = gpioa.pa8.into_push_pull_output(&mut gpioa.crh);
         let pcd_light = dummy_output_pin::DummyOutputPin::new();
 
+        let spi_mode = spi::Mode {
+            polarity: spi::Polarity::IdleLow,
+            phase: spi::Phase::CaptureOnFirstTransition,
+        };
+        let spi_pins = (spi::NoMiso {}, pcd_mosi, pcd_sck);
+        let spi = spi::Spi::spi2(
+            cx.device.SPI2,
+            spi_pins,
+            spi_mode,
+            100.khz(),
+            clocks,
+            &mut rcc.apb1,
+        );
+
         // clk din dc ce rst light
-        let mut pcd8544 =
-            PCD8544::new(pcd_clk, pcd_din, pcd_dc, pcd_ce, pcd_rst, pcd_light).unwrap();
+        let mut pcd8544 = PCD8544::new(spi, pcd_dc, pcd_ce, pcd_rst, pcd_light).unwrap();
         // pins can't error on stm32, hopefully unwrap formatting code
         // will be removed by compiler
 
