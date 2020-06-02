@@ -1,0 +1,9 @@
+[package]
+name = "pcd8544-embedded-graphics"
+edition = "2018"
+version = "0.1.0"
+
+[dependencies]
+embedded-hal = "0.2.3"
+pcd8544 = { path = "../../../pcd8544" }
+embedded-graphics = "0.6.2"
