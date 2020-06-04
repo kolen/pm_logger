@@ -13,6 +13,8 @@ use pcd8544::{self, PCD8544};
 
 const WIDTH: u32 = 84;
 const HEIGHT: u32 = 48;
+const MAX_X: u32 = WIDTH - 1;
+const MAX_Y: u32 = HEIGHT - 1;
 const HEIGHT_BANKS: usize = 6;
 
 /// Implements `embedded-graphics` interface for PCD8544.
@@ -48,9 +50,9 @@ impl PCD8544EmbeddedGraphics {
     {
         pcd8544.set_x_position(0)?;
         pcd8544.set_y_position(0)?;
-        for &row in self.framebuffer.iter() {
-            for &byte in row.iter() {
-                pcd8544.write_data(byte)?;
+        for row in self.framebuffer.iter() {
+            for byte in row.iter() {
+                pcd8544.write_data(*byte)?;
             }
         }
         Ok(())
@@ -62,9 +64,9 @@ impl DrawTarget<BinaryColor> for PCD8544EmbeddedGraphics {
 
     fn draw_pixel(&mut self, pixel: Pixel<BinaryColor>) -> core::result::Result<(), ()> {
         let Pixel(coord, color) = pixel;
-        if let Ok((x @ 0..=WIDTH, y @ 0..=HEIGHT)) = coord.try_into() {
-            let byte: &mut u8 = &mut self.framebuffer[(x / 8) as usize][y as usize];
-            let mask: u8 = 1 << (x % 8);
+        if let Ok((x @ 0..=MAX_X, y @ 0..=MAX_Y)) = coord.try_into() {
+            let byte: &mut u8 = &mut self.framebuffer[(y / 8) as usize][x as usize];
+            let mask: u8 = 1 << (y % 8);
             match color {
                 BinaryColor::On => *byte |= mask,
                 BinaryColor::Off => *byte &= !mask,
