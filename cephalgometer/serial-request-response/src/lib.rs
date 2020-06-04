@@ -60,20 +60,27 @@ where
 {
     loop {
         check_timeout(timeout)?;
-        buffer[*buffer_pos] = serial_read
-            .read()
-            .map_err(|e| e.map(|ei| Error::SerialError(ei)))?;
-        let parse_result = parse(&buffer[0..=*buffer_pos]);
-        match parse_result {
-            Ok(m) => return Ok(m),
-            Err(ParseError::Incomplete) => {
-                *buffer_pos += 1;
-                continue;
+        if let Ok(incoming_byte) = serial_read.read() {
+            buffer[*buffer_pos] = incoming_byte;
+            let parse_result = parse(&buffer[0..=*buffer_pos]);
+            match parse_result {
+                Ok(m) => return Ok(m),
+                Err(ParseError::Incomplete) => {
+                    *buffer_pos += 1;
+                    continue;
+                }
+                Err(ParseError::Error(_)) => {
+                    *buffer_pos = 0;
+                    continue;
+                }
             }
-            Err(ParseError::Error(_)) => {
-                *buffer_pos = 0;
-                continue;
-            }
+        } else {
+            // Serial errors are ignored. Usually serial errors are:
+            // 'framing error', 'overflow', etc, and are equivalent to
+            // reading garbage data. This ignore behavior is almost
+            // mandatory in order to make these errors recoverable.
+            *buffer_pos = 0;
+            continue;
         }
     }
 }
