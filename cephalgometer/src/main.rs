@@ -1,12 +1,12 @@
 #![no_main]
 #![no_std]
 
+mod display;
 mod dummy_output_pin;
 mod rtc_timeout;
 mod shitty_delay;
 
 use bme280::BME280;
-use core::fmt::Write;
 use core::mem;
 use cortex_m_semihosting::hprintln;
 use mh_z_rr::MH_Z_RR;
@@ -182,11 +182,11 @@ const APP: () = {
             .resources
             .mh_z
             .read_gas_concentration(1, cx.resources.timeout);
-        let mut concentration: Option<u32> = None;
+        let mut co2: Option<u32> = None;
         match block!(co2_runner.run()) {
-            Ok(co2) => {
-                hprintln!("CO2 = {} PPM", co2).ok();
-                concentration = Some(co2);
+            Ok(co2_) => {
+                hprintln!("CO2 = {} PPM", co2_).ok();
+                co2 = Some(co2_);
             }
             Err(e) => {
                 hprintln!("CO2 measure failed, {:?}", e).ok();
@@ -194,22 +194,16 @@ const APP: () = {
         };
 
         let pcd = cx.resources.pcd8544;
-        pcd.reset().unwrap();
-        writeln!(
+
+        display::display(
             pcd,
-            "{} C, {} %",
-            measurements.temperature, measurements.humidity
-        )
-        .unwrap();
-        writeln!(pcd, "{} pas", measurements.pressure).unwrap();
-        match concentration {
-            Some(conc) => {
-                writeln!(pcd, "{} PPM", conc).unwrap();
-            }
-            None => {
-                writeln!(pcd, "Can't read CO2").unwrap();
-            }
-        }
+            &display::Measurements {
+                temperature: measurements.temperature,
+                humidity: measurements.humidity,
+                pressure: measurements.pressure,
+                co2,
+            },
+        );
 
         cx.schedule
             .periodic_measure(cx.scheduled + *cx.resources.period)
