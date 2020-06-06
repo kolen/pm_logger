@@ -127,7 +127,7 @@ const APP: () = {
         // pins can't error on stm32, hopefully unwrap formatting code
         // will be removed by compiler
 
-        pcd8544.clear().unwrap();
+        pcd8544.reset().unwrap();
 
         // ---------------- TODO: extract -----------------------------
 
