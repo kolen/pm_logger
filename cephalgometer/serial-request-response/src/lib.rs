@@ -79,7 +79,6 @@ where
             // 'framing error', 'overflow', etc, and are equivalent to
             // reading garbage data. This ignore behavior is almost
             // mandatory in order to make these errors recoverable.
-            *buffer_pos = 0;
             continue;
         }
     }
