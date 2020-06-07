@@ -1,6 +1,6 @@
 use arrayvec::ArrayString;
 use core::fmt::Write;
-use embedded_graphics::fonts::Font6x12;
+use embedded_graphics::fonts::Font8x16;
 use embedded_graphics::pixelcolor::BinaryColor;
 use embedded_graphics::prelude::*;
 use embedded_graphics::{egtext, text_style};
@@ -29,10 +29,14 @@ pub fn display<SPI, DC, CE, RST, LIGHT>(
     let mut display = PCD8544EmbeddedGraphics::new();
 
     let mut buf = ArrayString::<[_; 24]>::new();
+    // We have 10 chars width
     write!(
         &mut buf,
-        "{:4.1}°C {:3.0}% {:6.0} Pa",
-        measurements.temperature, measurements.humidity, measurements.pressure
+        "{:4.1}°C {:2.0}%\n{:6.0} Pa\n{:5} PPM",
+        measurements.temperature,
+        measurements.humidity,
+        measurements.pressure,
+        measurements.co2.unwrap_or(0)
     )
     .unwrap();
 
@@ -40,7 +44,7 @@ pub fn display<SPI, DC, CE, RST, LIGHT>(
         text = &buf,
         top_left = Point::zero(),
         style = text_style!(
-            font = Font6x12,
+            font = Font8x16,
             text_color = BinaryColor::On,
             background_color = BinaryColor::Off,
         )
