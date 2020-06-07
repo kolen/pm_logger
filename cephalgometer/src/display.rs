@@ -28,7 +28,7 @@ pub fn display<SPI, DC, CE, RST, LIGHT>(
 {
     let mut display = PCD8544EmbeddedGraphics::new();
 
-    let mut buf = ArrayString::<[_; 24]>::new();
+    let mut buf = ArrayString::<[_; 48]>::new();
     // We have 10 chars width
     write!(
         &mut buf,
