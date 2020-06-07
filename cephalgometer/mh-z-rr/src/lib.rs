@@ -115,4 +115,35 @@ where
             timeout,
         }
     }
+
+    pub fn set_automatic_baseline_correction<'a, 'b, T: timer::CountDown>(
+        &'a mut self,
+        device_number: u8,
+        enabled: bool,
+        timeout: &'b mut T,
+    ) -> Result<(), serial_request_response::Error<W::Error>> {
+        let packet = mh_z19::set_automatic_baseline_correction(device_number, enabled);
+        let mut packet_iter: PacketIter = packet.into();
+        nb::block!(serial_request_response::send_message(
+            &mut self.serial_write,
+            &mut packet_iter,
+            timeout
+        ))?;
+        Ok(())
+    }
+
+    pub fn calibrate_zero_point<'a, 'b, T: timer::CountDown>(
+        &'a mut self,
+        device_number: u8,
+        timeout: &'b mut T,
+    ) -> Result<(), serial_request_response::Error<W::Error>> {
+        let packet = mh_z19::calibrate_zero_point(device_number);
+        let mut packet_iter: PacketIter = packet.into();
+        nb::block!(serial_request_response::send_message(
+            &mut self.serial_write,
+            &mut packet_iter,
+            timeout
+        ))?;
+        Ok(())
+    }
 }
