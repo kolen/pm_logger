@@ -8,13 +8,13 @@ mod shitty_delay;
 
 use bme280::BME280;
 use core::mem;
-use cortex_m_semihosting::hprintln;
+//use cortex_m_semihosting::hprintln;
 use mh_z_rr::MH_Z_RR;
 use nb::block;
 use panic_semihosting as _;
 use pcd8544::PCD8544;
 use rtc_timeout::RTCTimeout;
-use rtfm::cyccnt::{Duration, Instant, U32Ext};
+use rtfm::cyccnt::{Duration, U32Ext};
 use shitty_delay::ShittyDelay;
 use stm32f1xx_hal::gpio::gpioa::PA8;
 use stm32f1xx_hal::gpio::gpiob::{PB12, PB13, PB14, PB15, PB8, PB9};
@@ -94,9 +94,7 @@ const APP: () = {
         let period = (clocks.sysclk().0 * 10).cycles();
 
         // TODO: use RTC
-        hprintln!("schedule period: {}", period.as_cycles()).ok();
         cx.schedule.periodic_measure(cx.start + period).unwrap();
-        hprintln!("Schedule ok").ok();
 
         // -------------- TODO: extract --------------------
 
@@ -167,15 +165,15 @@ const APP: () = {
 
     #[task(schedule = [periodic_measure], resources=[period, bme280, pcd8544, mh_z, timeout])]
     fn periodic_measure(cx: periodic_measure::Context) {
-        hprintln!("periodic_measure").ok();
-        let now = Instant::now();
-        hprintln!("scheduled = {:?}, now = {:?}", cx.scheduled, now).unwrap();
+        // hprintln!("periodic_measure").ok();
+        // let now = Instant::now();
+        // hprintln!("scheduled = {:?}, now = {:?}", cx.scheduled, now).unwrap();
 
         let bme280 = cx.resources.bme280;
         let measurements = bme280.measure().expect("Measure failed");
-        hprintln!("Relative Humidity = {}%", measurements.humidity).ok();
-        hprintln!("Temperature = {} deg C", measurements.temperature).ok();
-        hprintln!("Pressure = {} pascals", measurements.pressure).ok();
+        // hprintln!("Relative Humidity = {}%", measurements.humidity).ok();
+        // hprintln!("Temperature = {} deg C", measurements.temperature).ok();
+        // hprintln!("Pressure = {} pascals", measurements.pressure).ok();
 
         cx.resources.timeout.start(5u32); // FIXME: baad API, probably shouldn't use timer trait
         let mut co2_runner = cx
@@ -185,11 +183,11 @@ const APP: () = {
         let mut co2: Option<u32> = None;
         match block!(co2_runner.run()) {
             Ok(co2_) => {
-                hprintln!("CO2 = {} PPM", co2_).ok();
+                // hprintln!("CO2 = {} PPM", co2_).ok();
                 co2 = Some(co2_);
             }
-            Err(e) => {
-                hprintln!("CO2 measure failed, {:?}", e).ok();
+            Err(_e) => {
+                // hprintln!("CO2 measure failed, {:?}", e).ok();
             }
         };
 
