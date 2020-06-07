@@ -8,6 +8,7 @@ mod shitty_delay;
 
 use bme280::BME280;
 use core::mem;
+use embedded_hal::digital::v2::InputPin;
 use mh_z_rr::MH_Z_RR;
 use nb::block;
 use panic_semihosting as _;
@@ -15,9 +16,9 @@ use pcd8544::PCD8544;
 use rtc_timeout::RTCTimeout;
 use rtfm::cyccnt::{Duration, U32Ext};
 use shitty_delay::ShittyDelay;
-use stm32f1xx_hal::gpio::gpioa::PA8;
+use stm32f1xx_hal::gpio::gpioa::{PA7, PA8};
 use stm32f1xx_hal::gpio::gpiob::{PB12, PB13, PB14, PB15, PB8, PB9};
-use stm32f1xx_hal::gpio::{Alternate, OpenDrain, Output, PushPull};
+use stm32f1xx_hal::gpio::{Alternate, Floating, Input, OpenDrain, Output, PushPull};
 use stm32f1xx_hal::rtc::Rtc;
 use stm32f1xx_hal::serial::{self, Serial};
 use stm32f1xx_hal::spi;
@@ -50,6 +51,7 @@ const APP: () = {
         >,
         timeout: RTCTimeout,
         mh_z: MH_Z_RR<serial::Rx<USART2>, serial::Tx<USART2>>,
+        pin_calibrate_zero: PA7<Input<Floating>>,
     }
 
     #[init(schedule = [periodic_measure])]
@@ -143,15 +145,21 @@ const APP: () = {
         // flag before actual read is performed
         mh_rx.read().ok();
 
-        let mh_z = MH_Z_RR::new(mh_rx, mh_tx);
+        let mut mh_z = MH_Z_RR::new(mh_rx, mh_tx);
 
         // Set up RTC
         let mut backup_domain = rcc
             .bkp
             .constrain(cx.device.BKP, &mut rcc.apb1, &mut cx.device.PWR);
         let rtc = Rtc::rtc(cx.device.RTC, &mut backup_domain);
-        let timeout = RTCTimeout::new(&rtc);
+        let mut timeout = RTCTimeout::new(&rtc);
         mem::forget(rtc);
+
+        timeout.start(5u32);
+        mh_z.set_automatic_baseline_correction(1, false, &mut timeout)
+            .unwrap();
+
+        let pin_calibrate_zero = gpioa.pa7;
 
         init::LateResources {
             bme280,
@@ -159,10 +167,11 @@ const APP: () = {
             pcd8544,
             timeout,
             mh_z,
+            pin_calibrate_zero,
         }
     }
 
-    #[task(schedule = [periodic_measure], resources=[period, bme280, pcd8544, mh_z, timeout])]
+    #[task(schedule = [periodic_measure], resources=[period, bme280, pcd8544, mh_z, timeout, pin_calibrate_zero])]
     fn periodic_measure(cx: periodic_measure::Context) {
         // hprintln!("periodic_measure").ok();
         // let now = Instant::now();
@@ -173,6 +182,14 @@ const APP: () = {
         // hprintln!("Relative Humidity = {}%", measurements.humidity).ok();
         // hprintln!("Temperature = {} deg C", measurements.temperature).ok();
         // hprintln!("Pressure = {} pascals", measurements.pressure).ok();
+
+        if cx.resources.pin_calibrate_zero.is_high().unwrap() {
+            cx.resources.timeout.start(5u32);
+            cx.resources
+                .mh_z
+                .calibrate_zero_point(1, cx.resources.timeout)
+                .unwrap();
+        }
 
         cx.resources.timeout.start(5u32); // FIXME: baad API, probably shouldn't use timer trait
         let mut co2_runner = cx
