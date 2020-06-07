@@ -8,7 +8,6 @@ mod shitty_delay;
 
 use bme280::BME280;
 use core::mem;
-//use cortex_m_semihosting::hprintln;
 use mh_z_rr::MH_Z_RR;
 use nb::block;
 use panic_semihosting as _;
