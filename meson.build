@@ -3,8 +3,9 @@ add_project_arguments('-std=c++11', language: 'cpp')
 add_project_arguments(['-Werror', '-Wall'], language: 'cpp')
 #add_project_arguments(['-fsanitize=address', '-fno-omit-frame-pointer'], language: 'cpp')
 gtest = subproject('gtest')
-gtest_dep = dependency('gtest', main: true, fallback: ['gtest', 'gtest_dep'])
-gmock_dep = dependency('gtest', main: true, fallback: ['gtest', 'gmock_dep'])
+gtest_proj = subproject('gtest')
+gtest_dep = gtest_proj.get_variable('gtest_dep')
+gmock_dep = gtest_proj.get_variable('gmock_dep')
 
 include_dirs = include_directories('src')
 
