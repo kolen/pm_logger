@@ -14,7 +14,7 @@ use nb::block;
 use panic_semihosting as _;
 use pcd8544::PCD8544;
 use rtc_timeout::RTCTimeout;
-use rtfm::cyccnt::{Duration, U32Ext};
+use rtic::cyccnt::{Duration, U32Ext};
 use shitty_delay::ShittyDelay;
 use stm32f1xx_hal::gpio::gpioa::{PA7, PA8};
 use stm32f1xx_hal::gpio::gpiob::{PB12, PB13, PB14, PB15, PB8, PB9};
@@ -25,7 +25,7 @@ use stm32f1xx_hal::spi;
 use stm32f1xx_hal::stm32::{SPI2, USART2};
 use stm32f1xx_hal::{i2c, pac, prelude::*};
 
-#[rtfm::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
+#[rtic::app(device = stm32f1xx_hal::pac, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
         bme280: bme280::BME280<
