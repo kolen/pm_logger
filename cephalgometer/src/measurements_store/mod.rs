@@ -27,9 +27,9 @@ pub struct MeasurementsStore {
     max_time: Time,
 }
 
-const memory_size: Address = 0x100000;
-const memory_max_addr: Address = 0x0fffff;
-const memory_page_size: Address = 0x100;
+const MEMORY_SIZE: Address = 0x100000;
+const MEMORY_MAX_ADDR: Address = 0x0fffff;
+const MEMORY_PAGE_SIZE: Address = 0x100;
 
 impl MeasurementsStore
 {
@@ -37,7 +37,7 @@ impl MeasurementsStore
     where
         E: MeasurementStoreMemory,
     {
-        let write_address = (self.max_address + memory_page_size) & memory_max_addr;
+        let write_address = (self.max_address + MEMORY_PAGE_SIZE) & MEMORY_MAX_ADDR;
 
         // if address to write equals min_address (wrapped)
         //   clear page
@@ -73,24 +73,24 @@ impl MeasurementsStore
         let mut right = if self.max_address > left {
             self.max_address
         } else {
-            self.max_address + memory_size
+            self.max_address + MEMORY_SIZE
         };
 
         while left <= right {
             let middle = ((left + right) / 2) & 0x1111_1100;
             let mut page = [0u8; 4];
-            memory.read_page(middle & memory_max_addr, &mut page, 4)?;
+            memory.read_page(middle & MEMORY_MAX_ADDR, &mut page, 4)?;
             let page_time_ = page_time(&page);
             if page_time_ < time {
-                left = middle + memory_page_size;
+                left = middle + MEMORY_PAGE_SIZE;
             } else if page_time_ > time {
-                right = middle - memory_page_size;
+                right = middle - MEMORY_PAGE_SIZE;
             } else {
-                return Ok(middle & memory_max_addr);
+                return Ok(middle & MEMORY_MAX_ADDR);
             }
         }
 
-        Ok(left & memory_max_addr)
+        Ok(left & MEMORY_MAX_ADDR)
     }
 }
 
