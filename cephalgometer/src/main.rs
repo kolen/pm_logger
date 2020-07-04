@@ -5,6 +5,7 @@ mod display;
 mod dummy_output_pin;
 mod rtc_timeout;
 mod shitty_delay;
+mod measurements_store;
 
 use bme280::BME280;
 use core::mem;
