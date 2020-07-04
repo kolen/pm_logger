@@ -6,7 +6,12 @@ type Time = u32;
 pub trait MeasurementStoreMemory {
     type Error;
     /// Reads 256-byte memory page. 8 lower bits of address must be 0.
-    fn read_page(&self, address: Address, buffer: &mut [u8], length: u16) -> Result<(), Self::Error>;
+    fn read_page(
+        &self,
+        address: Address,
+        buffer: &mut [u8],
+        length: u16,
+    ) -> Result<(), Self::Error>;
     /// Writes 256-byte memory page. 8 lower bits of address must be 0.
     fn write_page(&self, address: Address, buffer: &[u8]) -> Result<(), Self::Error>;
     /// Erases 4 kilobyte memory sector. 12 lower bits of address must
@@ -31,9 +36,13 @@ const MEMORY_SIZE: Address = 0x100000;
 const MEMORY_MAX_ADDR: Address = 0x0fffff;
 const MEMORY_PAGE_SIZE: Address = 0x100;
 
-impl MeasurementsStore
-{
-    pub fn add_measurement<E>(&mut self, memory: E, time: Time, measurement: &[u8]) -> Result<(), E::Error>
+impl MeasurementsStore {
+    pub fn add_measurement<E>(
+        &mut self,
+        memory: E,
+        time: Time,
+        measurement: &[u8],
+    ) -> Result<(), E::Error>
     where
         E: MeasurementStoreMemory,
     {
@@ -50,7 +59,12 @@ impl MeasurementsStore
         todo!();
     }
 
-    pub fn get_measurement<E>(&self, memory: E, address: Address, measurement_buffer: &mut [u8]) -> Result<(), E::Error>
+    pub fn get_measurement<E>(
+        &self,
+        memory: E,
+        address: Address,
+        measurement_buffer: &mut [u8],
+    ) -> Result<(), E::Error>
     where
         E: MeasurementStoreMemory,
     {
