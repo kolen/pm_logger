@@ -40,23 +40,34 @@ impl MeasurementsStore {
     pub fn add_measurement<E>(
         &mut self,
         memory: E,
-        time: Time,
         measurement: &[u8],
     ) -> Result<(), E::Error>
     where
         E: MeasurementStoreMemory,
     {
-        let write_address = (self.max_address + MEMORY_PAGE_SIZE) & MEMORY_MAX_ADDR;
-
         // if address to write equals min_address (wrapped)
+        //   check if at the start of page, error otherwise
         //   clear page
         //   adjust min_address to first address of next page
         //   adjust min_time (read from min_address)
         // write to write_address
 
-        // do min_time really needed? probably
+        let write_address = (self.max_address + MEMORY_PAGE_SIZE) & MEMORY_MAX_ADDR;
 
-        todo!();
+        if write_address == self.min_address {
+            if write_address % MEMORY_PAGE_SIZE != 0 {
+                panic!("Min address not at the page boundary");
+            }
+            memory.erase_sector(write_address)?;
+            let next_page = (write_address + MEMORY_PAGE_SIZE) & MEMORY_MAX_ADDR;
+            self.min_address = next_page;
+
+            let mut time_buffer = [0u8; 4];
+            memory.read_page(next_page, &mut time_buffer, 4)?;
+            self.min_time = page_time(&time_buffer);
+        }
+        memory.write_page(write_address, measurement)?;
+        Ok(())
     }
 
     pub fn get_measurement<E>(
@@ -69,7 +80,7 @@ impl MeasurementsStore {
         E: MeasurementStoreMemory,
     {
         let size = measurement_buffer.len() as u16;
-        memory.read_page(address, measurement_buffer, size);
+        memory.read_page(address, measurement_buffer, size)?;
         Ok(())
     }
 
