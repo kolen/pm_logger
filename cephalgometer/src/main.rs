@@ -3,9 +3,9 @@
 
 mod display;
 mod dummy_output_pin;
+mod measurements_store;
 mod rtc_timeout;
 mod shitty_delay;
-mod measurements_store;
 
 use bme280::BME280;
 use core::mem;
@@ -74,17 +74,21 @@ const APP: () = {
         let scl = gpiob.pb8.into_alternate_open_drain(&mut gpiob.crh);
         let sda = gpiob.pb9.into_alternate_open_drain(&mut gpiob.crh);
 
-        let i2c = i2c::I2c::i2c1(
+        let i2c = i2c::BlockingI2c::i2c1(
             cx.device.I2C1,
             (scl, sda),
             &mut afio.mapr,
             i2c::Mode::standard(1.khz()),
             clocks,
             &mut rcc.apb1,
+            1_000,
+            5,
+            1_000,
+            1_000,
         );
-        let blocking_i2c = i2c::blocking_i2c(i2c, clocks, 1_000_000, 10, 1_000_000, 1_000_000);
+
         let delay = ShittyDelay::new(clocks.sysclk());
-        let mut bme280 = BME280::new_primary(blocking_i2c, delay);
+        let mut bme280 = BME280::new_primary(i2c, delay);
         bme280.init().expect("Init failed");
 
         // TODO: find a better timer, this ticks at unknown rate and
