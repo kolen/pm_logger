@@ -107,9 +107,9 @@ impl serial::Read<u8> for FakeMHRead {
             return Err(nb::Error::WouldBlock);
         }
 
-        if !lock.flushed {
-            panic!("Reading when read has not been flushed")
-        }
+        // if !lock.flushed {
+        //     panic!("Reading when read has not been flushed")
+        // }
         let char = FAKE_RESULT[lock.sent_pos];
         lock.sent_pos += 1;
         Ok(char)
