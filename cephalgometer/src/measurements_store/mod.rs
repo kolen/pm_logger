@@ -1,3 +1,4 @@
+#[cfg(test)]
 pub mod memory_ram;
 
 type Address = u32;
