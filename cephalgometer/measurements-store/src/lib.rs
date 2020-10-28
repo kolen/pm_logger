@@ -1,25 +1,22 @@
 #![no_std]
 
-#[cfg(test)]
-pub mod memory_ram;
-
-type Address = u32;
-type Time = u32;
+pub type Address = u32;
+pub type Time = u32;
 
 pub trait MeasurementStoreMemory {
     type Error;
     /// Reads 256-byte memory page. 8 lower bits of address must be 0.
     fn read_page(
-        &self,
+        &mut self,
         address: Address,
         buffer: &mut [u8],
         length: u16,
     ) -> Result<(), Self::Error>;
     /// Writes 256-byte memory page. 8 lower bits of address must be 0.
-    fn write_page(&self, address: Address, buffer: &[u8]) -> Result<(), Self::Error>;
+    fn write_page(&mut self, address: Address, buffer: &[u8]) -> Result<(), Self::Error>;
     /// Erases 4 kilobyte memory sector. 12 lower bits of address must
     /// be 0.
-    fn erase_sector(&self, address: Address) -> Result<(), Self::Error>;
+    fn erase_sector(&mut self, address: Address) -> Result<(), Self::Error>;
 }
 
 // pub trait Measurement {
@@ -35,16 +32,17 @@ pub struct MeasurementsStore {
     max_time: Time,
 }
 
-const MEMORY_SIZE: Address = 0x100000;
-const MEMORY_MAX_ADDR: Address = 0x0fffff;
-const MEMORY_PAGE_SIZE: Address = 0x100;
+pub const MEMORY_SIZE: Address = 0x100000;
+pub const MEMORY_MAX_ADDR: Address = 0x0fffff;
+pub const MEMORY_PAGE_SIZE: Address = 0x100;
 
 impl MeasurementsStore {
-    pub fn add_measurement<E>(
-        &mut self,
-        memory: E,
-        measurement: &[u8],
-    ) -> Result<(), E::Error>
+    pub fn new() -> Self {
+        // TODO: find min_address, etc
+        todo!();
+    }
+
+    pub fn add_measurement<E>(&mut self, mut memory: E, measurement: &[u8]) -> Result<(), E::Error>
     where
         E: MeasurementStoreMemory,
     {
@@ -75,7 +73,7 @@ impl MeasurementsStore {
 
     pub fn get_measurement<E>(
         &self,
-        memory: E,
+        mut memory: E,
         address: Address,
         measurement_buffer: &mut [u8],
     ) -> Result<(), E::Error>
@@ -93,7 +91,7 @@ impl MeasurementsStore {
     ///
     /// I.e. previous cell will have time < `time`; current cell (that
     /// is returned) will have time >= `time`.
-    pub fn find_time_address<E>(&self, memory: E, time: Time) -> Result<Address, E::Error>
+    pub fn find_time_address<E>(&self, mut memory: E, time: Time) -> Result<Address, E::Error>
     where
         E: MeasurementStoreMemory,
     {
