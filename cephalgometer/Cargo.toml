@@ -22,6 +22,7 @@ void = { version = "1.0.2", default-features=false }
 pcd8544-embedded-graphics = { path = "pcd8544-embedded-graphics" }
 embedded-graphics = "0.6.2"
 arrayvec = { version = "0.5.1", default-features=false }
+measurements-store = { path = "measurements-store" }
 
 # Uncomment for the panic example.
 # panic-itm = "0.4.1"

@@ -1,3 +1,5 @@
+#![no_std]
+
 #[cfg(test)]
 pub mod memory_ram;
 
