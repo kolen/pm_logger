@@ -4,7 +4,7 @@ jobs:
   build:
     docker:
       # Has C++ too
-      - image: circleci/rust:1.39
+      - image: circleci/rust:1.48
     working_directory: ~/pm_sensor
     steps:
       - checkout
