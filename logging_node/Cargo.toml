@@ -6,7 +6,7 @@ edition = "2018"
 default-run = "logging_node"
 
 [dependencies]
-byteorder = "1.3.4"
+byteorder = "1.4.3"
 log = "0.4.12"
 env_logger = "0.8.2"
 chrono = "0.4"
