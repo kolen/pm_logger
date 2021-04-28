@@ -1,0 +1,18 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/logging_node"
+  schedule:
+    interval: daily
+    time: "02:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: byteorder
+    versions:
+    - 1.4.2
+- package-ecosystem: npm
+  directory: "/homebridge-pm-sensor"
+  schedule:
+    interval: daily
+    time: "02:00"
+  open-pull-requests-limit: 10
